@@ -1,0 +1,7 @@
+include "avionics/common/gps_receiver.p2";
+include "avionics/common/imu_config.p2";
+
+param GpsConfigParams {
+  GpsReceiverType gps_receiver;
+  ImuConfig imu;
+}

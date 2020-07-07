@@ -1,0 +1,195 @@
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 100%;
+    }
+    .main {
+      position: absolute;
+      left: 0%;
+      top: 0%;
+      width: 50%;
+      height: 60%;
+    }
+    .toggle {
+      cursor: pointer;
+      font-size: 36px;
+      padding: 4px 10px;
+      background-color: #eee;
+    }
+  </style>
+  <body>
+    <div class="main">
+      <h2 class="toggle">Wing Position</h2>
+      <div>
+        <a href="wing_position_compare.svg">
+          <img src="wing_position_compare.svg" height="100%">
+        </a>
+        <a href="wing_position_diff.svg">
+          <img src="wing_position_diff.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Flight Modes</h2>
+      <div>
+        <a href="flight_modes.svg">
+          <img src="flight_modes.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Transition to Accel</h2>
+      <div>
+        <a href="accel_airspeed.svg">
+          <img src="accel_airspeed.svg" height="100%">
+        </a>
+        <a href="accel_power.svg">
+          <img src="accel_power.svg" height="100%">
+        </a>
+        <a href="accel_thrust_cmd.svg">
+          <img src="accel_thrust_cmd.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Transition to TransIn</h2>
+      <div>
+        <a href="transin_airspeed.svg">
+          <img src="transin_airspeed.svg" height="100%">
+        </a>
+        <a href="transin_power.svg">
+          <img src="transin_power.svg" height="100%">
+        </a>
+        <a href="transin_thrust_cmd.svg">
+          <img src="transin_thrust_cmd.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Transition to TransOut</h2>
+      <div>
+        <a href="transout_airspeed.svg">
+          <img src="transout_airspeed.svg" height="100%">
+        </a>
+        <a href="transout_power.svg">
+          <img src="transout_power.svg" height="100%">
+        </a>
+        <a href="transout_thrust_cmd.svg">
+          <img src="transout_thrust_cmd.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Hover</h2>
+      <div>
+        <a href="hover_azimuth.svg">
+          <img src="hover_azimuth.svg" height="100%">
+        </a>
+        <a href="hover_radius.svg">
+          <img src="hover_radius.svg" height="100%">
+        </a>
+        <a href="hover_vel_y.svg">
+          <img src="hover_vel_y.svg" height="100%">
+        </a>
+        <a href="hover_angles_z.svg">
+          <img src="hover_angles_z.svg" height="100%">
+        </a>
+        <a href="hover_pos_z.svg">
+          <img src="hover_pos_z.svg" height="100%">
+        </a>
+        <a href="hover_vel_z.svg">
+          <img src="hover_vel_z.svg" height="100%">
+        </a>
+        <a href="hover_thrust.svg">
+          <img src="hover_thrust.svg" height="100%">
+        </a>
+        <a href="hover_yaw_moment.svg">
+          <img src="hover_yaw_moment.svg" height="100%">
+        </a>
+        <a href="hover_tension.svg">
+          <img src="hover_tension.svg" height="100%">
+        </a>
+        <a href="hover_elevation.svg">
+          <img src="hover_elevation.svg" height="100%">
+        </a>
+        <a href="hover_tether_elevation.svg">
+          <img src="hover_tether_elevation.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Crosswind</h2>
+      <div>
+        <a href="ground_wind_speed.svg">
+          <img src="ground_wind_speed.svg" height="100%">
+        </a>
+        <a href="ground_wind_direction.svg">
+          <img src="ground_wind_direction.svg" height="100%">
+        </a>
+        <a href="wing_alpha.svg">
+          <img src="wing_alpha.svg" height="100%">
+        </a>
+        <a href="wing_beta.svg">
+          <img src="wing_beta.svg" height="100%">
+        </a>
+        <a href="crosswind_airspeed.svg">
+          <img src="crosswind_airspeed.svg" height="100%">
+        </a>
+        <a href="crosswind_airspeed_error.svg">
+          <img src="crosswind_airspeed_error.svg" height="100%">
+        </a>
+        <a href="crosswind_thrust.svg">
+          <img src="crosswind_thrust.svg" height="100%">
+        </a>
+        <a href="crosswind_thrust2.svg">
+          <img src="crosswind_thrust2.svg" height="100%">
+        </a>
+        <a href="crosswind_radius_error.svg">
+          <img src="crosswind_radius_error.svg" height="100%">
+        </a>
+        <a href="aero_force_est_x.svg">
+          <img src="aero_force_est_x.svg" height="100%">
+        </a>
+        <a href="aero_force_est_y.svg">
+          <img src="aero_force_est_y.svg" height="100%">
+        </a>
+        <a href="aero_force_est_z.svg">
+          <img src="aero_force_est_z.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">GS02</h2>
+      <div>
+        <a href="gs02_azi_error.svg">
+          <img src="gs02_azi_error.svg" height="100%">
+        </a>
+      </div>
+      <h2 class="toggle">Timing</h2>
+      <div>
+        <a href="integration_timing.png">
+          <img src="integration_timing.png" height="100%">
+        </a>
+        <a href="control_timing.png">
+          <img src="control_timing.png" height="100%">
+        </a>
+      </div>
+    </div>
+    <script language="javascript">
+      var toggles = document.getElementsByClassName("toggle");
+      for (i = 0; i < toggles.length; i++) {
+        toggles[i].addEventListener("click", function() {
+          var content = this.nextElementSibling;
+          if (content.style.display === "none") {
+            content.style.display = "block";
+          } else {
+            content.style.display = "none";
+          }
+        });
+      }
+  </script>
+  </body>
+</html>

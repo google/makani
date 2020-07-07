@@ -1,0 +1,15 @@
+README for runs directory
+
+Hal Youngren 4/05
+
+This directory contains two subdirectories containing XROTOR input and
+example files.
+
+Directories are:
+
+prop        contains several propeller example cases (see README.prop)
+
+ducted      contains ducted rotor example case 
+
+windmill    contains windmill example case (see README.windmill)
+

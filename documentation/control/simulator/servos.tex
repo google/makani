@@ -1,0 +1,76 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usetikzlibrary{dsp,fit,positioning}
+
+\input{../util/airfoils.tex}
+\input{../util/wing.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/control.tex}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\begin{document}
+
+\section{Servo model}
+Expressing everything in terms of shaft angle $\theta$, which is $\theta_m / g$.
+\begin{eqnarray}
+\dot{\theta}_{\mathrm{ref}} &=& \omega_{\mathrm{ref}}
+(\theta_{\mathrm{cmd}} - \theta_{\mathrm{ref}}) \\
+v &=& k_p (\theta_{\mathrm{ref}} - \theta) +
+k_d (\dot{\theta}_{\mathrm{ref}} - \dot{\theta}) \\
+i &=& (v - k_{\tau} g \dot{\theta}) / Z \\
+I_{\mathrm{servo}}\, g \ddot{\theta} &=& k_{\tau} i - b \dot{\theta} / g +
+\tau_{\mathrm{ext}} / g \\
+\tau_{\mathrm{ext}} &=& \frac{1}{2} \rho v^2 A c C_{m_{\delta_i}} \theta
+\end{eqnarray}
+$\omega_{\mathrm{ref}} = 100$ rad/s, $k_p = 1000$ V/rad, $k_d = 100$
+V/rad-s, $k_{\tau} = 0.239$ N-m/A, $g = 160$,
+$I_{\mathrm{servo}}= 2.3 \times 10^{-4}$ kg-m$^2$.
+$Z = \sqrt{R^2 + (g \dot{\theta} L)^2}$.
+$R = 0.886$.  The friction constant $b$ is between 70 and 170
+N-m/(rad/s) of shaft velocity.  For the ailerons, $C_{m_{\delta_a}} =
+0.0026$.
+
+\begin{equation}
+\frac{\Theta_{\mathrm{ref}}(s)}{\Theta_{\mathrm{cmd}}(s)} =
+\frac{\omega_{\mathrm{ref}}}{s + \omega_{\mathrm{ref}}}
+\end{equation}
+
+\begin{equation}
+V(s) = (k_p + k_d s) (\Theta_{\mathrm{ref}}(s) - \Theta(s))
+\end{equation}
+
+\begin{equation}
+I_{\mathrm{servo}}\, g s^2 \Theta(s) =
+k_{\tau} (k_p + k_d s) (\Theta_{\mathrm{ref}}(s) - \Theta(s)) / Z -
+k_{\tau}^2 g s \Theta(s) / Z
+\end{equation}
+
+\begin{equation}
+\frac{\Theta(s)}{\Theta_{\mathrm{cmd}}(s)} =
+\frac{\omega_{\mathrm{ref}}}{s + \omega_{\mathrm{ref}}}
+\cdot
+\frac{k_{\tau} (k_p + k_d s)}
+{g Z I_{\mathrm{servo}} s^2 + (k_{\tau} k_d + k_{\tau}^2 g) s +
+(k_{\tau} k_p - \frac{Z \bar{q} A c}{g} C_{m_{\delta_i}})}
+\end{equation}
+
+\end{document}

@@ -1,0 +1,330 @@
+!***************************************
+! Supersonic Business Jet Geometry 
+! Mach 0.89, Sweep 30 deg
+! MIT 16.82 Spring 2001
+! Paul Eremenko (eremenko@mit.edu)
+!***************************************
+SSBJ
+!Mach
+0.89  
+!IYsym   IZsym   Zsym
+ 0       0       0.0
+!Sref    Cref    Bref
+100.0    3.57    28.0
+!Xref    Yref    Zref
+0.0      0.0     0.0
+!
+SURFACE
+HSTAB
+!Nchordwise  Cspace
+6           1.0
+TRANSLATE
+0.0 0.0 0.5
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+SECTION
+28      -3.75  0.0     0.5     0.0   6         1.0
+SECTION
+20       0.0   0.0     8.0     0.0   6         1.0
+SECTION
+28       3.75  0.0     0.5     0.0   1          0.0
+!
+SURFACE
+VSTAB
+!Nchordwise  Cspace
+6           1.0
+TRANSLATE
+0.0 0.0 0.5
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+SECTION
+20      0.0    0.0     11.3    0.0   6         1.0
+SECTION
+33.3    0.0    5.3     0.5     0.0   0          0.0
+!
+SURFACE 
+WING 
+!Nchordwise  Cspace
+8           1.0
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+SECTION
+-1.016982 -12.114535 0.0 0.500000 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.549665 -11.343740 0.0 3.086596 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.645327 -10.826076 0.0 3.816554 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.666871 -10.351343 0.0 4.361681 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.649146 -9.899355 0.0 4.805094 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.605741 -9.462241 0.0 5.181613 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.543666 -9.035941 0.0 5.509341 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.467110 -8.618030 0.0 5.799209 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.378812 -8.206919 0.0 6.058386 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.280684 -7.801502 0.0 6.291868 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.174124 -7.400969 0.0 6.503308 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-1.060188 -7.004708 0.0 6.695467 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.939699 -6.612244 0.0 6.870496 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.813311 -6.223196 0.0 7.030107 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.681554 -5.837257 0.0 7.175685 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.544867 -5.454174 0.0 7.308373 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.403612 -5.073737 0.0 7.429121 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.258096 -4.695769 0.0 7.538731 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+-0.108578 -4.320118 0.0 7.637883 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.044717 -3.946655 0.0 7.727158 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.201600 -3.575269 0.0 7.807057 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.361903 -3.205866 0.0 7.878015 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.525483 -2.838360 0.0 7.940406 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.692215 -2.472680 0.0 7.994557 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+0.861991 -2.108763 0.0 8.040753 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.034716 -1.746554 0.0 8.079242 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.210306 -1.386005 0.0 8.110239 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.388692 -1.027075 0.0 8.133929 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.569812 -0.669728 0.0 8.150472 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.753613 -0.313935 0.0 8.160006 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+1.940053 0.040330 0.0 8.162644 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+2.129093 0.393088 0.0 8.158482 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+2.320707 0.744357 0.0 8.147595 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+2.514871 1.094148 0.0 8.130042 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+2.711569 1.442470 0.0 8.105863 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+2.910794 1.789330 0.0 8.075082 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+3.112540 2.134730 0.0 8.037709 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+3.316812 2.478666 0.0 7.993733 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+3.523618 2.821134 0.0 7.943133 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+3.732975 3.162125 0.0 7.885865 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+3.944905 3.501626 0.0 7.821873 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+4.159436 3.839620 0.0 7.751081 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+4.376605 4.176086 0.0 7.673393 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+4.596455 4.510998 0.0 7.588695 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+4.819040 4.844328 0.0 7.496851 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+5.044420 5.176038 0.0 7.397700 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+5.272666 5.506088 0.0 7.291057 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+5.503860 5.834430 0.0 7.176707 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+5.738098 6.161009 0.0 7.054401 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+5.975488 6.485762 0.0 6.923856 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+6.216156 6.808618 0.0 6.784744 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+6.460244 7.129492 0.0 6.636690 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+6.707919 7.448288 0.0 6.479261 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+6.959372 7.764896 0.0 6.311955 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+7.214826 8.079186 0.0 6.134192 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+7.474541 8.391009 0.0 5.945290 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+7.738824 8.700185 0.0 5.744446 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+8.008038 9.006506 0.0 5.530713 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+8.282621 9.309717 0.0 5.302963 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+8.563102 9.609511 0.0 5.059739 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+8.850136 9.905510 0.0 4.799457 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+9.144546 10.197236 0.0 4.520045 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+9.447389 10.484078 0.0 4.217837 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+9.760062 10.765226 0.0 3.890451 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+10.084476 11.039574 0.0 3.535435 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+10.423371 11.305533 0.0 3.138115 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+10.780937 11.560679 0.0 2.680533 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+11.164182 11.800950 0.0 2.148835 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+11.586697 12.018476 0.0 1.534848 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+SECTION
+12.083329 12.193071 0.0 0.838173 0.0 1.0 0.0
+AFILE
+whitcomb.dat
+
+
+

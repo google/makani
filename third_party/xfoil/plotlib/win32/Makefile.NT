@@ -1,0 +1,169 @@
+#***********************************************************************
+#    Module:  Makefile
+# 
+#    Copyright (C) 1996 Harold Youngren, Mark Drela 
+# 
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Library General Public
+#    License as published by the Free Software Foundation; either
+#    version 2 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Library General Public License for more details.
+#
+#    You should have received a copy of the GNU Library General Public
+#    License along with this library; if not, write to the Free
+#    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#    Report problems to:    guppy@maine.com 
+#                        or drela@orville.mit.edu  
+#***********************************************************************
+
+
+
+#################################
+# makefile for Xplot11 library  #
+#################################
+
+#point to your install directory
+INSTALLDIR= .
+DIR= ..
+
+#Library tool
+AR = lib  
+
+### Use these to set library name 
+### (add DP to keep double precision version separate)
+PLTLIB = libPlt.lib
+#PLTLIB = libPltDP.lib
+
+###========================ggggg===========================
+###  Basic plot library object files
+OBJ     = plt_base.obj plt_font.obj plt_util.obj  \
+          plt_color.obj set_subs.obj gw_subs.obj  \
+          ps_subs.obj W32win.obj
+OBJMISC =
+OBJ3D   =
+OBJOLD  =
+###
+###--------------------------------------------------------
+###  Uncomment to add the old plot compatibility routines
+OBJOLD  = plt_old.obj
+###
+###--------------------------------------------------------
+###  Uncomment to add the 3D-view routines
+OBJ3D  = plt_3D.obj
+###
+###--------------------------------------------------------
+###  Uncomment for f77 compiler w/o AND() and RSHIFT/LSHIFT functions.
+###   This adds some functions to duplicate these using IAND and ISHFT
+###   which often appear in these offending fortran's libraries.
+###   The compilers that this has affected include:
+###      HPUX f77
+###      Absoft f77 on Linux
+###
+#OBJMISC = util-ops.obj
+
+
+###================================================
+###  Compaq Visual Fortran compiler and flags, install commands
+#FC = f77
+#CC  = cl
+### Defines for C interface
+#DEFINE = -DUNDERSCORE -D_CVF
+### Uncomment DP to make double-precision version
+#DP = /realsize:64
+#FFLAGS  = /Oxp $(DP) /threads
+#FLGOPT  = /Oxp $(DP) /threads
+#CFLAGS  = $(DEFINE) -MT
+#LFLAGS  = /libs:qwin /threads /link /NODEFAULTLIB:LIBC.LIB
+
+###================================================
+###  Intel Fortran compiler and flags, install commands
+FC = ifl
+CC  = cl
+### Defines for C interface
+#DEFINE = -DUNDERSCORE
+# Uncomment DP to make double-precision version
+#DP = /4R8
+### use flags for processor optimization G5 G6 G7 for PII,PIII,P4
+#FFLAGS  = /Od /Zi $(DP) /W0 /MT
+FFLAGS  = /I.. /O2 $(DP) /W0 /MT /4Yportlib
+FLGOPT  = /I.. /O3 $(DP) /W0 /MT /4Yportlib
+CFLAGS  = $(DEFINE) -MT
+LFLAGS  = /4Yportlib /MT /link /NODEFAULTLIB:LIBC.LIB
+
+###================================================
+
+
+
+###-------------------------------------------------------------------------
+### Basic make targets - build library, test programs
+
+$(PLTLIB):  $(OBJ) $(OBJOLD) $(OBJ3D) $(OBJMISC)
+	$(AR) /out:$(PLTLIB) $(OBJ) $(OBJOLD) $(OBJ3D) $(OBJMISC)
+	copy $(PLTLIB) ..
+
+test:  $(PLTLIB)
+	(cd examples; make test)
+
+
+###-------------------------------------------------------------------------
+### Utility functions - install the library, clean the directory
+
+install:  $(PLTLIB)
+	mv $(PLTLIB) $(INSTALLDIR)
+
+clean:
+	del *.obj
+	del $(PLTLIB)
+	del plot*.ps
+	(cd examples; make clean)
+
+
+
+###-------------------------------------------------------------------------
+### compile plot package routines
+
+plt_base.obj: $(DIR)\plt_base.f $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_base.f
+
+plt_color.obj: $(DIR)\plt_color.f  $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_color.f
+
+plt_font.obj: $(DIR)\plt_font.f $(DIR)\CHAR.INC $(DIR)\SLAN.INC $(DIR)\MATH.INC $(DIR)\SYMB.INC
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_font.f
+
+plt_util.obj: $(DIR)\plt_util.f
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_util.f
+
+plt_3D.obj: $(DIR)\plt_3D.f
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_3D.f
+
+plt_old.obj: $(DIR)\plt_old.f $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\plt_old.f
+
+set_subs.obj: $(DIR)\set_subs.f  $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\set_subs.f
+
+gw_subs.obj: $(DIR)\gw_subs.f  $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\gw_subs.f
+
+ps_subs.obj: $(DIR)\ps_subs.f  $(DIR)\pltlib.inc
+	$(FC) /c $(FFLAGS)  $(DIR)\ps_subs.f
+
+util-ops.obj: $(DIR)\util-ops.f 
+	$(FC) /c $(FFLAGS)  $(DIR)\util-ops.f
+
+W32win.obj: W32win.c
+	$(CC) /c $(CFLAGS) W32win.c
+
+
+### May need to specify these on a brain-dead make system
+#.f.obj:	$(FC) /c $(FFLAGS) $<
+#.c.obj:	$(CC) /c $(CFLAGS) $<
+
+
+

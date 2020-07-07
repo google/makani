@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+bazel run //lib/scripts/style:autoformat -- "$@"

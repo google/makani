@@ -1,0 +1,321 @@
+#!/bin/bash
+#
+# Client-side script to interact with the wing recorder.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+
+# Source shflags.
+source /opt/shflags-1.0.3/src/shflags
+
+DEFINE_boolean 'platform' false 'Talk to the platform recorder, not the wing.'
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+# We must do this after all the shflags stuff; it's using errors internally.
+set -e
+
+function usage() {
+  echo 'Usage: log_on_wing [--platform]'
+  echo '                   { start | save $tag | stop | restore_multicast |'
+  echo '                     download { m600a | YM600-04 | YM600-05 | iron_bird} [$dir] |'
+  echo '                     purge | list | ls | delete'
+  echo '                     $tag }'
+}
+
+if [[ "$#" = 0 ]]; then
+  usage
+  exit 1
+fi
+
+if [[ "${FLAGS_platform}" -eq "${FLAGS_TRUE}" ]]; then
+  readonly IP='192.168.1.42'
+  readonly SWITCHES='cs_gs_a'
+  readonly SUFFIX='platform'
+else
+  readonly IP='192.168.1.43'
+  readonly SWITCHES='cs_a cs_gs_a'
+  readonly SUFFIX='wing'
+fi
+
+# Args:
+#   $1: Prompt string.
+function confirm_or_die() {
+  # Generate a 4 digit confirmation code.
+  readonly RANDOM_STRING="$(cat /dev/urandom | tr -dc '0-9' | fold -w 4 \
+    | head -n 1)"
+
+  echo
+  echo "$1"
+  echo 'Do you really want to do this?'
+  echo
+  read -p "(Please type: [${RANDOM_STRING}]): " prompt
+
+  if [[ "${prompt}" != "${RANDOM_STRING}" ]]; then
+    echo 'Incorrect response.'
+    exit 1
+  fi
+}
+
+function quiet_multicast() {
+  confirm_or_die 'This will bootload 1-2 core switches.'
+  "${MAKANI_HOME}/lib/scripts/operator/program" ${SWITCHES} \
+    --bootloader_application
+}
+
+function restore_multicast() {
+  confirm_or_die 'This will bootload 1-2 core switches.'
+  "${MAKANI_HOME}/lib/scripts/operator/program" ${SWITCHES}
+}
+
+function purge() {
+  confirm_or_die 'This will delete all logs on the recorder, tagged or not.'
+  make_apps_writeable
+  stop_recorder
+  run_on_target 'rm -rf /logs/*'
+  start_recorder
+  make_apps_readonly
+}
+
+function list() {
+  run_on_target "ls -lr /logs/ | grep -v '\<current_log\>'"
+}
+
+# Args:
+#   $1: tag to delete
+function delete() {
+  readonly DIRS=$(run_on_target "ls -d /logs/* | \
+                                 grep -E \"[0-9]{8}-[0-9]{6}-$1\" | \
+                                 tr '\n' ' '")
+  run_on_target "rm -r ${DIRS}"
+}
+
+function run_on_target() {
+  ssh "root@${IP}" "$*"
+}
+
+function get_current_log_dir() {
+  run_on_target 'readlink /logs/current_log'
+}
+
+function sync_clock() {
+  run_on_target "date -u -s $(date -u +%Y.%m.%d-%H:%M:%S) > /dev/null"
+}
+
+function make_apps_writeable  {
+  run_on_target "mount -o remount,rw,sync /apps"
+}
+
+function make_apps_readonly  {
+  run_on_target "mount -o remount,ro /apps"
+}
+
+# Requires that /apps be writeable.
+function start_recorder() {
+  sync_clock
+  # Stop any rogue downloads, to protect disk bandwidth.
+  run_on_target 'killall rsync scp > /dev/null 2>&1 || true'
+  run_on_target \
+    "/apps/lib/scripts/recorder/recorder start > /dev/null 2>&1 && \
+    /apps/startup > /dev/null 2>&1 && \
+    crontab /apps/lib/scripts/recorder/recorder_crontab"
+  echo "Started recorder."
+}
+
+# Requires that /apps be writeable.
+function stop_recorder() {
+  echo "Stopping recorder."
+  run_on_target \
+    "(crontab -r > /dev/null 2>&1 || true) && \
+    (killall -SIGKILL q7_slow_status_sender > /dev/null 2>&1 || true) && \
+    (/apps/lib/scripts/recorder/recorder stop > /dev/null || true)"
+}
+
+# Requires that /apps be writeable.
+function restart_recorder() {
+  stop_recorder
+  start_recorder
+}
+
+function get_untagged_log_dirs() {
+  run_on_target 'ls -td /logs/log-*'
+}
+
+function get_tagged_log_dirs() {
+  run_on_target 'ls -td /logs/*-*-*'
+}
+
+# Args:
+#   $1: directory to tag
+#   $2: file extension including period
+#   $3: tag
+function tag_files() {
+  run_on_target \
+    "if compgen -G $1/*$2 > /dev/null 2>&1; \
+    then \
+      for i in $1/*$2; \
+        do mv \$i \"\${i:0:-${#2}}-$3$2\"; \
+        done; \
+    fi"
+}
+
+# Args:
+#   $1: directory to tag
+#   $2: tag to apply--must not contain spaces!
+function tag_directory() {
+  echo "Tagging directory $1 as $2"
+  local PATTERN=".*/([0-9]+-[0-9]+)_${SUFFIX}.*pcap.*"
+  local FILE=$(run_on_target ls -tr $1/*.pcap $1/*.pcap.gz 2>/dev/null | \
+               head -n 1)
+  if [[ ${FILE} =~ ${PATTERN} ]]; then
+    local DATE=${BASH_REMATCH[1]}
+  else
+    "Failed to parse date from filename $FILE; perhaps directory was empty?"
+    exit 1
+  fi
+  tag_files $1 "_${SUFFIX}.pcap" $2
+  tag_files $1 "_${SUFFIX}.pcap.gz" $2
+  run_on_target \
+    "sed -i 's/\"log_name\": \"\"/\"log_name\": \"'$2'\"/' $1/log_desc.json"
+  run_on_target "mv $1 \"/logs/${DATE}-$2_${SUFFIX}\""
+  echo "Created directory /logs/${DATE}-$2_${SUFFIX}."
+  echo "This directory WILL NOT be cleaned up automatically."
+}
+
+function prepare_for_download() {
+  echo
+  echo "Remember to manually delete tagged logs after downloading, or you'll"
+  echo "run out of space. Once you've finished downloading all data of"
+  echo "interest, you can use the purge command."
+
+  quiet_multicast
+  make_apps_writeable
+  stop_recorder
+  make_apps_readonly
+}
+
+# Args:
+#   $@: A list of directory names.
+function add_log_dir_prefix() {
+  for f in "$@"; do
+    echo "/logs/${f}"
+  done
+}
+
+# Args:
+#   $1: Log directory.
+#   $@: A list of full directory paths to download.
+function do_download() {
+  local DOWNLOAD_DIR="$1"
+  shift
+  local PARTIAL_DIR="${DOWNLOAD_DIR}/tmp"
+  mkdir -p ${PARTIAL_DIR}
+  local CP_CMD="rsync -trlv --partial --progress --partial-dir=${PARTIAL_DIR}"
+
+  echo "Downloading $# directories..."
+  for f in "$@"; do
+    ${CP_CMD} "root@${IP}:${f}" "${DOWNLOAD_DIR}/"
+  done
+}
+
+# Args:
+#   $1: Category of logs downloaded.
+function print_download_footer() {
+  echo "All $1 logs downloaded."
+  echo "This is a fine time to DELETE or PURGE them if they're tagged."
+  echo "Recorder is NOT RUNNING and you need to RESTORE MULTICAST."
+}
+
+# Args:
+#   $1: Log directory.
+function download_logs() {
+  prepare_for_download
+  do_download "$1" $(get_tagged_log_dirs)
+  print_download_footer 'tagged'
+}
+
+# Args:
+#   $1: Log directory.
+#   $2-$N: directories to download
+function download_named_logs() {
+  prepare_for_download
+  local DEST_DIR=$1
+  shift
+  local FILE_LIST=$(add_log_dir_prefix "$@")
+  do_download ${DEST_DIR} ${FILE_LIST}
+  print_download_footer 'specified'
+}
+
+function wait_for_gzip() {
+  run_on_target \
+    'while pidof gzip > /dev/null; do \
+      printf "Waiting for post-processing gzip to complete.\r"; \
+      sleep 1; \
+     done'
+  echo -e -n '\033[2K'  # Clear the line.
+}
+
+# Args:
+#   $1: Log directory containing potentially-unzipped files.
+function gzip_stragglers() {
+  echo "Gzipping any stragglers."
+  run_on_target "gzip $1/*.pcap || true"
+}
+
+if [[ "$#" -eq 1 ]]; then
+  if [[ "$1" = 'start' ]]; then
+    make_apps_writeable
+    restart_recorder
+    make_apps_readonly
+  elif [[ "$1" = 'stop' ]]; then
+    make_apps_writeable
+    stop_recorder
+    make_apps_readonly
+  elif [[ "$1" = 'restore_multicast' ]]; then
+    restore_multicast
+    make_apps_writeable
+    restart_recorder
+    make_apps_readonly
+  elif [[ "$1" = 'purge' ]]; then
+    purge
+  elif [[ "$1" = 'list' || "$1" == 'ls' ]]; then
+    list
+  else
+    usage
+    exit 1
+  fi
+elif [[ "$1" = 'download' ]]; then
+  if [[ "$2" = 'm600a' || "$2" = 'YM600-04' || "$2" = 'YM600-05' || "$2" = 'iron_bird' ]]; then
+    readonly LOG_DIR="${MAKANI_HOME}/logs/$2/wing_recorder_logs"
+    mkdir -p ${LOG_DIR}
+    if [[ "$#" -eq 2 ]]; then
+      download_logs ${LOG_DIR}
+    else
+      shift 2
+      download_named_logs ${LOG_DIR} "$@"
+    fi
+  else
+    echo "Unrecognized data source '$2'."
+    echo 'I was expecting iron_bird, m600a, YM600-04, or YM600-05.'
+    exit 1
+  fi
+elif [[ "$#" -eq 2 ]]; then
+  if [[ "$1" = 'save' ]]; then
+    readonly DIR_TO_TAG=$(get_current_log_dir)
+    make_apps_writeable
+    stop_recorder
+    wait_for_gzip
+    gzip_stragglers ${DIR_TO_TAG}
+    tag_directory ${DIR_TO_TAG} $2
+    start_recorder
+    make_apps_readonly
+  elif [[ "$1" = 'delete' ]]; then
+    delete "$2"
+  else
+    usage
+    exit 1
+  fi
+else
+  usage
+  exit 1
+fi

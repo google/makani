@@ -1,0 +1,681 @@
+BigM600_r05a_flaps
+0.1                        ! Mach number
+0        0        0.0      ! iYsym  iZsym    Zsym
+54.0     2.077    26.0     ! Sref   Cref     Bref
+0.00000  0.000000 0.00000  ! Xref   Yref     Zref
+#
+#==============================================================
+#
+SURFACE
+Wing
+10       1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#--------------------------------------------------------------
+SECTION ! >>>>>>>>>>>>> PORT WING TIP <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.3050  -13.000  0.000      1.2200   7.25     4        0
+AFILE
+../airfoils/APPROXblade.orefvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da1      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> PORT A1A2 BREAK (approx) <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.4325  -9.7500  0.000   1.730    12.25     4         0
+AFILE
+../airfoils/APPROXblade.midvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da1      1.0      0.80     0.0      0.0      0.0      1
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da2      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> PORT A2A4 BREAK <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.5600  -6.500   0.000   2.240    15.25    4         0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da2      1.0      0.80     0.0      0.0      0.0      1
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da4      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> PORT TAPER BREAK (A4 END) <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.6100  -5.2000  0.000      2.440    15.25    4        0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da4      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> CENTER AT -2600 mm <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.6100  -2.6000  0.000      2.440    15.25       4        0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+#-----------------------
+SECTION ! >>>>>>>>>>>>> CENTER AT  0000 mm <<<<<<<<<<<<<
+#        Xle      Yle     Zle      Chord    Ainc     Nspan    Sspace
+         -0.6100  0.0000  0.0000   2.440    15.25    4        0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+#-----------------------
+SECTION ! >>>>>>>>>>>>> CENTER AT  2600 mm <<<<<<<<<<<<<
+#        Xle      Yle     Zle      Chord    Ainc     Nspan    Sspace
+         -0.6100  2.6000  0.000      2.440    15.25    4        0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da5      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> PORT TAPER BREAK (A5 BEGIN) <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.6100  5.2000   0.000      2.440    15.25    4        0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da5      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> STBD A5A7 BREAK <<<<<<<<<<<<<
+#        Xle      Yle     Zle      Chord    Ainc     Nspan     Sspace
+         -0.5600  6.5000  0.000   2.240    15.25     4         0
+#
+AFILE
+../airfoils/APPROXblade.refvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da7      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> PORT A7A8 BREAK (approx) <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.4325  9.7500   0.000   1.7300   12.25    4        0
+AFILE
+../airfoils/APPROXblade.midvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da7      1.0      0.80     0.0      0.0      0.0      1
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da8      1.0      0.80     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! >>>>>>>>>>>>> STBD WING TIP <<<<<<<<<<<<<
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -0.3050  13.000   0.000      1.2200   7.25     1        0
+AFILE
+../airfoils/APPROXblade.orefvisc
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -0.5     0.05     2.05     0.028    2.547    0.0473
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         da8      1.0      0.80     0.0      0.0      0.0      1
+#
+#==============================================================
+#
+SURFACE
+Pylon 1
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! top of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.9207  -3.6400  1.4510   1.4051   0        1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of top propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.3578  -3.6400  1.1927   1.8524   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.8961  -3.6400  0.9825   1.3917   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.4807  -3.6400  0.8782   0.9644   -9.0     3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3385  -3.6400  0.0133   0.7740   2.0      1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3280  -3.6400  -0.0485  1.7780   3.0      2        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.2653  -3.6400  -0.4537  1.7153   3.0      3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of lower surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.1512  -3.6400  -1.2008  1.0912   -3.5     1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5729  -3.6400  -1.3639  1.4700   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of bottom propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.0100  -3.6400  -1.6213  1.8533   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5484  -3.6400  -1.8324  1.3910   0        0        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#
+#==============================================================
+#
+SURFACE
+Pylon 2
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! top of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.9207  -1.2138  1.4510   1.4051   0        1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of top propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.3578  -1.2138  1.1927   1.8524   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.8961  -1.2138  0.9825   1.3917   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.4807  -1.2138  0.8782   0.9644   -9.0     3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3385  -1.2138  0.0133   0.7740   2.0      1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3280  -1.2138  -0.0485  1.7780   3.0      2        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.2653  -1.2138  -0.4537  1.7153   3.0      3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of lower surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.1512  -1.2138  -1.2008  1.0912   -3.5     1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5729  -1.2138  -1.3639  1.4700   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of bottom propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.0100  -1.2138  -1.6213  1.8533   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5484  -1.2138  -1.8324  1.3910   0        0        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#
+#==============================================================
+#
+SURFACE
+Pylon 3
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! top of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.9207  1.2124   1.4510   1.4051   0        1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of top propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.3578  1.2124   1.1927   1.8524   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.8961  1.2124   0.9825   1.3917   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.4807  1.2124   0.8782   0.9644   -9.0     3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3385  1.2124   0.0133   0.7740   2.0      1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3280  1.2124   -0.0485  1.7780   3.0      2        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.2653  1.2124   -0.4537  1.7153   3.0      3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of lower surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.1512  1.2124   -1.2008  1.0912   -3.5     1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5729  1.2124   -1.3639  1.4700   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of bottom propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.0100  1.2124   -1.6213  1.8533   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5484  1.2124   -1.8324  1.3910   0        0        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#
+#==============================================================
+#
+SURFACE
+Pylon 4
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! top of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.9207  3.6386   1.4510   1.4051   0        1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of top propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.3578  3.6386   1.1927   1.8524   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.8961  3.6386   0.9825   1.3917   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.4807  3.6386   0.8782   0.9644   -9.0     3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of upper surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3385  3.6386   0.0133   0.7740   2.0      1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! top of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.3280  3.6386   -0.0485  1.7780   3.0      2        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of center surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.2653  3.6386   -0.4537  1.7153   3.0      3        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of lower surface
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.1512  3.6386   -1.2008  1.0912   -3.5     1        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! cooling duct
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5729  3.6386   -1.3639  1.4700   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! axis of bottom propeller
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -2.0100  3.6386   -1.6213  1.8533   0        1        0
+AFILE
+../airfoils/motorCowling2.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#-----------------------
+SECTION ! bottom of pylon
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         -1.5484  3.6386   -1.8324  1.3910   0        0        0
+AFILE
+../airfoils/mp6d.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0        0.008    1.1      0.024
+#
+#==============================================================
+#
+SURFACE
+Horizontal tail
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! port
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1650   -3.3500  -1.0000  1.340    5.5      4        0
+AFILE
+../airfoils/f8.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.2     0.015    0        0.008    1.2      0.015
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         de1      1.0      0.0      0.0      0.0      0.0      1
+#-----------------------
+SECTION ! center
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1650   0.0000  -1.0000   1.340    5.5      4        0
+AFILE
+../airfoils/f8.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.2     0.015    0        0.008    1.2      0.015
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         de1      1.0      0.0      0.0      0.0      0.0      1
+#-----------------------
+SECTION ! starboard
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1650   3.3500  -1.0000   1.340    5.5      4        0
+AFILE
+../airfoils/f8.dat
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.2     0.015    0        0.008    1.2      0.015
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         de1      1.0      0.0      0.0      0.0      0.0      1
+#
+#==============================================================
+#
+SURFACE
+Vertical tail
+5        1        ! Nchord Cspace
+#
+SCALE
+1.0      1.0      1.0      ! Xscale Yscale   Zscale
+#-----------------------
+SECTION ! top
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1350   0.0000   2.920    1.4600   5.5      4        0
+AFILE
+../airfoils/APPROXblade.rj8
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0.       0.008    1.1      0.024
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         dr1      1.0      0.67     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! center
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1350   0.0000   0.0000   1.4600   5.5      3        0
+AFILE
+../airfoils/APPROXblade.rj8
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0.       0.008    1.1      0.024
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         dr1      1.0      0.67     0.0      0.0      0.0      1
+#-----------------------
+SECTION ! bottom
+#        Xle      Yle      Zle      Chord    Ainc     Nspan    Sspace
+         8.1350   0.0000   -2.920   1.4600   5.5      0        0
+AFILE
+../airfoils/APPROXblade.rj8
+CDCL
+#        CL1      CD1      CL2      CD2      CL3      CD3
+         -1.5     0.016    0.       0.008    1.1      0.024
+CONTROL
+#        name     gain     Xhinge   XYZhvec                    SgnDup
+         dr1      1.0      0.67     0.0      0.0      0.0      1
+#
+#==============================================================
+#

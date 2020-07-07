@@ -1,0 +1,33 @@
+# Stacked motor controller calibration parameters.
+
+# The current controller does not respect the phase current command limit when
+# heavily flux weakened, extending the command limit to include the motor's
+# short circuit current. For Yasa motors, this is somewhere around 160 to 180 A.
+# The phase current fault limit needs to be extended appropriately.
+set_param all phase_current_limit 200
+set_param all bus_current_limit 50
+
+# Three stack levels will drop to near 0 V; we want those motors to continue
+# running in order to hold the voltage down.
+set_param all v_bus_lower_limit 0
+
+# Quadrature current command limits and phase current magnitude limit.
+set_param all iq_upper_limit 60
+set_param all iq_lower_limit 0
+set_param all foc_phase_current_cmd_limit 60
+
+# Turn on ISR diagnostic data for the particular motor being calibrated; edit
+# this file as needed or override in the motor client.
+# set_param sbo isr_diag_enable 1
+
+# Explicitly disable the stacking controller - we are trying to diverge the
+# stack. Consequently, there should be, at most, 850 V across the entire stack.
+# For Satcons, this means using only a single inverter and running at 567 V.
+set_param all stacking_enable 0
+
+# Allow motors to turn off if they throw a warning.
+set_param all shutdown_on_warning_enable 1
+
+# Increase the motor status message rate to 100 Hz.
+set_param all motor_status_message_period 0.01
+

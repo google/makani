@@ -1,0 +1,397 @@
+
+New features in XFOIL 6.1 (April 94)
+------------------------------------
+- An improved plot library libPlt.a is now used, courtesy of H. Youngren.
+  It allows resizing of the window, and plots are not erased upon overlay
+  by another window.  A minor new nuisance is that the cursor does return 
+  automatically to parent window after cursor input.
+  
+- All LOGICAL*1 arrays have been eliminated (good riddance!).
+  CHARACTER strings are used instead.  This was made possible
+  by the new plot library which accepts CHARACTER variables.
+
+- Mach number can now scale with 1/sqrt(CL) just like Reynolds number.
+
+- Numerous improvements have been made to the GDES, MDES, and QDES
+  facilities.  Cursor-input Qspec(s) in QDES and MDES will now match 
+  slopes where grafted into the current Qspec(s).  Much fewer cursor
+  input points are now required.  Same goes for the geometry contour 
+  in GDES.  The slope-matching can be disabled to get the cruddy old 
+  way of doing things.  The Qspec(s) plot in MDES and QDES now also 
+  features an x/c grid overlay, making it more obvious where the 
+  airfoil nose is among other things.  The Qspec(s) plot in MDES 
+  can also show Qspec(s) for more than one angle of attack, showing 
+  the effect of any modification on off-design pressure distributions.
+  Symmetric airfoils can be much more easily designed now in MDES
+  and GDES.
+
+- Treament of non-unity airfoil chords is now much more consistent.
+  Clear distinctions are made between cartesian x,y and the airfoil
+  chord line-based x/c,y/c coordinates.  GDES now has more general
+  airfoil positioning and scaling operations, and there is better
+  graphical info on the results of flap and camber change operations.
+
+- Cursor-selected blowups in QDES and MDES now produce exactly 
+  the blowup region demarked, not some approximation thereto.
+  The GDES blowups are also more faithful, but must still be
+  approximate since they will not allow x/y distortion.
+
+- A second-order treatment of the amplification equation has been
+  implemented.  As expected, It makes the solution less dependent
+  on the panel density.  However, it also seems to be less robust.
+  For this reason, it has been implemented only as an option,
+  and the old first-order treatment has been retained as the 
+  standard formulation.  To switch between the two, a few labeled
+  code lines in SUBROUTINES AXSET, TRCHEK (in xblsys.f) simply 
+  need to be commented/uncommented.
+
+
+New features in XFOIL 6.3 (Oct 94)
+----------------------------------
+- Nice grid overlays and axis limit set capabilities have been 
+  added to the viscous variable plots (VPAR).
+
+- GDES has a number of new options, mainly for controlling 
+  individual coordinate points.
+
+- Minor modifications have been made to the viscous formulation
+  to make it very nearly the same as the MSES 2.6 formulation,
+  except that XFOIL still uses a single-layer wake.
+
+
+New features in XFOIL 6.4 (Dec 94)
+----------------------------------
+- A modification to the e^n transition criterion has been added
+  to make it more reliable, especially for small Ncrit.  The
+  default form for the amplification equation is now second-order.
+
+- Limiters have been put into most of the turbulent correlations
+  to make them automatically revert to their laminar form at small
+  Rtheta, including the dissipation coefficient for the wake.
+  As a result, XFOIL will now produce reasonable answers for
+  chord Reynolds numbers down to about 1000, which approaches 
+  the Stokes-flow regime.  The airfoils must be reasonably thin,
+  however, else there might not be any steady solution due to
+  vortex shedding.  Thin indoor-model wing airfoils can be 
+  predicted reasonably well, for example.
+
+
+New features in XFOIL 6.6 (March 96)
+------------------------------------
+- A fourth type of airfoil coordinate format is now recognized.
+  This is called a "labeled coordinate file", and is the same as
+  the plain format file, but includes the airfoil name string 
+  on the first line, followed by the coordinates.
+
+- A completely new plot library is now used, courtesy of H.Youngren.
+  It supports color, PostScript echo on demand (instead of the arcane
+  hardcopy-toggle approach of the previous plot library), lowercase
+  fonts, LaTex-like math fonts (in annotation menu), etc.  This
+  one plot library is used for all machines.
+
+- Color is now used in many of the screen plots, but only where
+  it actually helps to see what's happening.  Color is NOT used
+  for ornamental purposes.  Hence, many of the plots or parts
+  of plots are still monochrome.  Color PostScript can be output
+  by setting the IDEVRP flag appropriately (see SUBR. INIT).
+
+- The "!" command is now understood by OPER,GDES,MDES, and QDES.
+  This simply repeats the last valid command, and saves typing
+  in repetitive-command situtations.
+
+
+New features in XFOIL 6.8 (August 96)
+-------------------------------------
+
+- The matrix-conditioning problem which appears in sharp-TE cases
+  with large TE angles has been significantly alleviated.  A more
+  forgiving TE vorticity extrapolation scheme is used.
+
+- GDES now displays useful geometric info along with the airfoil shape.
+
+- Color is now used in most of the plots to aid visualization.
+  The plot can be customized with a number of plot options set
+  in the PLOP menu.  Portrait orientation plots can now be 
+  generated if desired.
+
+- Almost all commands which result in prompted input can now 
+  be given arguments with the input values.  For example, 
+  instead of
+ 
+     .OPERi   c>  alfa
+
+     Enter angle of attack (deg)   r>  3.5
+
+
+  one can simply type
+
+     .OPERi   c>  alfa 3.5
+
+
+  which suppresses the prompt and just takes the "3.5" as its input.
+  This also works for multiple-input commands.  For example:
+
+     .OPERi   c>  aseq  0 10 0.5
+
+  does the usual alpha-sequence calculation with no further prompts.
+  This also works for filenames.  For example:
+
+     XFOIL   c>  load e387.dat
+
+
+
+New and final(!) features in XFOIL 6.9  (February 00)
+----------------------------------------------------
+
+- Finally fixed that annoying screwy behavior with sharp trailing edges.
+  Instead of the vorticity extrapolation scheme, the chordwise velocity 
+  at an internal point near the TE is set to zero to enforce solution 
+  regularity there (this complements the Kutta condition, which controls 
+  the normal velocity component).   This additional internal point is 
+  placed 1/10 of the smallest panel length ahead of the TE.  The results 
+  are extremely insensitive to its exact location.
+
+- Multiple airfoil versions and associated polars can now be stored
+  inside XFOIL.  The polars and airfoils are managed in OPER.
+  Having the polars and airfoils online reduces the amount of 
+  airfoil read/writes and mental bookkeeping which was required 
+  in previous XFOIL versions which had only one airfoil stored. 
+  Quite a few new commands have been added to OPER to deal with 
+  this additional stuff, but everything more or less defaults to 
+  the previous conventions if only one airfoil is kept stored.
+  The session.txt file has a sample session with multiple polars.
+
+- Airfoil interpolation can now be performed with the INTE
+  command at top level.
+
+- A bunch of Youngren's camber/thickness modification stuff has
+  been incorporated into GDES.
+
+- Most of the interactive modification displays now include
+  "Erase" and "Done" keys in addition to the "Abort" key.
+  These can also be activated just by typing "e", "d", or "a"
+  rather than by clicking on the button.  The Erase key 
+  deletes the previous click entry (or previous entries if done
+  repeatedly).  The Done key terminates input.  In previous versions
+  this was done by three identical clicks, which was sometimes 
+  difficult to do.
+
+
+XFOIL 6.91 (December 00) (first web release)
+--------------------------------------------
+
+- Renamed "Gamma" to "Q" in the QDES and MDES menus.  This gives
+  somewhat more obvious relation to "Qspec".
+
+- The PREM command has been added to the OPER menu.  This allows 
+  removing individual points from stored polars.
+
+- The CADD command has been added to the GDES menu.  This adds 
+  new points into the buffer airfoil at excessive panel corners.  
+  The new points are interpolated using a uniform-parameter spline, 
+  which gives much smoother shapes near the leading edges of 
+  Selig and Eppler airfoils, whose point spacing at the leading edge
+  is usually not suitable for Xfoil's arclength-parameter spline.   
+  For example, the load sequence...
+
+     LOAD s6063.dat
+     GDES
+     CADD
+        <return>  (accept default inputs)
+        <return>
+        <return>
+     <return>
+     PANE         (generate new paneling using smoother buffer airfoil)
+ 
+  will give a much smoother paneled airfoil than the more direct...
+
+     LOAD s6063.dat
+     PANE
+
+
+XFOIL 6.92 (January 01)
+-----------------------
+
+- Fixed the PSOR command.  Giving "0" for the polar index now sorts all
+  the polars as advertised.  Previously, this deleted all the polars (oops).
+
+- Fixed PPLO command.  Giving multiple individual polar indices now plots only
+  those polars as advertised.  Previously, all polars were always plotted.
+
+- Added DUMP and OVER commands to the VPLO menu.  This allows comparing 
+  viscous variable distributions between different airfoils and/or 
+  different operating points.
+
+- Added BLC, BLWT commands to OPER menu.  These allow plotting of boundary
+  layer velocity profiles on airfoil in Cp vs x plot.  Gives more insight
+  into what the flow is doing than just the displacement body shape.
+
+
+XFOIL 6.93 (18 January 01) HHY
+-----------------------
+
+- Improvements to polar plotting for XFOIL and PPLOT.  Many fixes to read 
+  XFOIL and non-XFOIL polar files. Routine polplt.f overhauled to eliminate 
+  numerous cruftious hacks and long-standing polar plot problems.
+  
+- PPLOT improvements to add options and de-obfuscate menu choices. Tweaks to 
+  make pplot.f work with new polplt.f changes.  More robust than previous 
+  version - now reads MSES and old XFOIL format polar files.
+
+- Fixed CAMB options for INPP and MODP.  Plotting hack for INPP fixed to 
+  to properly display grid.  MODP problems (improper scaling of user points)
+  fixed.  
+
+- Changed ASKR and ASKI and all relevant calls.  Now ASKR or ASKI calls do 
+  not modify variable passed in if read line is blank (i.e. user just inputs
+  a <cr>).  Lines to set reasonable defaults added throughout where these
+  routines read temp variables or variables not stored in globals. This affects
+  mostly routines in GDES.
+
+- Latest plotlib (version 4.44) included.  This version has several bug fixes
+  and adds capability to write separate postscript files for each plot (if you
+  ask for this).  Also default background color is now black.  User must now
+  specifically ask for white background by setting environment variable 
+  "XPLOT11_BACKGROUND white". This is done for csh/tcsh and bash using
+  csh:   setenv XPLOT11_BACKGROUND white
+  bash:  export XPLOT11_BACKGROUND=white
+
+- Bug in dplot.f (LGUI declaration) and funky format (A,I) in xplots.f changed 
+  to work with g77.
+
+
+XFOIL 6.93 (March,April '01) MD's additions
+-------------------------------------------
+
+- Made CM axis line up with CL-axis tics in polplt.f .
+
+- Changed Xplot11 to start cursor at previous location rather than at 
+  center of plot window.  Makes repetitive mouse input much more pleasant.
+
+- Checks for excessive panel angle in input coordinates, and prints
+  suggested corrective action if indicated.
+
+
+XFOIL 6.94 (Nov '01)
+--------------------
+
+- Put in alternative short versions of most commonly used commands
+   Examples:  
+    "ALFA" and "A" are now equivalent commands in OPER
+    "EXEC" and "X" are now equivalent commands in MDES,QDES,GDES
+
+- Added a number of minor widgets and doodads
+
+- Fixed PostScript output semi-bug (wrong number of tokens after %%Page)
+
+
+XFOIL 6.95 (Feb '03)
+---------------------
+
+- ITER command in OPER now accepts a numeric argument like the other commands
+
+- Inviscid polar accumulation now permitted
+
+- Improved ADDP and MOVP in GDES, allowing optional keyboard x,y entry
+
+- Added I,O,P key functions in cursor-modification windows, 
+  allowing zooming and panning without exiting the window
+
+- Added individual-frequency plotting to A/Ao plot in VPLO.
+  Requires Orr-Sommerfeld database in compatible binary form.
+  This is built in the new directory orrs/
+
+
+XFOIL 6.96 (Jan '05)
+---------------------
+
+- Added a bunch of features to PPLOT.  
+  Power coefficient polars and aircraft polars can now be plotted.
+
+- Added graphic enable/disable flag to PLOP sub-menu.
+  Allows suppression of graphics output for batch execution.
+
+- Increased default number of panel nodes from 140 to 160
+
+- Increased default iteration limit from 10 to 20
+
+- Changed VACCEL logic to make it independent of airfoil size
+  (previously it assumed that chord was comparable to unity)
+
+- Added BEND command to GDES
+
+- Airfoils are now written out in 7 significant digits using G-format.
+  This should prevent introduction of noise with very fine point spacings.
+
+
+XFOIL 6.96 (Nov '05)  UPDATE
+----------------------------
+
+- Fixed compilation problem in PPLOT  (no change to XFOIL)
+
+
+XFOIL 6.97 (Dec '06)
+--------------------
+
+- Tabs in coordinate files are now treated as spaces 
+   (no longer cause read errors)
+
+- Increased wake array limit to allow up to 360 surface nodes.
+
+- Changed default surface plot colors to blue and red.
+  The previous yellow was sometimes hard to see on white backgrounds.
+
+- Streamlined and extended some PPLOT features.
+
+- Added actuator-disk parameters to polar files to be compatible with MSES.
+  (these parameters are not significant to XFOIL)
+
+- Improved BEND output formatting, with separated solid and skin parameters.
+
+- Fixed the processing of data input via INPC and INPP, 
+  in the ..CAMB submenu in .GDES
+
+
+XFOIL 6.97 (Dec '07) UPDATE
+---------------------------
+
+- Fixed PNAM command in OPER menu.
+ 
+- Eliminated yellow color for polar plots (both in PPLOT and XFOIL).
+  This was difficult to see on white backgrounds.
+
+
+XFOIL 6.97 (Apr '08) UPDATE 2
+-----------------------------
+
+- Fixed a few undefined references in some of the plot
+  post-processing calculations.  Compressibility effects 
+  were not being properly calculated. 
+
+
+XFOIL 6.98 (Oct '08)
+--------------------
+
+- Added ability to plot BL variables versus x or s, toggled with XPLO command
+
+- Increased the max number of BL profiles (BL command in OPER) to 1000.
+
+
+PPLOT  (May '10)  (no change in XFOIL)
+--------------------
+
+- Added options to adjust reference-data colors and symbol types,
+  and added this info to the  pplot.def  startup-default file
+
+- Fixed missing LOGICAL declaration which Gfortran didn't like
+
+XFOIL 6.99 (Jun '13)
+--------------------
+
+- Qspec modification in QDES and MDES, and geometry modification in GDES now
+  have a second "Edit" mode where the input points can be modified by dragging
+  with the cursor.
+
+- Added LAG command in the VPAR menu to allow modification of lag-equation constants.
+
+

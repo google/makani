@@ -1,0 +1,146 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{caption}
+
+\title{Estimating propeller thrust and power during the vortex ring state}
+\author{Makani Technologies LLC}
+
+\begin{document}
+\maketitle
+
+\section{Definitions}
+\begin{eqnarray*}
+  C_T &\equiv& \text{Thrust coefficient} \\
+  T &\equiv& \text{Thrust} \\
+  P &\equiv& \text{Power} \\
+  \rho &\equiv& \text{Density of air} \\
+  A &\equiv& \text{Rotor disk area} \\
+  R &\equiv& \text{Rotor radius} \\
+  \sigma &\equiv& \text{Rotor solidity (i.e. blade area / disk area)} \\
+  \theta &\equiv& \text{Rotor pitch} \\
+  a &\equiv& \text{Two-dimensional lift slope factor $\sim 5.7$} \\
+  V_c &\equiv& \text{Climb velocity (i.e. freestream velocity)} \\
+  v_i &\equiv& \text{Induced velocity} \\
+  v_h &\equiv& \text{Induced velocity during hover (i.e. when $V_c = 0$)} \\
+  \Omega &\equiv& \text{Angular velocity [rad/s]} \\
+  \lambda &\equiv& \text{Inflow factor} \\
+\end{eqnarray*}
+
+% Helicopter Flight Dynamics pg. 19 has a good picture of vortex ring, etc...
+
+\section{Calculating the ``ideal'' thrust and power}
+
+Momentum theory gives the formulas for thrust and power as a function
+of the induced velocity:
+\begin{equation}
+  T = 2 \rho A (V_c + v_i) v_i
+  \label{eqn:momentum_theory_thrust}
+\end{equation}
+\begin{equation}
+  P = 2 \rho A (V_c + v_i)^2 v_i
+\end{equation}
+However, to calculate the induced velocity, we need some geometric
+information about the propeller.  After all, different propellers
+produce different thrusts at the same angular rate and climb rates.
+\textit{Basic Helicopter Aerodynamics} gives a formula (pg.27, Eq. 3.22)
+for the thrust coefficient using blade element theory assuming uniform
+induced velocity across the rotor disk
+\begin{equation}
+  C_T = \frac{1}{2} \sigma a \left( \frac{1}{3} \theta - \frac{1}{2}
+  \lambda \right)
+\end{equation}
+where
+\begin{equation}
+  \lambda = \frac{V_c + v_i}{\Omega R}.
+\end{equation}
+The total thrust is related to the thrust coefficient by the normal
+relationship:
+\begin{equation}
+  T = \frac{1}{2} \rho (\Omega R)^2 C_T A
+  \label{eqn:bet_thrust}
+\end{equation}
+
+
+We solve for the induced velocity $v_i$ by combining
+Eq. \ref{eqn:momentum_theory_thrust} and Eq. \ref{eqn:bet_thrust}.
+\begin{eqnarray*}
+  2 \rho A (V_c + v_i) v_i  \frac{1}{2} \rho (\Omega R)^2 C_T A \\
+  2 (V_c + v_i) v_i = \frac{1}{2} \Omega^2 R^2 \cdot \frac{1}{2} \sigma a
+  \left( \frac{1}{3} \theta - \frac{1}{2} \lambda \right) \\
+  = \frac{1}{12} \Omega^2 R^2 \sigma a \theta - \frac{1}{8} \Omega R \sigma a (V_c + v_i)
+\end{eqnarray*}
+Rearranging the terms:
+\begin{equation}
+  2 v_i^2 + \left(2 V_c + \frac{1}{8} \Omega R \sigma a\right) v_i +
+  \frac{1}{8} \Omega R \sigma a V_c - \frac{1}{12} \Omega^2 R^2 \sigma a \theta
+  = 0
+\end{equation}
+Solving the quadratic equation:
+\begin{equation}
+  v_i = -\left( \frac{1}{2} V_c + \frac{1}{32} \Omega R \sigma a \right)
+  + \sqrt{ \left( \frac{1}{2} V_c - \frac{1}{32} \Omega R \sigma a \right)^2
+    + \frac{1}{24} \Omega^2 R^2 \sigma a \theta}
+\end{equation}
+Now, it is simple to substitute this result back into the momentum
+theory equations for thrust and power.  The variables $R$, $\sigma$,
+$a$, and $\theta$ are all essentially geometric properties of the
+propeller that do not change with different climb rates or angular
+rates.  Also, these variables can be directly measured from the
+propeller or estimated from the \textsc{xrotor} database.
+
+\section{Modifying the result to account for vortex ring state}
+
+The previous section demonstrates a method for extrapolating thrust
+and power estimates beyond the range where \textsc{xrotor} provides
+results.  However, it still uses the momentum theory approximation,
+which is an idealization that breaks down in the vortex ring state.
+
+One potential way of incorporating vortex ring state into our thrust
+and power database is to assume a fudge factor, which is a function of
+$V_c/v_h$, that multiplies the momentum theory thrust estimate.  This
+multiplier, $k(V_c/v_h)$, is 1 when momentum theory applies and is
+reduced during vortex ring state.
+\begin{equation}
+  T = k(V_c/v_h) \cdot 2 \rho A (V_c + v_i) v_i
+  \label{eqn:mod_momentum_theory_thrust}
+\end{equation}
+The fudge factor accounts for the lost momentum that gets transferred
+to the vortex rings rather an upward force.  The momentum theory power
+formula is modified in a similar manner because power will still be
+the product of thrust and the velocity of the airflow through the
+actuator disk.
+\begin{equation}
+  P = k(V_c/v_h) \cdot 2 \rho A (V_c + v_i)^2 v_i
+\end{equation}
+
+The fudge factor may be estimated from Fig. 2.9 in \textit{Basic
+  Helicopter Aerodynamics}, which shows a plot of $v_i/v_h$ versus
+$V_c/v_h$ for a thrust equivalent to the hover thrust:
+\begin{equation}
+  k(V_c/v_h) = \frac{1}{(V_c/v_h + v_i/v_h) v_i/v_h}
+\end{equation}
+where $V_c/v_h$ and $v_i/v_h$ may just be read of the plot.  In
+particular, for $V_c/v_h > 0$, $k(V_c/v_h) \approx 1$.  During vortex
+ring state when $V_c/v_h = -1$, $k(-1) \approx 0.5$.  For the level of
+accuracy that require, it is reasonable to assume that $k$ varies
+linearly between $k(0)$ and $k(-1)$.
+
+Now the argument from the previous section can be repeated with the
+modified momentum theory equation,
+Eq. \ref{eqn:mod_momentum_theory_thrust}.  The induced velocity is
+calculated by solving the quadratic equation:
+\begin{equation}
+  2 k v_i^2 + \left(2 k V_c + \frac{1}{8} \Omega R \sigma a\right) v_i +
+  \frac{1}{8} \Omega R \sigma a V_c - \frac{1}{12} \Omega^2 R^2 \sigma a \theta
+  = 0
+\end{equation}
+
+
+\end{document}

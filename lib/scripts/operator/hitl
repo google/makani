@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Starts and stops a HITL simulation.
+#
+# Usage: ./hitl run [a] [b] [c]
+#        ./hitl stop [a] [b] [c]
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+
+# Source shflags.
+source /opt/shflags-1.0.3/src/shflags
+
+DEFINE_boolean 'ground_estimator_on_host' false \
+  'Run the ground estimator on the host. \
+  Otherwise run ground estimator on the ground estimator node.'
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+function stop_hitl() {
+  mbash::kill_makani_proc_by_name sim/sim
+  mbash::kill_makani_proc_by_name vis/vis
+  mbash::kill_makani_proc_by_name control/hitl_ground_estimator
+
+  # The flight controller will stop when it stops receiving messages from the
+  # sim, but to be safe we stop it here as well.
+  cd "${MAKANI_HOME}/lib/scripts/operator"
+  ./flight_controller stop "$@"
+  ./ground_estimator stop
+}
+
+function run_hitl() {
+  # This check ensures that a local simulation is not running (see
+  # lib/scripts/developer/run_sim).
+  if mbash::check_multicast_route lo; then
+     mbash::die 'Local multicast is setup, this indicates you might already' \
+       'be running a sim.  Please be sure this is not the case and adjust' \
+       'your settings.' \
+       'If you are trying to run a HITL, first run the following command:' \
+       '"sudo route delete -net 239.0.0.0 netmask 255.0.0.0 dev lo".  ' \
+       'If you are planning on frequently running HITLs on that computer,' \
+       'you might want to remove the following line from' \
+       '/etc/network/interfaces, and reboot the computer:' \
+       '"post-up route add -net 239.0.0.0 netmask 255.0.0.0 dev lo".'
+  fi
+
+  stop_hitl "$@"
+  cd "${MAKANI_HOME}/lib/scripts/operator"
+
+  # Start the flight controller.
+  ./flight_controller start "$@" || exit 1
+
+  # Start the ground estimator.
+  if [[ "${FLAGS_ground_estimator_on_host}" -eq "${FLAGS_FALSE}" ]]; then
+    ./ground_estimator start || exit 1
+  else
+    "${BUILD_DIR}/control/hitl_ground_estimator" &
+  fi
+
+  # Start the visualizer.
+  "${BUILD_DIR}/vis/vis" &
+
+  # Start the simulator.
+  "${BUILD_DIR}/sim/sim" --async &
+  readonly SIM_PID="$!"
+
+  trap stop_hitl SIGINT SIGKILL
+  wait "${SIM_PID}"
+  stop_hitl "$@"
+}
+
+if [[ "$#" -eq 0 ]]; then
+  mbash::print_usage
+elif [[ "$1" = 'stop' ]]; then
+  shift
+  stop_hitl "$@"
+elif [[ "$1" = 'run' ]]; then
+  shift
+  run_hitl "$@"
+else
+  mbash::print_usage
+fi

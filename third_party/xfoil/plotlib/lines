@@ -1,0 +1,11 @@
+ 600 gw_subs.f
+ 300 plt_3D.f
+1000 plt_base.f
+ 600 plt_color.f
+ 730 plt_font.f
+1420 plt_old.f
+ 900 plt_util.f
+ 600 ps_subs.f
+ 720 set_subs.f
+  20 util-ops.f
+6890 TOTAL

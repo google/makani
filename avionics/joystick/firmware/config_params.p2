@@ -1,0 +1,5 @@
+include "avionics/firmware/drivers/microhard_params.p2";
+
+param JoystickConfigParams {
+  MicrohardParams microhard_params;
+}

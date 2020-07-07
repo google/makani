@@ -1,0 +1,14 @@
+enum32 ParamSourceHeaderMagic {
+  Magic = 0x60414b32,  // 'PAK2' in big-endian.
+}
+
+enum32 ParamSourceEncoding {
+  Bzip2 = 0,
+}
+
+header ParamSourceHeader {
+  ParamSourceHeaderMagic magic;
+  ParamSourceEncoding encoding;
+  uint32 length;
+  uint32 crc;
+}

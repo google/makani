@@ -1,0 +1,106 @@
+#!/bin/bash -e
+#
+# Runs the raw packet logger on the recorder Q7.
+#
+# Usage: ./recorder start
+#        ./recorder stop
+#
+# Starting will stop any currently running log and open a
+# new numbered directory.
+
+readonly MAKANI_HOME='/apps'
+
+# We may not be running from MAKANI_HOME during bootloading.
+source "$( dirname "$0" )/../mbash.sh"
+
+# Directory to place the individual log directories in.
+readonly LOG_BASE_DIR="${MAKANI_HOME}/logs"
+
+# Time [s] after which we rotate log files.
+readonly ROTATE_TIME=600
+
+readonly LOG_POSTPROCESS_SCRIPT=\
+"${MAKANI_HOME}/lib/scripts/recorder/recorder_log_process"
+
+function get_name_suffix() {
+  local IP=$(/sbin/ip route get 192.168.1.1 | sed -e 's/.*src 192.168.1.//' | \
+             sed -e 's/ *$//')
+  if [[ "${IP}" = '43' ]]; then
+    echo "wing"
+  elif [[ "${IP}" = '42' ]]; then
+    echo "platform"
+  else
+    echo "Unrecognized ip octet $IP." 1>&2
+    exit 1
+  fi
+}
+
+function get_next_log_dir() {
+  local value="$(ls "${LOG_BASE_DIR}" | grep 'log-' | sort -t'-' -k2,2 -n | \
+    tail -n 1 | cut -d- -f2)"
+  : $(( value = value + 1 ))
+  echo "${LOG_BASE_DIR}/log-${value}"
+}
+
+function start_log() {
+  # Stops previous logger.
+  stop_log || true
+
+  # Create log directory and log description file.
+  local log_dir="$(get_next_log_dir)"
+  mkdir -p "${log_dir}"
+  ln -sfn "${log_dir}" "${LOG_BASE_DIR}/current_log"
+
+  # Store git status
+  cp "${MAKANI_HOME}/git.diff" "${log_dir}"
+
+  echo '{' > "${log_dir}/log_desc.json"
+  echo '"version": 0.1,' >> "${log_dir}/log_desc.json"
+  echo '"log_name": "",' >> "${log_dir}/log_desc.json"
+  echo '"description": "",' >> "${log_dir}/log_desc.json"
+  echo "\"username\": \"$(whoami)\"," >> "${log_dir}/log_desc.json"
+  echo "\"hostname\": \"$(hostname)\"," >> "${log_dir}/log_desc.json"
+  echo "\"time\": \"$(date)\"," >> "${log_dir}/log_desc.json"
+  echo "\"git_hash\": \"$(cat ${MAKANI_HOME}/git.hash)\"" >> \
+    "${log_dir}/log_desc.json"
+  echo '}' >> "${log_dir}/log_desc.json"
+
+  # Store a copy of the current pcap_to_hdf5 and validate_pcap with the logs,
+  # to ensure reliable conversion later.
+  cp "${MAKANI_HOME}/lib/datatools/validate_pcap" "${log_dir}"
+  cp "${MAKANI_HOME}/lib/pcap_to_hdf5/pcap_to_hdf5" "${log_dir}"
+
+  # Start logging all network traffic.
+  #
+  # -i  Select interface.
+  # -G  Log rotate time in seconds.
+  # -w  Output file name in strftime format.
+  local suffix="$(get_name_suffix)"
+  cd "${log_dir}"
+  nohup /usr/sbin/tcpdump -i eth0 -G "${ROTATE_TIME}" \
+    -w "%Y%m%d-%H%M%S_${suffix}.pcap" -B 65536 \
+    -z "${LOG_POSTPROCESS_SCRIPT}" &> tcpdump.log &
+
+  # As a short-term debugging measure, print out tcpdump's output
+  # after a brief delay.
+  sleep 1
+  cat tcpdump.log
+}
+
+# Completely turns off logging and removes current_log symlink.
+function stop_log() {
+  # Stop tcpdump.  Ignore only errors about finding no running process.
+  killall -SIGINT tcpdump 2> >(grep -v 'no process' 1>&2)
+
+  # Update the links.
+  rm -f "${LOG_BASE_DIR}/current_log"
+}
+
+
+if [[ "$1" = 'start' && "$#" = 1 ]]; then
+  start_log
+elif [[ "$1" = 'stop' && "$#" = 1 ]]; then
+  stop_log
+else
+  mbash::print_usage
+fi

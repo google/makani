@@ -1,0 +1,37 @@
+#
+#  Allegro-Lite 2-meter RES glider 
+#  Mass & Inertia breakdown
+#
+#  xyz is location of item's own CG
+#  Ixx.. are item's inertias about item's own CG
+#
+#   x back
+#   y right
+#   z up
+#
+#  x,y,z system here must have origin 
+#  at same location as AVL input file
+#
+Lunit = 0.0254 m
+Munit = 0.001 kg
+Tunit = 1.0 s
+
+g   = 9.81
+rho = 1.225
+
+#
+#  mass   x     y     z      Ixx     Iyy     Izz   [ Ixy  Ixz  Iyz ]
+#
+  156.0   4.0   0.0   0.0    11700   832   12532      ! wing center panel
+   55.5   4.2  22.0   1.0     1180   210    1390      ! wing R mid  panel
+   55.5   4.2 -22.0   1.0     1180   210    1390      ! wing L mid  panel
+   12.0   4.5  35.5   4.5       81    25     106      ! wing R tip  panel
+   12.0   4.5 -35.5   4.5       81    25     106      ! wing R tip  panel
+   70.0   0.0   0.0   0.0        0     0       0      ! fuselage pod
+   15.0  19.0   0.0   0.0        0   911     911      ! boom+rods
+   57.0  -4.0   0.0   0.0        0     0       0      ! battery
+   23.0  -1.0   0.0   0.0        0     0       0      ! RX
+   18.0  -2.5   0.0   0.0        0     0       0      ! servos
+   12.0  29.0   0.0   1.0      270    12     282      ! stab
+   10.0  34.0   0.0   2.0       81    90       9      ! rudder
+   18.0  -6.0   0.0   0.0        0     0       0      ! nose wt.

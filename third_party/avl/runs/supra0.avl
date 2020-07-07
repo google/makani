@@ -1,0 +1,255 @@
+Supra 3.4m F3J  zero dihedral
+0.0                      Mach
+0     0     0.0          iYsym  iZsym  Zsym
+#
+1034.0 7.60  133.86     Sref   Cref   Bref    reference area, chord, span
+3.750  0.0   1.5        Xref   Yref   Zref    moment reference location
+0.015                   CDo
+#
+#
+#
+#=============================================
+BODY
+Fuse pod
+28   2.0
+#
+TRANSLATE
+0.0  0.0  -1.75
+#
+BFIL
+fuseSupra.dat
+
+#==============================================================
+SURFACE
+Inner Wing
+ 7  1.0   8 -2.9   ! Nchord  Cspace   Nspan  Sspace
+ 
+INDEX 
+1
+ 
+ANGLE
+     1.0     twist angle bias for whole surface
+ 
+YDUPLICATE
+0.0
+ 
+SCALE
+1.0  1.0  0.0            ! 0   deg dihedral
+ 
+TRANSLATE
+0.0  0.0  0.0
+ 
+#---------------------------------------------
+SECTION
+ 0.0      0.0       0.0        9.75    0.0      1 0
+
+AFIL 0.0 1.0
+ag40d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.00  0.75    0. 0. 0.   -1.
+
+#---------------------
+SECTION
+ 0.25     31.5     31.5        8.75    0.0      1 0
+
+AFIL 0.0 1.0
+ag41d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.00  0.75    0. 0. 0.   -1.
+
+#==============================================================
+SURFACE
+Outer Wing
+ 7  1.0  18 -2.0   ! Nchord  Cspace   Nspan  Sspace
+ 
+INDEX 
+1
+ 
+ANGLE
+     1.0     twist angle bias for whole surface
+ 
+YDUPLICATE
+0.0
+ 
+SCALE
+1.0   1.0  0.0       !  7.5 deg dihedral
+
+TRANSLATE
+0.25  31.5  0.0     
+ 
+#---------------------------------------------
+SECTION
+ 0.0          0.0         0.0          8.75       0.0       1 0
+
+AFIL 0.0 1.0
+ag41d.dat
+
+CONTROL
+flap      1.0  0.75   0. 0. 0.    1.
+
+CONTROL
+aileron  -1.0  0.75   0. 0. 0.   -1.
+
+#---------------------
+SECTION
+ 1.0          23.5        23.5         6.25       -0.5       1 0
+
+AFIL 0.0 1.0
+ag42d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.0  0.75    0. 0. 0.   -1.
+
+DESIGN
+twist  1.0
+#---------------------
+SECTION
+ 1.72         29.5        29.5         5.00       -0.5       1 0
+
+AFIL 0.0 1.0
+ag42d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.0  0.75    0. 0. 0.   -1.
+
+DESIGN
+twist  1.0
+
+#---------------------
+SECTION
+ 2.75         34.0        34.0         3.40       -0.5       1 0
+
+AFIL 0.0 1.0
+ag43d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.0  0.75    0. 0. 0.   -1.
+
+DESIGN
+twist  1.0
+
+#---------------------
+SECTION
+ 3.50         35.50       35.50        2.3        -0.5       1 0
+
+AFIL 0.0 1.0
+ag43d.dat
+
+CONTROL
+flap      1.0  0.75    0. 0. 0.    1.
+
+CONTROL
+aileron  -1.0  0.75    0. 0. 0.   -1.
+
+DESIGN
+twist  1.0
+
+#==============================================================
+SURFACE
+Stab
+ 5  1.0  12 -1.0   ! Nchord  Cspace   Nspan  Sspace
+ 
+ANGLE
+     0.0     twist angle bias for whole surface
+ 
+YDUPLICATE
+0.0
+ 
+SCALE
+1.0 1.0 1.0
+ 
+TRANSLATE
+!37.5 0.0  2.1
+37.5 0.0  2.8
+
+#---------------------------------------------
+SECTION
+ 0.0      0.0        0.           4.40    0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+
+#---------------------
+SECTION
+ 0.15385  2.0        0.           4.1154  0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+
+#---------------------
+SECTION
+ 0.7692   10.0       0.           2.577   0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+
+#---------------------
+SECTION
+ 1.173    12.0       0.           1.942   0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+
+#---------------------
+SECTION
+ 1.50     12.7       0.           1.52    0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+
+#---------------------
+SECTION
+ 2.00     13.0       0.           1.0     0.000000
+CONTROL
+elevator 1.0   0.    0. 0. 0.     1.
+#==============================================================
+SURFACE
+Fin
+10  1.0  12 -1.0   ! Nchord  Cspace   Nspan  Sspace
+ 
+ANGLE
+     0.0     twist angle bias for whole surface
+ 
+SCALE
+!1.15 1.15 1.1
+1.61 1.61 1.54
+ 
+TRANSLATE
+42.5 0.0  0.0
+ 
+#---------------------------------------------
+SECTION
+ 0.0      0.0        0.           7.0     0.000000
+CONTROL
+rudder   1.0  0.43    0. 0. 0.    1.
+
+#---------------------
+SECTION
+ 1.125    0.0         9.0         4.0     0.000000
+CONTROL
+rudder   1.0  0.50    0. 0. 0.    1.
+
+#---------------------
+SECTION
+ 1.875    0.0        11.25        2.8333  0.000000
+CONTROL
+rudder   1.0  0.50    0. 0. 0.    1.
+
+#---------------------
+SECTION
+ 2.5      0.0        12.0         2.0     0.000000
+CONTROL
+rudder   1.0  0.50    0. 0. 0.    1.
+

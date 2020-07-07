@@ -1,0 +1,26 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Param dual_big_box is true if we have set up the wing with two big battery
+# boxes instead of some other configuration (one big battery + MVLV, one big
+# battery + one small battery box, etc.). It tells the state machine whether
+# to check the cell stack voltage of the other battery box before connecting
+# to the LV bus, to prevent overcurrent from one box into another (since both
+# big LV battery boxes use direct charging rather than DCDC trickle charger).
+
+default: !BattConfigParams
+  dual_big_box: Default
+
+dual_big: !BattConfigParams
+  dual_big_box: DualBig

@@ -1,0 +1,63 @@
+Exodriver: Linux (kernel 2.6+) and Mac OS X low-level LabJack U12, U3, U6, UE9,
+Digit and T7 USB library 2.0 and C examples
+04/01/2014
+support@labjack.com
+
+This package contains the liblabjackusb 2.0 USB library for low-level U3, U6,
+UE9, Digit and T7 USB communications and C examples for select LabJack devices.
+
+Refer to the INSTALL.Linux or INSTALL.MacOSX file for library requirements,
+installation instructions, and compiling information (library and examples).
+Note that the Exodriver requires the libusb-1.0 library.
+
+Library source code files are located in the liblabjackusb directory.
+
+C examples are provided for the LabJack U12, U3, U6, and UE9 in the examples
+directory. They demonstrate basic open/write/read/close operations using
+the liblabjackusb library and low-level function command/responses. Low-level
+function documentation can be found in Section 5 of the LabJack U12, U3, U6,
+and UE9 User Guides. The u3.h/u6.h/ue9.h, and u3.c/u6.h/ue9.c files contain
+helpful functions for opening/closing USB connections, calculate checksums,
+retrieving device analog calibration information, etc. There are 5 "easy"
+functions (eAIN, eDAC, eDI, eDO, eTCConfig and eTCValues) that are similar to
+our Windows LabJackUD driver's "easy" functions. All other .c files are
+examples.
+
+USB command/response times for the U3, U6 and UE9 can be found in section 3.1
+of their User's Guide and were tested with the Feedback low-level function. USB
+Stream times are in Section 3.2. These times were measured in Windows and are
+similar in Linux and Mac OS X. 
+
+Examples are not provided for the Digit or T7 in this package. Please refer to
+the LJM library package and documentation for their API.
+
+The U12 also has a high-level library, which requires this library
+(liblabjackusb), that provides the same API as the U12 Windows driver. It can
+be downloaded here:
+
+http://labjack.com/support/u12/ljacklm
+
+
+LICENSE
+
+All exodriver library and example source code are licensed under MIT X11.
+
+  Copyright (c) 2009 LabJack Corporation <support@labjack.com>
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.

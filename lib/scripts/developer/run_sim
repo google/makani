@@ -1,0 +1,4 @@
+#!/bin/bash -e
+cd "$(dirname $(readlink -f $0))/../../.."
+bazel build //sim:run_sim
+exec "$(dirname $(readlink -f $0))/../../../bazel-out/k8-py2-fastbuild/bin/sim/run_sim" "$@"

@@ -1,0 +1,40 @@
+# Use our own toolchain configuration.
+build --crosstool_top=//lib/bazel:toolchain
+
+# This removes the need for a symlink to /opt/makani/bazel/tools.
+build --package_path %workspace%:/opt/makani/bazel/base_workspace
+
+# Let bazel figure out how many jobs to use. This will typically be equal to
+# the number of cores.
+build --jobs auto
+test --jobs auto
+
+# By default, output errors directly when running tests.
+test --test_output errors
+
+# Options for "--config q7".
+build:q7 --cpu q7 --symlink_prefix q7-
+
+# Options for "--config tms570".
+build:tms570 --cpu tms570 --symlink_prefix tms570-
+
+# Options for "--config lcov":
+#  --platform_suffix: Appends "-lcov" to the name of the output directory,
+#      segregating build outputs.
+#  --coverage: Tells gcc to set the appropriate flags during compilation and
+#      linking.
+#  -O0: With the optimization level >=1, lcov will crash with an error
+#      "geninfo: ERROR: <some .gcno file>: reached unexpected end of file".
+#  --genrule_strategy, --spawn_strategy: Changing these to standalone disables
+#      sandboxing, which is needed to keep the sandbox from swallowing coverage
+#      files.
+build:lcov --platform_suffix -lcov --copt --coverage --linkopt --coverage \
+  --copt -O0 --genrule_strategy=standalone --spawn_strategy=standalone
+
+# Update volatile_status.txt on builds.
+build --workspace_status_command=lib/bazel/get_workspace_status
+
+query --color yes --curses yes
+
+# TODO: Remove this when python toolchains are set up.
+build --host_force_python=PY2

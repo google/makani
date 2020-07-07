@@ -1,0 +1,65 @@
+/*********************************************************************** 
+    Module:  Readme.absoft
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+    Report problems to:    guppy@maine.com
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+Xplot11  
+C     Version 4.46 11/28/01
+
+
+This Readme file pertains to the Absoft Linux f77 compiler, version 5.x, this 
+stuff has not been checked for later versions...
+
+Various compilers support intrinsics for RSHIFT, LSHIFT and AND().  Absoft
+is among those that do not have these supported (also HPUX f77 at last check).
+
+I added a file (util-ops.f) that needs to be included for the Absoft f77 environment.  This file contains functions for bit shifts RSHIFT,LSHIFT and 
+arithmetic AND(I1,I2) for fortrans that lack these intrinsics. 
+
+See the Makefile where this is one of the commented out options.
+
+Note that a number of compile switches need to be set when using the Absoft
+f77 compiler.  See the Makefile for these. 
+
+
+Absoft Linux f77 flags that I use... 
+
+DP = -N113 (only for making a double precision version of the library)
+FFLAGS  = -s -f -O -B100 -B108 -N3 -N90 $(DP)
+
+-s static
+-f force to lower case
+-O optimize
+-B100 Pentium Pro flag (use -B101 for general Pentium compatibility)
+-B108 append single underscore to names
+-N3 explicitly opened unformatted files contain record information
+-N90 pass character args same as g77 and f2c
+-N113 lame version of -r8 flag to promote singles into doubles 
+
+Note that you will need to link with the libU77 library if you use some
+of the UNIX fortran-isms like GETARG.  This is supplied by Absoft but is not
+in their default link libs.  You need to add this library to a link statement
+something like this:
+
+f77 -o foobar foobar.o -lU77
+
+HY
+

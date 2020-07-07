@@ -1,0 +1,17 @@
+This directory contains random, outdated but potentially useful info or 
+Makefiles. 
+
+You may need to read through these and change things substantially to get them working on your machine.  They may be of some help.
+
+makesplitlib  Script for making a libPlt.a with each routine in a separate
+              object file. This may be necessary if you want to change
+              particular subroutines within the plotlib with your own 
+              versions and get them to link.  The current library archives
+              all the routines within a source file into one linkable entity.
+
+Makefile.linux.shared  This makefile was used to make a shared object (ELF)
+                       library for Linux.  If you know what this means I don't
+                       really need to tell you more.
+
+Readme.absoft  Discusses the quirks of the Absoft Fortran compiler(s).  The 
+               Linux versions were the ones specifically addressed here.

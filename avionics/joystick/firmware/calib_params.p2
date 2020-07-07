@@ -1,0 +1,23 @@
+struct AxisCalibration {
+  int32 index;
+  float32 offset;
+  float32 gain;
+  float32 min;
+  float32 max;
+}
+
+struct SwitchCalibration {
+  int32 index;
+  uint32 min;
+  uint32 max;
+}
+
+param JoystickCalibParams {
+  AxisCalibration roll;
+  AxisCalibration pitch;
+  AxisCalibration yaw;
+  AxisCalibration throttle;
+
+  SwitchCalibration tri_switch;
+  SwitchCalibration momentary_switch;
+}

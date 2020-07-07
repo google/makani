@@ -1,0 +1,71 @@
+; Space vector modulation.
+START     CNT   {reqnum=4, request=GENREQ, reg=B, max=169};
+REAL_CNT  CNT   {reg=A, max=84};
+
+; Check for new PWM period; move semaphore in.
+LAST_CHK  MOV32 {remote=BRANCH, z_cond=ON, type=IMTOREG, reg=T, data=0,
+                 hr_data=0};
+
+; Decide which PWM buffer to use.
+BRANCH    ECMP  {next=YA1, hr_lr=LOW, en_pin_action=OFF, cond_addr=ZA1,
+                 pin=0, reg=T, data=1, hr_data=0};
+
+; Phase A.
+YA1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=22, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YA2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=23, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+YAN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=4, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YAN2      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=5, action=PULSELO, reg=A,
+                 data=63, hr_data=0};
+
+; Phase B.
+YB1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=14, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YB2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=15, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+YBN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=16, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YBN2      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=17, action=PULSELO, reg=A,
+                 data=63, hr_data=0};
+
+; Phase C.
+YC1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=18, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YC2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=19, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+YCN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=20, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+YCN2      ECMP  {next=START, hr_lr=HIGH, en_pin_action=ON, cond_addr=START,
+                 pin=21, action=PULSELO, reg=A, data=63, hr_data=0};
+
+; Phase A.
+ZA1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=22, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZA2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=23, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+ZAN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=4, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZAN2      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=5, action=PULSELO, reg=A,
+                 data=63, hr_data=0};
+
+; Phase B.
+ZB1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=14, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZB2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=15, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+ZBN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=16, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZBN2      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=17, action=PULSELO, reg=A,
+                 data=63, hr_data=0};
+
+; Phase C.
+ZC1       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=18, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZC2       ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=19, action=PULSEHI, reg=A,
+                 data=63, hr_data=0};
+ZCN1      ECMP  {hr_lr=HIGH, en_pin_action=ON, pin=20, action=PULSEHI, reg=A,
+                 data=21, hr_data=0};
+ZCN2      ECMP  {next=START, hr_lr=HIGH, en_pin_action=ON, cond_addr=START,
+                 pin=21, action=PULSELO, reg=A, data=63, hr_data=0};

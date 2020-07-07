@@ -1,0 +1,23 @@
+ftnchek -common=1 -novice=4 -notruncation \
+-include=../plotlib \
+xrotor.f \
+xoper.f \
+xdesi.f \
+xmodi.f \
+xaero.f \
+xjmap.f \
+xio.f \
+xnoise.f \
+xrotpl.f \
+xcasepl.f \
+xbend.f \
+xinte.f \
+xutils.f \
+vortex.f plotdata.f \
+jputil.f plutil.f modify.f srclin.f spline.f userio.f \
+../plotlib/plt_base.f \
+../plotlib/plt_font.f \
+../plotlib/plt_color.f \
+../plotlib/plt_util.f
+
+

@@ -1,0 +1,53 @@
+Compiling AVL using MinGW under Windows
+Norman H. Princen
+June 22, 2011
+
+The current AVL Windows build available on the AVL website (http://web.mit.edu/drela/Public/web/avl/) uses Intel Fortran (ifort) and Visual C (cl).  Many people don't have access to these tools and there may be better long term support for open source tools.  AVL has been previously built using the Cygwin toolset (http://www.cygwin.com/), but this has several disadvantages.  Cygwin itself is a very heavy installation and in order to compile plotlib, requires the instalation of Cygwin/X (http://x.cygwin.com/).  The X Windows server must be started before AVL is called or else there is no plotting window.  Also, the AVL executable is not stand alone, requiring the cygwin.dll to be present in order to function.  So, because of the need to install Cygwin/X and the cygwin.dll, it is not easy to share the avl.exe with other users.
+
+An alternative to Cygwin is the MinGW compiler environment with MSYS (http://www.mingw.org/).  This is also open source software with good support.  The major disadvantage is the lack of X Windows support.  At first, this seemed like a major stumbling block, but by creating make files which use parts of the gfortran build process for Mac OSX and parts of the Intel Fortran build process, it is possible to circumvent the need for X Windows in a Unix-like build on Windows.
+
+Steps in performing a MinGW build of AVL on Windows using new MinGW Makefiles:
+
+1) Download the latest MinGW installer from http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/
+
+2) Open the installer and follow the steps to install the MinGW and MSYS packages.  Use the pre-packaged repository catalogues rather than the more experimental latest repository catalogues.  Recommend staying with the default installation directory of C:\MinGW.  Also recommend installation of all optional packages just to have a complete installation.  Entire installation only requires 293 MB of disk space.
+
+3) Append the following string to the end of the Path system environment variable in Windows:
+
+;C:\MinGW\bin;C:\MinGW\MSYS\1.0\local\bin;C:\MinGW\MSYS\1.0\bin
+
+For more specific help on this, see http://www.mingw.org/wiki/Getting_Started#toc4
+
+4) Download the latest AVL 3.31 source code from the AVL website (http://web.mit.edu/drela/Public/web/avl/).  Place the downloaded file in the C:\MinGW\msys\1.0\home\USERNAME directory, where USERNAME is your Windows login user name.
+
+5) Use 7Zip (http://www.7-zip.org/) or some other tool to decompress the AVL software folder into the same directory as above.
+
+6) Navigate into the AVL folders and rename the following files if you want to keep the originals for later reference:
+
+\Avl\bin\Makefile  to  Makefile.Old
+\Avl\eispack\Makefile  to  Makefile.Old
+\Avl\plotlib\config.make  to  config.make.Old
+\Avl\plotlib\examples\gridtest.f  to  gridtest.f.Old
+
+7) Place the MinGW_AVL.zip file in the C:\MinGW\msys\1.0\home\USERNAME directory.
+
+8) Unzip the file using 7Zip or other utility.  This places the modified Makefiles and other code into the AVL directory structure.
+
+9) Decide if you want to compile AVL in single or double precision.  The single precision Makefile and config.make are available with the MinGW filename extension.  The double precision versions have the MDP filename extension.  Copy whichever one is desired to the same name with the filename extension removed.  Do this in the \bin, \eispack, and \plotlib directories.
+
+10) Start the MinGW shell.  This can be done by clicking on the Start Menu => All Programs => MinGW => MinGW Shell.
+
+11) Execute the following steps in the MinGW Shell:
+
+ $ cd avl
+ $ cd plotlib/mingw
+ $ make             (creates libPlt.a or libPltDP.a)
+
+ $ cd ../../eispack
+ $ make             (creates eispack.a)
+ 
+ $ cd ../bin
+ $ make             (creates avl.exe)
+ $ exit
+ 
+12) That is it!  You now have an avl.exe in the /bin directory.  It is stand alone and doesn't need any other supporting dll or other library files.

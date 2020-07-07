@@ -1,0 +1,13 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 FcHardware {
+  RevAb = 0,
+  RevBa = 1,
+  RevBb = 2,
+  RevBc = 3,
+  RevBd = 4,
+}
+
+specialize(SerialParams) FcSerialParams {
+  FcHardware hardware_revision;
+}

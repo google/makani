@@ -1,0 +1,43 @@
+#!/bin/bash
+
+readonly DISK_USED_THRESHOLD_PERCENT=75  # Being over 75% full slows writes.
+readonly LOG_BASE_DIR='/apps/logs'
+
+cd "${LOG_BASE_DIR}"
+
+function get_next_log_dir() {
+  echo "$(ls | grep 'log-' | sort -t'-' -k2,2 -n | head -n 1)"
+}
+
+# Arg: Directory to clean/remove.
+function clean_log_dir() {
+  cd "$1"
+  while [[ "$(df -m . | tail -1 | \
+              awk '{print substr($5, 0, length($5) - 1)}')" \
+           -gt "${DISK_USED_THRESHOLD_PERCENT}" \
+           && "$(ls *.pcap *.pcap.gz 2> /dev/null | wc -l)" -gt 0 ]]; do
+    rm "$(ls -t *.pcap *.pcap.gz 2> /dev/null | tail -1)"
+  done
+  local empty=0
+  if [[ "$(ls *.pcap *.pcap.gz 2> /dev/null | wc -l)" -lt 1 ]]; then
+    empty=1
+  fi
+  cd '-' > /dev/null
+  if [[ "${empty}" = 1 ]]; then
+    rm -rf "$1"
+  fi
+}
+
+function clean_all_dirs() {
+  while [[ "$(df -m . | tail -1 | \
+              awk '{print substr($5, 0, length($5) - 1)}')" \
+           -gt "${DISK_USED_THRESHOLD_PERCENT}" ]]; do
+    local dir_to_clean="$(get_next_log_dir '.')"
+    if [ -z "${dir_to_clean}" ]; then
+      exit 0
+    fi
+    clean_log_dir "${dir_to_clean}"
+  done
+}
+
+clean_all_dirs

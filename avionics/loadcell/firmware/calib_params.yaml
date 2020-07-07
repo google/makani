@@ -1,0 +1,136 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Nominal pin loadcell scale factor.
+# (1000 / 2**23)(mV/V/count) * (300 kN / 2.2 mV/V)
+
+# Channel 0 is nominally connected to the Py loadcell axis, or body X.
+# Channel 1 is nominally connected to the Px loadcell axis, or body YZ.
+
+# Strainsert calibration parameters.
+# Derivation of the specific calibration factors comes from:
+# https://docs.google.com/document/d/1EqCpkUnA3Ui4gY6m3QuDXKvVd2euilmG8x_GJTt1Zp0
+strainsert:
+  - &Q_23100_1   { strain_1_scale: 17.7234, strain_0_scale: 17.7367 }
+  - &Q_23100_1AR { strain_1_scale: 17.6926, strain_0_scale: 17.6688 }
+  - &Q_23100_2   { strain_1_scale: 17.6142, strain_0_scale: 17.6184 }
+  - &Q_23100_3   { strain_1_scale: 17.7234, strain_0_scale: 17.7918 }
+  - &Q_23932_1   { strain_1_scale: 16.8289, strain_0_scale: 17.3830 }
+  - &Q_23932_2   { strain_1_scale: 16.5007, strain_0_scale: 16.7287 }
+  - &Q_23932_3   { strain_1_scale: 16.6873, strain_0_scale: 16.9583 }
+  - &Q_23932_4   { strain_1_scale: 17.7165, strain_0_scale: 17.8782 }
+  - &Q_23932_5   { strain_1_scale: 17.9933, strain_0_scale: 17.8761 }
+  - &Q_23674_1   { strain_1_scale: 17.6227, strain_0_scale: 17.5707 }
+  - &Q_23674_2   { strain_1_scale: 17.6317, strain_0_scale: 17.5967 }
+  - &Q_23674_3   { strain_1_scale: 17.6688, strain_0_scale: 17.6253 }
+  - &Q_23674_4   { strain_1_scale: 17.8947, strain_0_scale: 17.8231 }
+  - &Q_23674_5   { strain_1_scale: 17.7059, strain_0_scale: 17.7870 }
+
+bridle_uncalibrated: &BRIDLE_UNCALIBRATED
+  loadcell_zero: 0.0
+  encoder_pi_over_2_port: 1.5707963  # Pi/2 radians.
+  encoder_pi_over_2_stbd: -1.5707963  # -Pi/2 radians.
+
+
+# SN1 configuration.
+
+port_sn1: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23100_1AR
+    strain_0_zero: 8405380
+    strain_1_zero: 8389269
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+starboard_sn1: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23100_2
+    strain_0_zero: 8369157
+    strain_1_zero: 8388252
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+
+# SN4 configuration.
+
+port_sn4: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23932_5
+    strain_0_zero: 8446835
+    strain_1_zero: 8398627
+  bridle_calib:
+    loadcell_zero: -240.00
+    encoder_pi_over_2_port: 3.6378
+    encoder_pi_over_2_stbd: 5.2042
+
+starboard_sn4: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23932_1
+    strain_0_zero: 8396390
+    strain_1_zero: 8347357
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+
+# SN5 configuration.
+# Bridle junction loadcell not used on SN5.
+# Load pins zeroed on 2019-06-14 at 16C ambient temp.
+
+port_sn5: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23674_5
+    strain_0_zero: 8360130
+    strain_1_zero: 8386282
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+starboard_sn5: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23932_4
+    strain_0_zero: 8392796
+    strain_1_zero: 8418911
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+
+# SN6 configuration.
+# Bridle junction loadcell not used on SN6.
+# Load pins zeroed on 2020-01-07 at 20C ambient temp.
+
+port_sn6: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23932_3
+    strain_0_zero: 8416730
+    strain_1_zero: 8374884
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+starboard_sn6: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23674_4
+    strain_0_zero: 8384192
+    strain_1_zero: 8379967
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+
+# SN7 configuration.
+# Load pins not yet zeroed.
+
+port_sn7: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23674_2
+    strain_0_zero: 0
+    strain_1_zero: 0
+  bridle_calib: *BRIDLE_UNCALIBRATED
+
+starboard_sn7: !LoadcellCalibParams
+  pin_calib:
+    << : *Q_23932_2
+    strain_0_zero: 0
+    strain_1_zero: 0
+  bridle_calib: *BRIDLE_UNCALIBRATED

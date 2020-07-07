@@ -1,0 +1,3 @@
+#!/bin/bash
+
+  killall -SIGUSR1 tcpdump 2> >(grep -v 'no process' 1>&2)

@@ -1,0 +1,349 @@
+ECONNREFUSED	modbus-tcp.h	21
+ECONNRESET	modbus-tcp.h	18
+EINPROGRESS	modbus-tcp.h	30
+EMBBADCRC	modbus.h	144
+EMBBADDATA	modbus.h	145
+EMBBADEXC	modbus.h	146
+EMBBADSLAVE	modbus.h	149
+EMBMDATA	modbus.h	148
+EMBUNKEXC	modbus.h	147
+EMBXACK	modbus.h	136
+EMBXGPATH	modbus.h	140
+EMBXGTAR	modbus.h	141
+EMBXILADD	modbus.h	133
+EMBXILFUN	modbus.h	132
+EMBXILVAL	modbus.h	134
+EMBXMEMPAR	modbus.h	139
+EMBXNACK	modbus.h	138
+EMBXSBUSY	modbus.h	137
+EMBXSFAIL	modbus.h	135
+ENOPROTOOPT	modbus-tcp.h	27
+ENOTSUP	modbus-rtu-private.h	30
+ETIMEDOUT	modbus-tcp.h	24
+FALSE	modbus.h	45
+GCC_VERSION	modbus-data.c	31
+LIBMODBUS_VERSION	modbus-version.h	32
+LIBMODBUS_VERSION_CHECK	modbus-version.h	/^#define LIBMODBUS_VERSION_CHECK(major,minor,micro)/
+LIBMODBUS_VERSION_HEX	modbus-version.h	39
+LIBMODBUS_VERSION_MAJOR	modbus-version.h	23
+LIBMODBUS_VERSION_MICRO	modbus-version.h	29
+LIBMODBUS_VERSION_MINOR	modbus-version.h	26
+LIBMODBUS_VERSION_STRING	modbus-version.h	36
+MAX_MESSAGE_LENGTH	modbus.c	34
+MODBUS_API	modbus.h	26
+MODBUS_API	modbus.h	28
+MODBUS_API	modbus.h	31
+MODBUS_BEGIN_DECLS	modbus.h	35
+MODBUS_BEGIN_DECLS	modbus.h	38
+MODBUS_BROADCAST_ADDRESS	modbus.h	74
+MODBUS_END_DECLS	modbus.h	36
+MODBUS_END_DECLS	modbus.h	39
+MODBUS_ENOBASE	modbus.h	114
+MODBUS_ERROR_RECOVERY_LINK	modbus.h	175
+MODBUS_ERROR_RECOVERY_NONE	modbus.h	174
+MODBUS_ERROR_RECOVERY_PROTOCOL	modbus.h	176
+MODBUS_EXCEPTION_ACKNOWLEDGE	modbus.h	122
+MODBUS_EXCEPTION_GATEWAY_PATH	modbus.h	127
+MODBUS_EXCEPTION_GATEWAY_TARGET	modbus.h	128
+MODBUS_EXCEPTION_ILLEGAL_DATA_ADDRESS	modbus.h	119
+MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE	modbus.h	120
+MODBUS_EXCEPTION_ILLEGAL_FUNCTION	modbus.h	118
+MODBUS_EXCEPTION_MAX	modbus.h	129
+MODBUS_EXCEPTION_MEMORY_PARITY	modbus.h	125
+MODBUS_EXCEPTION_NEGATIVE_ACKNOWLEDGE	modbus.h	124
+MODBUS_EXCEPTION_NOT_DEFINED	modbus.h	126
+MODBUS_EXCEPTION_SLAVE_OR_SERVER_BUSY	modbus.h	123
+MODBUS_EXCEPTION_SLAVE_OR_SERVER_FAILURE	modbus.h	121
+MODBUS_FC_MASK_WRITE_REGISTER	modbus.h	71
+MODBUS_FC_READ_COILS	modbus.h	61
+MODBUS_FC_READ_DISCRETE_INPUTS	modbus.h	62
+MODBUS_FC_READ_EXCEPTION_STATUS	modbus.h	67
+MODBUS_FC_READ_HOLDING_REGISTERS	modbus.h	63
+MODBUS_FC_READ_INPUT_REGISTERS	modbus.h	64
+MODBUS_FC_REPORT_SLAVE_ID	modbus.h	70
+MODBUS_FC_WRITE_AND_READ_REGISTERS	modbus.h	72
+MODBUS_FC_WRITE_MULTIPLE_COILS	modbus.h	68
+MODBUS_FC_WRITE_MULTIPLE_REGISTERS	modbus.h	69
+MODBUS_FC_WRITE_SINGLE_COIL	modbus.h	65
+MODBUS_FC_WRITE_SINGLE_REGISTER	modbus.h	66
+MODBUS_GET_HIGH_BYTE	modbus.h	/^#define MODBUS_GET_HIGH_BYTE(data) (((data) >> 8) /
+MODBUS_GET_INT16_FROM_INT8	modbus.h	/^#define MODBUS_GET_INT16_FROM_INT8(tab_int8, index/
+MODBUS_GET_INT32_FROM_INT16	modbus.h	/^#define MODBUS_GET_INT32_FROM_INT16(tab_int16, ind/
+MODBUS_GET_INT64_FROM_INT16	modbus.h	/^#define MODBUS_GET_INT64_FROM_INT16(tab_int16, ind/
+MODBUS_GET_LOW_BYTE	modbus.h	/^#define MODBUS_GET_LOW_BYTE(data) ((data) & 0xFF)$/
+MODBUS_H	modbus.h	8
+MODBUS_MAX_ADU_LENGTH	modbus.h	111
+MODBUS_MAX_PDU_LENGTH	modbus.h	101
+MODBUS_MAX_READ_BITS	modbus.h	81
+MODBUS_MAX_READ_REGISTERS	modbus.h	91
+MODBUS_MAX_WRITE_BITS	modbus.h	82
+MODBUS_MAX_WRITE_REGISTERS	modbus.h	92
+MODBUS_MAX_WR_READ_REGISTERS	modbus.h	94
+MODBUS_MAX_WR_WRITE_REGISTERS	modbus.h	93
+MODBUS_PRIVATE_H	modbus-private.h	8
+MODBUS_RTU_H	modbus-rtu.h	8
+MODBUS_RTU_MAX_ADU_LENGTH	modbus-rtu.h	17
+MODBUS_RTU_PRIVATE_H	modbus-rtu-private.h	8
+MODBUS_RTU_RS232	modbus-rtu.h	22
+MODBUS_RTU_RS485	modbus-rtu.h	23
+MODBUS_RTU_RTS_DOWN	modbus-rtu.h	30
+MODBUS_RTU_RTS_NONE	modbus-rtu.h	28
+MODBUS_RTU_RTS_UP	modbus-rtu.h	29
+MODBUS_SET_INT16_TO_INT8	modbus.h	/^#define MODBUS_SET_INT16_TO_INT8(tab_int8, index, /
+MODBUS_SET_INT32_TO_INT16	modbus.h	/^#define MODBUS_SET_INT32_TO_INT16(tab_int16, index/
+MODBUS_SET_INT64_TO_INT16	modbus.h	/^#define MODBUS_SET_INT64_TO_INT16(tab_int16, index/
+MODBUS_TCP_DEFAULT_PORT	modbus-tcp.h	34
+MODBUS_TCP_H	modbus-tcp.h	8
+MODBUS_TCP_MAX_ADU_LENGTH	modbus-tcp.h	40
+MODBUS_TCP_PRIVATE_H	modbus-tcp-private.h	8
+MODBUS_TCP_SLAVE	modbus-tcp.h	35
+MODBUS_VERSION_H	modbus-version.h	20
+MSG_CONFIRMATION	modbus-private.h	56
+MSG_DONTWAIT	modbus-tcp.c	50
+MSG_INDICATION	modbus-private.h	54
+MSG_LENGTH_UNDEFINED	modbus.c	26
+MSG_NOSIGNAL	modbus-tcp.c	46
+OFF	modbus.h	53
+ON	modbus.h	57
+OS_BSD	modbus-tcp.c	34
+OS_WIN32	modbus-tcp.c	18
+PY_BUF_SIZE	modbus-rtu-private.h	34
+SHUT_RDWR	modbus-tcp.c	27
+TRUE	modbus.h	49
+WINVER	modbus-tcp.c	22
+_BYTE_TIMEOUT	modbus-private.h	40
+_MIN_REQ_LENGTH	modbus-private.h	32
+_MODBUS_BACKEND_TYPE_RTU	modbus-private.h	43
+_MODBUS_BACKEND_TYPE_TCP	modbus-private.h	44
+_MODBUS_EXCEPTION_RSP_LENGTH	modbus-private.h	36
+_MODBUS_RTU_CHECKSUM_LENGTH	modbus-rtu-private.h	26
+_MODBUS_RTU_HEADER_LENGTH	modbus-rtu-private.h	22
+_MODBUS_RTU_PRESET_REQ_LENGTH	modbus-rtu-private.h	23
+_MODBUS_RTU_PRESET_RSP_LENGTH	modbus-rtu-private.h	24
+_MODBUS_TCP_CHECKSUM_LENGTH	modbus-tcp-private.h	14
+_MODBUS_TCP_HEADER_LENGTH	modbus-tcp-private.h	10
+_MODBUS_TCP_PI_NODE_LENGTH	modbus-tcp-private.h	30
+_MODBUS_TCP_PI_SERVICE_LENGTH	modbus-tcp-private.h	31
+_MODBUS_TCP_PRESET_REQ_LENGTH	modbus-tcp-private.h	11
+_MODBUS_TCP_PRESET_RSP_LENGTH	modbus-tcp-private.h	12
+_REPORT_SLAVE_ID	modbus-private.h	34
+_RESPONSE_TIMEOUT	modbus-private.h	39
+_STEP_DATA	modbus.c	40
+_STEP_FUNCTION	modbus.c	38
+_STEP_META	modbus.c	39
+_connect	modbus-tcp.c	/^static int _connect(int sockfd, const struct socka/
+_error_print	modbus.c	/^void _error_print(modbus_t *ctx, const char *conte/
+_modbus	modbus-private.h	92
+_modbus_backend	modbus-private.h	67
+_modbus_init_common	modbus.c	/^void _modbus_init_common(modbus_t *ctx)$/
+_modbus_receive_msg	modbus.c	/^int _modbus_receive_msg(modbus_t *ctx, uint8_t *ms/
+_modbus_rtu	modbus-rtu-private.h	45
+_modbus_rtu_backend	modbus-rtu.c	1188
+_modbus_rtu_build_request_basis	modbus-rtu.c	/^static int _modbus_rtu_build_request_basis(modbus_/
+_modbus_rtu_build_response_basis	modbus-rtu.c	/^static int _modbus_rtu_build_response_basis(sft_t /
+_modbus_rtu_check_integrity	modbus-rtu.c	/^static int _modbus_rtu_check_integrity(modbus_t *c/
+_modbus_rtu_close	modbus-rtu.c	/^static void _modbus_rtu_close(modbus_t *ctx)$/
+_modbus_rtu_connect	modbus-rtu.c	/^static int _modbus_rtu_connect(modbus_t *ctx)$/
+_modbus_rtu_flush	modbus-rtu.c	/^static int _modbus_rtu_flush(modbus_t *ctx)$/
+_modbus_rtu_free	modbus-rtu.c	/^static void _modbus_rtu_free(modbus_t *ctx) {$/
+_modbus_rtu_ioctl_rts	modbus-rtu.c	/^static void _modbus_rtu_ioctl_rts(modbus_t *ctx, i/
+_modbus_rtu_pre_check_confirmation	modbus-rtu.c	/^static int _modbus_rtu_pre_check_confirmation(modb/
+_modbus_rtu_prepare_response_tid	modbus-rtu.c	/^static int _modbus_rtu_prepare_response_tid(const /
+_modbus_rtu_receive	modbus-rtu.c	/^static int _modbus_rtu_receive(modbus_t *ctx, uint/
+_modbus_rtu_recv	modbus-rtu.c	/^static ssize_t _modbus_rtu_recv(modbus_t *ctx, uin/
+_modbus_rtu_select	modbus-rtu.c	/^static int _modbus_rtu_select(modbus_t *ctx, fd_se/
+_modbus_rtu_send	modbus-rtu.c	/^static ssize_t _modbus_rtu_send(modbus_t *ctx, con/
+_modbus_rtu_send_msg_pre	modbus-rtu.c	/^static int _modbus_rtu_send_msg_pre(uint8_t *req, /
+_modbus_set_slave	modbus-rtu.c	/^static int _modbus_set_slave(modbus_t *ctx, int sl/
+_modbus_set_slave	modbus-tcp.c	/^static int _modbus_set_slave(modbus_t *ctx, int sl/
+_modbus_tcp	modbus-tcp-private.h	18
+_modbus_tcp_backend	modbus-tcp.c	735
+_modbus_tcp_build_request_basis	modbus-tcp.c	/^static int _modbus_tcp_build_request_basis(modbus_/
+_modbus_tcp_build_response_basis	modbus-tcp.c	/^static int _modbus_tcp_build_response_basis(sft_t /
+_modbus_tcp_check_integrity	modbus-tcp.c	/^static int _modbus_tcp_check_integrity(modbus_t *c/
+_modbus_tcp_close	modbus-tcp.c	/^static void _modbus_tcp_close(modbus_t *ctx)$/
+_modbus_tcp_connect	modbus-tcp.c	/^static int _modbus_tcp_connect(modbus_t *ctx)$/
+_modbus_tcp_flush	modbus-tcp.c	/^static int _modbus_tcp_flush(modbus_t *ctx)$/
+_modbus_tcp_free	modbus-tcp.c	/^static void _modbus_tcp_free(modbus_t *ctx) {$/
+_modbus_tcp_init_win32	modbus-tcp.c	/^static int _modbus_tcp_init_win32(void)$/
+_modbus_tcp_pi	modbus-tcp-private.h	33
+_modbus_tcp_pi_backend	modbus-tcp.c	758
+_modbus_tcp_pi_connect	modbus-tcp.c	/^static int _modbus_tcp_pi_connect(modbus_t *ctx)$/
+_modbus_tcp_pre_check_confirmation	modbus-tcp.c	/^static int _modbus_tcp_pre_check_confirmation(modb/
+_modbus_tcp_prepare_response_tid	modbus-tcp.c	/^static int _modbus_tcp_prepare_response_tid(const /
+_modbus_tcp_receive	modbus-tcp.c	/^static int _modbus_tcp_receive(modbus_t *ctx, uint/
+_modbus_tcp_recv	modbus-tcp.c	/^static ssize_t _modbus_tcp_recv(modbus_t *ctx, uin/
+_modbus_tcp_select	modbus-tcp.c	/^static int _modbus_tcp_select(modbus_t *ctx, fd_se/
+_modbus_tcp_send	modbus-tcp.c	/^static ssize_t _modbus_tcp_send(modbus_t *ctx, con/
+_modbus_tcp_send_msg_pre	modbus-tcp.c	/^static int _modbus_tcp_send_msg_pre(uint8_t *req, /
+_modbus_tcp_set_ipv4_options	modbus-tcp.c	/^static int _modbus_tcp_set_ipv4_options(int s)$/
+_sft	modbus-private.h	61
+_sleep_response_timeout	modbus.c	/^static void _sleep_response_timeout(modbus_t *ctx)/
+_step_t	modbus.c	41
+backend	modbus-private.h	101
+backend_data	modbus-private.h	102
+backend_type	modbus-private.h	68
+baud	modbus-rtu-private.h	49
+bswap_16	modbus-data.c	40
+bswap_16	modbus-data.c	/^static inline uint16_t bswap_16(uint16_t x)$/
+bswap_32	modbus-data.c	34
+bswap_32	modbus-data.c	35
+bswap_32	modbus-data.c	39
+bswap_32	modbus-data.c	/^static inline uint32_t bswap_32(uint32_t x)$/
+buf	modbus-rtu-private.h	39
+build_request_basis	modbus-private.h	/^    int (*build_request_basis) (modbus_t *ctx, int/
+build_response_basis	modbus-private.h	/^    int (*build_response_basis) (sft_t *sft, uint8/
+byte_timeout	modbus-private.h	100
+check_confirmation	modbus.c	/^static int check_confirmation(modbus_t *ctx, uint8/
+check_integrity	modbus-private.h	/^    int (*check_integrity) (modbus_t *ctx, uint8_t/
+checksum_length	modbus-private.h	70
+close	modbus-private.h	/^    void (*close) (modbus_t *ctx);$/
+close	modbus-tcp.c	28
+compute_data_length_after_meta	modbus.c	/^static int compute_data_length_after_meta(modbus_t/
+compute_meta_length_after_function	modbus.c	/^static uint8_t compute_meta_length_after_function(/
+compute_response_length_from_request	modbus.c	/^static unsigned int compute_response_length_from_r/
+confirmation_to_ignore	modbus-rtu-private.h	73
+connect	modbus-private.h	/^    int (*connect) (modbus_t *ctx);$/
+crc16	modbus-rtu.c	/^static uint16_t crc16(uint8_t *buffer, uint16_t bu/
+data_bit	modbus-rtu-private.h	51
+debug	modbus-private.h	97
+device	modbus-rtu-private.h	47
+error_recovery	modbus-private.h	98
+fd	modbus-rtu-private.h	37
+flush	modbus-private.h	/^    int (*flush) (modbus_t *ctx);$/
+free	modbus-private.h	/^    void (*free) (modbus_t *ctx);$/
+function	modbus-private.h	63
+header_length	modbus-private.h	69
+ip	modbus-tcp-private.h	27
+libmodbus_version_major	modbus.c	29
+libmodbus_version_micro	modbus.c	31
+libmodbus_version_minor	modbus.c	30
+max_adu_length	modbus-private.h	71
+modbus_backend_t	modbus-private.h	90
+modbus_backend_type_t	modbus-private.h	45
+modbus_close	modbus.c	/^void modbus_close(modbus_t *ctx)$/
+modbus_connect	modbus.c	/^int modbus_connect(modbus_t *ctx)$/
+modbus_error_recovery_mode	modbus.h	177
+modbus_flush	modbus.c	/^int modbus_flush(modbus_t *ctx)$/
+modbus_free	modbus.c	/^void modbus_free(modbus_t *ctx)$/
+modbus_get_byte_from_bits	modbus-data.c	/^uint8_t modbus_get_byte_from_bits(const uint8_t *s/
+modbus_get_byte_timeout	modbus.c	/^int modbus_get_byte_timeout(modbus_t *ctx, uint32_/
+modbus_get_float	modbus-data.c	/^float modbus_get_float(const uint16_t *src)$/
+modbus_get_float_abcd	modbus-data.c	/^float modbus_get_float_abcd(const uint16_t *src)$/
+modbus_get_float_badc	modbus-data.c	/^float modbus_get_float_badc(const uint16_t *src)$/
+modbus_get_float_cdab	modbus-data.c	/^float modbus_get_float_cdab(const uint16_t *src)$/
+modbus_get_float_dcba	modbus-data.c	/^float modbus_get_float_dcba(const uint16_t *src)$/
+modbus_get_header_length	modbus.c	/^int modbus_get_header_length(modbus_t *ctx)$/
+modbus_get_response_timeout	modbus.c	/^int modbus_get_response_timeout(modbus_t *ctx, uin/
+modbus_get_socket	modbus.c	/^int modbus_get_socket(modbus_t *ctx)$/
+modbus_mapping_free	modbus.c	/^void modbus_mapping_free(modbus_mapping_t *mb_mapp/
+modbus_mapping_new	modbus.c	/^modbus_mapping_t* modbus_mapping_new(int nb_bits, /
+modbus_mapping_offset_new	modbus.c	/^modbus_mapping_t* modbus_mapping_offset_new(int nb/
+modbus_mapping_t	modbus.h	170
+modbus_mask_write_register	modbus.c	/^int modbus_mask_write_register(modbus_t *ctx, int /
+modbus_new_rtu	modbus-rtu.c	/^modbus_t* modbus_new_rtu(const char *device,$/
+modbus_new_tcp	modbus-tcp.c	/^modbus_t* modbus_new_tcp(const char *ip, int port)/
+modbus_new_tcp_pi	modbus-tcp.c	/^modbus_t* modbus_new_tcp_pi(const char *node, cons/
+modbus_read_bits	modbus.c	/^int modbus_read_bits(modbus_t *ctx, int addr, int /
+modbus_read_input_bits	modbus.c	/^int modbus_read_input_bits(modbus_t *ctx, int addr/
+modbus_read_input_registers	modbus.c	/^int modbus_read_input_registers(modbus_t *ctx, int/
+modbus_read_registers	modbus.c	/^int modbus_read_registers(modbus_t *ctx, int addr,/
+modbus_receive	modbus.c	/^int modbus_receive(modbus_t *ctx, uint8_t *req)$/
+modbus_receive_confirmation	modbus.c	/^int modbus_receive_confirmation(modbus_t *ctx, uin/
+modbus_reply	modbus.c	/^int modbus_reply(modbus_t *ctx, const uint8_t *req/
+modbus_reply_exception	modbus.c	/^int modbus_reply_exception(modbus_t *ctx, const ui/
+modbus_report_slave_id	modbus.c	/^int modbus_report_slave_id(modbus_t *ctx, int max_/
+modbus_rtu_get_rts	modbus-rtu.c	/^int modbus_rtu_get_rts(modbus_t *ctx)$/
+modbus_rtu_get_rts_delay	modbus-rtu.c	/^int modbus_rtu_get_rts_delay(modbus_t *ctx)$/
+modbus_rtu_get_serial_mode	modbus-rtu.c	/^int modbus_rtu_get_serial_mode(modbus_t *ctx)$/
+modbus_rtu_set_custom_rts	modbus-rtu.c	/^int modbus_rtu_set_custom_rts(modbus_t *ctx, void /
+modbus_rtu_set_rts	modbus-rtu.c	/^int modbus_rtu_set_rts(modbus_t *ctx, int mode)$/
+modbus_rtu_set_rts_delay	modbus-rtu.c	/^int modbus_rtu_set_rts_delay(modbus_t *ctx, int us/
+modbus_rtu_set_serial_mode	modbus-rtu.c	/^int modbus_rtu_set_serial_mode(modbus_t *ctx, int /
+modbus_rtu_t	modbus-rtu-private.h	74
+modbus_send_raw_request	modbus.c	/^int modbus_send_raw_request(modbus_t *ctx, uint8_t/
+modbus_set_bits_from_byte	modbus-data.c	/^void modbus_set_bits_from_byte(uint8_t *dest, int /
+modbus_set_bits_from_bytes	modbus-data.c	/^void modbus_set_bits_from_bytes(uint8_t *dest, int/
+modbus_set_byte_timeout	modbus.c	/^int modbus_set_byte_timeout(modbus_t *ctx, uint32_/
+modbus_set_debug	modbus.c	/^int modbus_set_debug(modbus_t *ctx, int flag)$/
+modbus_set_error_recovery	modbus.c	/^int modbus_set_error_recovery(modbus_t *ctx,$/
+modbus_set_float	modbus-data.c	/^void modbus_set_float(float f, uint16_t *dest)$/
+modbus_set_float_abcd	modbus-data.c	/^void modbus_set_float_abcd(float f, uint16_t *dest/
+modbus_set_float_badc	modbus-data.c	/^void modbus_set_float_badc(float f, uint16_t *dest/
+modbus_set_float_cdab	modbus-data.c	/^void modbus_set_float_cdab(float f, uint16_t *dest/
+modbus_set_float_dcba	modbus-data.c	/^void modbus_set_float_dcba(float f, uint16_t *dest/
+modbus_set_response_timeout	modbus.c	/^int modbus_set_response_timeout(modbus_t *ctx, uin/
+modbus_set_slave	modbus.c	/^int modbus_set_slave(modbus_t *ctx, int slave)$/
+modbus_set_socket	modbus.c	/^int modbus_set_socket(modbus_t *ctx, int s)$/
+modbus_strerror	modbus.c	/^const char *modbus_strerror(int errnum) {$/
+modbus_t	modbus.h	155
+modbus_tcp_accept	modbus-tcp.c	/^int modbus_tcp_accept(modbus_t *ctx, int *s)$/
+modbus_tcp_listen	modbus-tcp.c	/^int modbus_tcp_listen(modbus_t *ctx, int nb_connec/
+modbus_tcp_pi_accept	modbus-tcp.c	/^int modbus_tcp_pi_accept(modbus_t *ctx, int *s)$/
+modbus_tcp_pi_listen	modbus-tcp.c	/^int modbus_tcp_pi_listen(modbus_t *ctx, int nb_con/
+modbus_tcp_pi_t	modbus-tcp-private.h	42
+modbus_tcp_t	modbus-tcp-private.h	28
+modbus_write_and_read_registers	modbus.c	/^int modbus_write_and_read_registers(modbus_t *ctx,/
+modbus_write_bit	modbus.c	/^int modbus_write_bit(modbus_t *ctx, int addr, int /
+modbus_write_bits	modbus.c	/^int modbus_write_bits(modbus_t *ctx, int addr, int/
+modbus_write_register	modbus.c	/^int modbus_write_register(modbus_t *ctx, int addr,/
+modbus_write_registers	modbus.c	/^int modbus_write_registers(modbus_t *ctx, int addr/
+msg_type_t	modbus-private.h	57
+n_bytes	modbus-rtu-private.h	41
+nb_bits	modbus.h	158
+nb_input_bits	modbus.h	160
+nb_input_registers	modbus.h	162
+nb_registers	modbus.h	164
+node	modbus-tcp-private.h	39
+offset_bits	modbus.h	159
+offset_input_bits	modbus.h	161
+offset_input_registers	modbus.h	163
+offset_registers	modbus.h	165
+old_dcb	modbus-rtu-private.h	58
+old_tios	modbus-rtu-private.h	61
+onebyte_time	modbus-rtu-private.h	69
+parity	modbus-rtu-private.h	55
+port	modbus-tcp-private.h	25
+port	modbus-tcp-private.h	37
+pre_check_confirmation	modbus-private.h	/^    int (*pre_check_confirmation) (modbus_t *ctx, /
+prepare_response_tid	modbus-private.h	/^    int (*prepare_response_tid) (const uint8_t *re/
+read_io_status	modbus.c	/^static int read_io_status(modbus_t *ctx, int funct/
+read_registers	modbus.c	/^static int read_registers(modbus_t *ctx, int funct/
+receive	modbus-private.h	/^    int (*receive) (modbus_t *ctx, uint8_t *req);$/
+recv	modbus-private.h	/^    ssize_t (*recv) (modbus_t *ctx, uint8_t *rsp, /
+response_exception	modbus.c	/^static int response_exception(modbus_t *ctx, sft_t/
+response_io_status	modbus.c	/^static int response_io_status(int address, int nb,/
+response_timeout	modbus-private.h	99
+rts	modbus-rtu-private.h	67
+rts_delay	modbus-rtu-private.h	68
+s	modbus-private.h	96
+select	modbus-private.h	/^    int (*select) (modbus_t *ctx, fd_set *rset, st/
+send	modbus-private.h	/^    ssize_t (*send) (modbus_t *ctx, const uint8_t /
+send_msg	modbus.c	/^static int send_msg(modbus_t *ctx, uint8_t *msg, i/
+send_msg_pre	modbus-private.h	/^    int (*send_msg_pre) (uint8_t *req, int req_len/
+serial_mode	modbus-rtu-private.h	64
+service	modbus-tcp-private.h	41
+set_rts	modbus-rtu-private.h	/^    void (*set_rts) (modbus_t *ctx, int on);$/
+set_slave	modbus-private.h	/^    int (*set_slave) (modbus_t *ctx, int slave);$/
+sft_t	modbus-private.h	65
+slave	modbus-private.h	62
+slave	modbus-private.h	94
+ssize_t	modbus-private.h	16
+stop_bit	modbus-rtu-private.h	53
+strlcpy	modbus.c	/^size_t strlcpy(char *dest, const char *src, size_t/
+t_id	modbus-private.h	64
+t_id	modbus-tcp-private.h	23
+t_id	modbus-tcp-private.h	35
+tab_bits	modbus.h	166
+tab_input_bits	modbus.h	167
+tab_input_registers	modbus.h	168
+tab_registers	modbus.h	169
+table_crc_hi	modbus-rtu.c	31
+table_crc_lo	modbus-rtu.c	61
+w_ser	modbus-rtu-private.h	57
+win32_ser	modbus-rtu-private.h	35
+win32_ser_init	modbus-rtu.c	/^static void win32_ser_init(struct win32_ser *ws)$/
+win32_ser_read	modbus-rtu.c	/^static int win32_ser_read(struct win32_ser *ws, ui/
+win32_ser_select	modbus-rtu.c	/^static int win32_ser_select(struct win32_ser *ws, /
+write_single	modbus.c	/^static int write_single(modbus_t *ctx, int functio/
+x01	modbus.h	118

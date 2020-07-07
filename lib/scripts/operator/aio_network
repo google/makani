@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+sudo aio_network_impl $*

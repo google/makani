@@ -1,0 +1,328 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usetikzlibrary{dsp,fit,positioning}
+
+\input{../util/control.tex}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\err}{\mathrm{err}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\begin{document}
+
+%% \section{Inner loops of the crosswind controller}
+
+%% We assume that the longitudinal dynamics can be separated into the
+%% airspeed dynamics and the angle-of-attack dynamics.  This
+
+%% \subsection{Airspeed loop}
+
+%% For control law design, the airspeed dynamics are approximated by the
+%% inertial speed dynamics.  The model is based around linearizing the
+%% speed dynamics about the steady-state speed, which is the lift-to-drag
+%% ratio multiplied by the wind speed:
+%% \begin{equation}
+%%   v = \frac{C_L}{C_D} v_{\wind}
+%% \end{equation}
+%% There is an effective restoring force for any perturbations away from
+%% this value described by $k_{\eff}$ in the equations below.  This
+%% effective restoring force depends on wind speed; however, in the
+%% current control law design a representative wind speed is chosen.
+%% \begin{equation}
+%% G_{\mathrm{airspeed}} = \frac{1}{m_{\eff} s + k_{\eff}}
+%% \end{equation}
+%% \begin{equation}
+%% k_{\eff} = \frac{1}{2} \rho A C_{L_0} v_{\wind}
+%% \end{equation}
+
+
+%% \begin{center}
+%%   \begin{table}[h]
+%%     \label{tbl:airspeed_gains}
+%%     \caption{Gains for the airspeed loop.}
+%%     \begin{tabular}{lllllll}
+%%       \hline
+%%       \hline
+%%       Variable & Value & Units\\
+%%       \hline
+%%       $k_p$ & $3.21 \times 10^3$ & N / (m/s) \\
+%%       $k_i$ & $1.55 \times 10^3$ & N $\cdot$ s / (m/s) \\
+%%       $k_d$ & 0.0                & N / (m/s) / s \\
+%%       \hline
+%%       \hline
+%%     \end{tabular}
+%%   \end{table}
+%% \end{center}
+
+
+%% \begin{center}
+%% \begin{figure}[h]
+%% \begin{tikzpicture}
+%%   \matrix [row sep=4mm, column sep=8mm] {
+%%     \node[coordinate] (n00) {}; &
+%%     \node[dspnodeopen, dsp/label=left] (n01)
+%%          {$T_{\ff} = m \vec{g}_b \cdot \hat{x}_b$}; \\
+%%     \node[coordinate] (n02) {}; &[-4mm]
+%%     \node[coordinate] (n03) {}; &
+%%     \node[coordinate] (n04) {}; &
+%%     \node[coordinate] (n05) {}; &
+%%     \node[coordinate] (n06) {}; &
+%%     \node[coordinate] (n07) {}; & \\
+%%     \node[dspnodeopen, dsp/label=above] (n10) {$v_{\mathrm{cmd}}$}; &[-4mm]
+%%     \node[vdspadder] (n11) {}; &[-4mm]
+%%     \node[dspfilter] (n12) {$C_{\mathrm{airspeed}}$}; &[-4mm]
+%%     \node[dspadder] (n13) {}; &
+%%     \node[dspfilter] (n14) {$G_{\mathrm{motors}}$}; &
+%%     \node[dspfilter] (n15) {$G_{\mathrm{airspeed}}$}; &
+%%     \node[dspnodefull] (n16) {}; &
+%%     \node[dspnodeopen, dsp/label=above] (n17) {$v$}; \\
+%%     \node[coordinate] (n20) {}; &
+%%     \node[coordinate] (n21) {}; &
+%%     \node[coordinate] (n22) {}; &[-4mm]
+%%     \node[coordinate] (n23) {}; &
+%%     \node[coordinate] (n24) {}; &
+%%     \node[coordinate] (n25) {}; &
+%%     \node[coordinate] (n26) {}; &
+%%     \node[coordinate] (n27) {}; & \\
+%%   };
+
+%%   \draw[dspconn] (n01) -| (n13);
+%%   \draw[dspconn] (n10) -- (n11);
+%%   \draw[dspconn] (n11) -- (n12) -- (n13);
+%%   \draw[dspconn] (n13) -- node[above] {$T_{\mathrm{cmd}}$}
+%%                  (n14) -- node[above] {$T$} (n15) -- (n16) -- (n17);
+%%   \draw[dspconn] (n16) |- (n26) -| (n11);
+%% \end{tikzpicture}
+%% \end{figure}
+%% \end{center}
+
+
+
+
+
+%% \section{Longitudinal loop}
+
+%% \begin{equation}
+%% \mathbf{u} = \left[\;\;\delta_e,\; \delta_f \right\;\;]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% \alpha_{\cmd},\; q_{\cmd},\; \Delta C_L_{\cmd}
+%% \end{equation}
+
+
+
+
+\section{Lateral control}
+
+The lateral control loop controls the tether roll angle, sideslip
+angle, roll rate, and yaw rate using the aileron and rudder.  The
+aileron and rudder commands are chosen with state feedback where the
+state is augmented with integrals of the tether roll error and the
+sideslip error:
+%
+\begin{equation}
+\mathbf{u} = \mathbf{K} (\mathbf{x}'_{\cmd} - \mathbf{x}')
+\end{equation}
+%
+where
+%
+\begin{equation}
+\mathbf{u} = [\delta_a, \delta_r]^T
+\end{equation}
+%
+\begin{equation}
+\mathbf{x}' = \left[ \phi_t, \beta, p, r, \smallint {\phi_t}_{\err}\, dt,
+                    \smallint \beta_{\err}\, dt \right]^T
+\end{equation}
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=10mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$\mathbf{x}_{\cmd}$}; &
+    \node[dspnodefull] (n01) {}; &[-4mm]
+    \node[coordinate] (n02) {}; &[-8mm]
+    \node[vkdspadder] (n03) {}; &[-4mm]
+    \node[coordinate] (n04) {}; &
+    \node[coordinate] (n05) {}; &
+    \node[coordinate] (n06) {}; &
+    \node[coordinate] (n07) {}; & \\[-4mm]
+%
+    \node[coordinate] (n10) {}; &
+    \node[vjdspadder] (n11) {}; &[-4mm]
+    \node[dspsquare] (n12) {$\int$}; &[-8mm]
+    \node[coordinate] (n13) {}; &[-4mm]
+    \node[dspfilter, minimum height=1.5cm] (n14) {$K$}; &
+    \node[dspfilter] (n15) {$G_{\mathrm{lateral}}$}; &
+    \node[dspnodefull] (n16) {}; &
+    \node[dspnodeopen, dsp/label=above] (n17) {$\phi_t,\; \beta$}; \\
+%
+    \node[coordinate] (n20) {}; &
+    \node[coordinate] (n21) {}; &[-4mm]
+    \node[coordinate] (n22) {}; &[-8mm]
+    \node[coordinate] (n23) {}; &[-4mm]
+    \node[coordinate] (n24) {}; &
+    \node[coordinate] (n25) {}; &
+    \node[coordinate] (n26) {}; &
+    \node[coordinate] (n27) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n03) {};
+  \draw[dspconn] (n01) -- node[left]{$\phi_t_{\cmd},\; \beta_{\cmd}$}
+                 (n11);
+  \draw[dspconn] (n15) |-
+                 (n05) -- node[above] {$\mathbf{x} = [\phi_t, \beta, p, r]^T$}
+                 (n03);
+  \draw[dspconn] (n03) |- (n14.160);
+  \draw[dspconn] (n11) -- (n12) -- (n13) -- (n14);
+  \draw[dspconn] (n14) -- node[above] {$\delta_a, \delta_r$}
+                 (n15) -- (n16) -- (n17);
+  \draw[dspconn] (n16) |- (n26) -| (n11);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+
+The gain matrix is scheduled based on airspeed using linear
+intepolation between the following matrices at airspeeds 30 m/s, 60
+m/s, and 90 m/s.
+
+\begin{equation}
+\mathbf{K}_{\min} = \left[
+\begin{array}{cccccc}
+  1.946 & -1.974 & -0.422 & 0.419 & -0.727 & 0.449 \\
+  0.199 & 1.281 & 0.055 & -0.722 & -0.897 & -0.363 \\
+\end{array}
+\right]
+\end{equation}
+
+\begin{equation}
+\mathbf{K}_{\nom} = \left[
+\begin{array}{cccccc}
+  1.022 & -0.966 & -0.159 & 0.11 & -0.915 & 0.352 \\
+  0.186 & 1.525 & 0.048 & -0.458 & -0.705 & -0.457 \\
+\end{array}
+\right]
+\end{equation}
+
+\begin{equation}
+\mathbf{K}_{\max} = \left[
+\begin{array}{cccccc}
+  0.909 & -0.771 & -0.121 & 0.082 & -0.985 & 0.302 \\
+  0.047 & 1.56 & 0.02 & -0.373 & -0.603 & -0.492 \\
+\end{array}
+\right]
+\end{equation}
+
+See
+\texttt{go/makanics/config/m600/control/crosswind\_controllers.py}
+for the most up-to-date gains.
+
+%% The typical lateral dynamics state vector consists of the roll angle,
+%% y velocity, in body coordinates, and the roll rate and yaw rate.
+%% However, once the tether is involved, the 
+
+%% \begin{equation}
+%% \mathbf{x} = \left[ y,\; \phi,\; \psi,\; \dot{y},\; \dot{\phi},\; \dot{\psi} \right]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{u} = \left[\;\;\delta_a,\; \delta_r,\; \tau_z \;\;\right]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{y} = \left[\phi_t,\; \beta,\; p,\; r \right]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{y} = \left[\phi_t_{\cmd},\; \beta_{\cmd},\; p_{\cmd},\; r_{\cmd} \right]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{M} = \left[
+%% \begin{array}{ccc}
+%% m & 0 & 0 \\
+%% 0 & I_{xx} & I_{xz} \\
+%% 0 & I_{zx} & I_{zz} \\
+%% \end{array}
+%% \right]
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{A}_{\mathrm{lateral}} = \qbar A
+%% \left[
+%% \begin{array}{cc}
+%% \mathbf{I} & \mathbf{0} \\
+%% \mathbf{0} & \mathbf{M}^{-1}
+%% \end{array}
+%% \right]
+%% \cdot
+%% \left[
+%% \begin{array}{cccccc}
+%% 0 & 0 & 0 & 1 & 0 & 0 \\
+%% 0 & 0 & 0 & 0 & 1 & 0 \\
+%% 0 & 0 & 0 & 0 & 0 & 1 \\
+%% C_L/l_t & C_L & \left(C_{Y_{\beta}} - C_L x_b/l_t \right) &
+%% C_{Y_{\beta}}/v & C_{Y_{\hat{p}}} \tau & C_{Y_{\hat{r}}} \tau \\
+%% %
+%% C_L z_b/l_t & -C_L z_b & \left(-C_{l_{\beta}} b + C_L z_b x_b / l_t\right) &
+%% C_{l_{\beta}} b/v & C_{l_{\hat{p}}} b \tau & C_{l_{\hat{r}}} b \tau \\
+%% %
+%% -C_L x_b/l_t & C_L x_b & \left(-C_{n_{\beta}} b - C_L x_b^2/l_t\right) &
+%% C_{n_{\beta}} b/v & C_{n_{\hat{p}}} b \tau & C_{n_{\hat{r}}} b \tau \\
+%% \end{array}
+%% \right]
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{B}_{\mathrm{lateral}} = \qbar A
+%% \left[
+%% \begin{array}{cc}
+%% \mathbf{I} & \mathbf{0} \\
+%% \mathbf{0} & \mathbf{M}^{-1}
+%% \end{array}
+%% \right]
+%% \cdot
+%% \left[
+%% \begin{array}{cc}
+%% 0 & 0 \\
+%% 0 & 0 \\
+%% 0 & 0 \\
+%% C_{Y_{\delta_a}} & C_{Y_{\delta_r}} \\
+%% C_{l_{\delta_a}} b & C_{l_{\delta_r}} b \\
+%% C_{n_{\delta_a}} b & C_{n_{\delta_r}} b \\
+%% \end{array}
+%% \right]
+%% \end{equation}
+
+%% \begin{equation}
+%% \mathbf{C}_{\mathrm{lateral}} =
+%% \left[
+%% \begin{array}{cccccc}
+%% 1/l_t & -1 &  0 & 0   & 0 & 0 \\
+%% 0     & 0  & -1 & 1/v & 0 & 0\\
+%% \end{array}
+%% \right]
+%% \end{equation}
+
+%% We augment the 
+
+\end{document}

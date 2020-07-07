@@ -1,0 +1,364 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+1x1_dyno_yasa_sn1:  !MotorCalibParams
+  angle_offset: 1.2803
+  sin_offset: -37.82
+  cos_offset: 15.82
+  sin_scale: 1.0508
+1x1_dyno_yasa_sn7:  !MotorCalibParams
+  angle_offset: 1.3226
+  sin_offset: 14.10
+  cos_offset: -0.36
+  sin_scale: 0.9821
+
+8x8_dyno_yasa_pbi:  !MotorCalibParams
+  angle_offset: 1.3718
+  sin_offset: -49.1
+  cos_offset: -27.1
+  sin_scale: 1.0458
+8x8_dyno_yasa_pbo:  !MotorCalibParams
+  angle_offset: 1.2797
+  sin_offset: 67.6
+  cos_offset: -10.9
+  sin_scale: 1.0357
+8x8_dyno_yasa_pti:  !MotorCalibParams
+  angle_offset: 1.3105
+  sin_offset: -3.2
+  cos_offset: 6.5
+  sin_scale: 0.9660
+8x8_dyno_yasa_pto:  !MotorCalibParams
+  angle_offset: 1.3293
+  sin_offset: 30.4
+  cos_offset: 39.3
+  sin_scale: 1.0064
+8x8_dyno_yasa_sbi:  !MotorCalibParams
+  angle_offset: 1.2889
+  sin_offset: 19.4
+  cos_offset: 26.4
+  sin_scale: 1.0623
+8x8_dyno_yasa_sbo:  !MotorCalibParams
+  angle_offset: 1.2705
+  sin_offset: 3.1
+  cos_offset: -9.9
+  sin_scale: 1.0145
+8x8_dyno_yasa_sti:  !MotorCalibParams
+  angle_offset: 1.2572
+  sin_offset: -6.9
+  cos_offset: -12.4
+  sin_scale: 1.0293
+8x8_dyno_yasa_sto:  !MotorCalibParams
+  angle_offset: 1.2630
+  sin_offset: 32.6
+  cos_offset: 33.2
+  sin_scale: 0.9818
+
+iron_bird_pbi:  !MotorCalibParams
+  angle_offset: 2.196
+  sin_offset: 72.5
+  cos_offset: 64.0
+  sin_scale: 1.011097
+iron_bird_pbo:  !MotorCalibParams
+  angle_offset: 2.9722
+  sin_offset: 52.5
+  cos_offset: 73.3
+  sin_scale: 1.0051
+iron_bird_pti:  !MotorCalibParams
+  angle_offset: -0.2345
+  sin_offset: 73.0
+  cos_offset: 67.0
+  sin_scale: 0.9916317
+iron_bird_pto:  !MotorCalibParams
+  angle_offset: 3.0045
+  sin_offset: 63.0
+  cos_offset: 68.0
+  sin_scale: 1.003439
+iron_bird_sbi:  !MotorCalibParams
+  angle_offset: -0.602
+  sin_offset: 2.5
+  cos_offset: 8.5
+  sin_scale: 0.992899
+iron_bird_sbo:  !MotorCalibParams
+  angle_offset: -1.448
+  sin_offset: 39.5
+  cos_offset: 58.0
+  sin_scale: 1.00544
+iron_bird_sti:  !MotorCalibParams
+  angle_offset: 2.0605
+  sin_offset: 70.5
+  cos_offset: 26.5
+  sin_scale: 1.019417
+iron_bird_sto:  !MotorCalibParams
+  angle_offset: 0.5325
+  sin_offset: 54.5
+  cos_offset: 54.0
+  sin_scale: 0.975879
+
+lollipop:  !MotorCalibParams
+  angle_offset: 1.2727
+  sin_offset: -19.2
+  cos_offset: -3.1
+  sin_scale: 1.0110
+
+m600a_sn001_pbi:  !MotorCalibParams
+  angle_offset: 1.3348
+  sin_offset: 3.9
+  cos_offset: 1.4
+  sin_scale: 1.0336
+m600a_sn001_pbo:  !MotorCalibParams
+  angle_offset: 1.2827
+  sin_offset: -22.0
+  cos_offset: -4.3
+  sin_scale: 0.9505
+m600a_sn001_pti:  !MotorCalibParams
+  angle_offset: 1.2689
+  sin_offset: 11.3
+  cos_offset: 21.4
+  sin_scale: 0.9674
+m600a_sn001_pto:  !MotorCalibParams
+  angle_offset: 1.3357
+  sin_offset: -47.9
+  cos_offset: -30.5
+  sin_scale: 0.9793
+m600a_sn001_sbi:  !MotorCalibParams
+  angle_offset: 1.2066
+  sin_offset: -9.2
+  cos_offset: -7.3
+  sin_scale: 0.9947
+m600a_sn001_sbo:  !MotorCalibParams
+  angle_offset: 1.2652
+  sin_offset: -39.48
+  cos_offset: -35.07
+  sin_scale: 1.0121
+m600a_sn001_sti:  !MotorCalibParams
+  angle_offset: 1.2661
+  sin_offset: -7.0
+  cos_offset: -4.9
+  sin_scale: 1.0240
+m600a_sn001_sto:  !MotorCalibParams
+  angle_offset: 1.2442
+  sin_offset: -3.7
+  cos_offset: -12.6
+  sin_scale: 0.9750
+
+m600a_sn002_pbi:  !MotorCalibParams
+  angle_offset: 1.2536
+  sin_offset: -30.10
+  cos_offset: -10.35
+  sin_scale: 0.9949
+m600a_sn002_pbo:  !MotorCalibParams
+  angle_offset: 1.3335
+  sin_offset: -13.66
+  cos_offset: -5.10
+  sin_scale: 0.9860
+m600a_sn002_pti:  !MotorCalibParams
+  angle_offset: 1.3839
+  sin_offset: 1.22
+  cos_offset: -8.50
+  sin_scale: 1.0178
+m600a_sn002_pto:  !MotorCalibParams
+  angle_offset: 1.1418
+  sin_offset: -31.01
+  cos_offset: -9.55
+  sin_scale:  0.9772
+m600a_sn002_sbi:  !MotorCalibParams
+  angle_offset: 1.1975
+  sin_offset: -31.75
+  cos_offset: -3.32
+  sin_scale: 1.0146
+m600a_sn002_sbo:  !MotorCalibParams
+  angle_offset: 1.3565
+  sin_offset: -7.80
+  cos_offset: -8.62
+  sin_scale: 0.9668
+m600a_sn002_sti:  !MotorCalibParams
+  angle_offset: 1.3452
+  sin_offset: 0.27
+  cos_offset: -2.19
+  sin_scale: 0.9772
+m600a_sn002_sto:  !MotorCalibParams
+  angle_offset: 1.2693
+  sin_offset: -19.63
+  cos_offset: -11.30
+  sin_scale: 0.9776
+
+m600a_sn003_pbi:  !MotorCalibParams
+  angle_offset: 1.2191
+  sin_offset: -19.80
+  cos_offset: -21.37
+  sin_scale: 0.9686
+m600a_sn003_pbo:  !MotorCalibParams
+  angle_offset: 1.2363
+  sin_offset: -38.53
+  cos_offset: -21.45
+  sin_scale: 0.9619
+m600a_sn003_pti:  !MotorCalibParams
+  angle_offset: 1.2329
+  sin_offset: -29.84
+  cos_offset: -18.65
+  sin_scale: 0.9824
+m600a_sn003_pto:  !MotorCalibParams
+  angle_offset: 1.1627
+  sin_offset: -32.14
+  cos_offset: -12.04
+  sin_scale: 0.9930
+m600a_sn003_sbi:  !MotorCalibParams
+  angle_offset: 1.2817
+  sin_offset: -19.53
+  cos_offset: -11.20
+  sin_scale: 0.9438
+m600a_sn003_sbo:  !MotorCalibParams
+  angle_offset: 1.3198
+  sin_offset: -28.82
+  cos_offset: -41.35
+  sin_scale: 0.9648
+m600a_sn003_sti:  !MotorCalibParams
+  angle_offset: 1.2557
+  sin_offset: -34.74
+  cos_offset: -29.78
+  sin_scale: 1.0007
+m600a_sn003_sto:  !MotorCalibParams
+  angle_offset: 1.3936
+  sin_offset: -35.53
+  cos_offset: -16.18
+  sin_scale: 0.9754
+
+m600a_sn004_pbi:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_pbo:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_pti:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_pto:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_sbi:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_sbo:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_sti:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+m600a_sn004_sto:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000
+
+m600a_sn005_pbi:  !MotorCalibParams
+  angle_offset: 1.1957
+  sin_offset: -11.15
+  cos_offset: -13.08
+  sin_scale: 0.9803
+m600a_sn005_pbo:  !MotorCalibParams
+  angle_offset: 1.3020
+  sin_offset: -38.33
+  cos_offset: -21.33
+  sin_scale: 0.9757
+m600a_sn005_pti:  !MotorCalibParams
+  angle_offset: 1.3669
+  sin_offset: -24.74
+  cos_offset: -23.63
+  sin_scale: 0.9802
+m600a_sn005_pto:  !MotorCalibParams
+  angle_offset: 1.3582
+  sin_offset: -32.70
+  cos_offset: -16.59
+  sin_scale: 0.9990
+m600a_sn005_sbi:  !MotorCalibParams
+  angle_offset: 1.2545
+  sin_offset: -42.42
+  cos_offset: -38.40
+  sin_scale: 0.9962
+m600a_sn005_sbo:  !MotorCalibParams
+  angle_offset: 1.3699
+  sin_offset: -30.30
+  cos_offset: -16.19
+  sin_scale: 0.9816
+m600a_sn005_sti:  !MotorCalibParams
+  angle_offset: 1.2747
+  sin_offset: -19.62
+  cos_offset: -1.40
+  sin_scale: 0.9759
+m600a_sn005_sto:  !MotorCalibParams
+  angle_offset: 1.1822
+  sin_offset: -19.80
+  cos_offset: -14.50
+  sin_scale: 0.9977
+
+m600a_sn006_pbi:  !MotorCalibParams
+  angle_offset: 1.3662
+  sin_offset: -31.2
+  cos_offset: -8.1
+  sin_scale: 0.9757
+m600a_sn006_pbo:  !MotorCalibParams
+  angle_offset: 1.3813
+  sin_offset: -24.0
+  cos_offset: -18.8
+  sin_scale: 0.9772
+m600a_sn006_pti:  !MotorCalibParams
+  angle_offset: 1.2555
+  sin_offset: -23.9
+  cos_offset: -13.7
+  sin_scale: 1.0098
+m600a_sn006_pto:  !MotorCalibParams
+  angle_offset: 1.3205
+  sin_offset: -47.9
+  cos_offset: -26.8
+  sin_scale: 0.9868
+m600a_sn006_sbi:  !MotorCalibParams
+  angle_offset: 1.3062
+  sin_offset: -23.6
+  cos_offset: -26.1
+  sin_scale: 0.9971
+m600a_sn006_sbo:  !MotorCalibParams
+  angle_offset: 1.2771
+  sin_offset: -34.7
+  cos_offset: -28.4
+  sin_scale: 0.9952
+m600a_sn006_sti:  !MotorCalibParams
+  angle_offset: 1.3194
+  sin_offset: -41.0
+  cos_offset: -42.8
+  sin_scale: 1.0022
+m600a_sn006_sto:  !MotorCalibParams
+  angle_offset: 1.339
+  sin_offset: -62.7
+  cos_offset: -42.5
+  sin_scale: 0.9907
+
+null_calibration:  !MotorCalibParams
+  angle_offset: 0.0000
+  sin_offset: 0.00
+  cos_offset: 0.00
+  sin_scale: 1.0000

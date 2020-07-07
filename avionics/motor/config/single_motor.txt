@@ -1,0 +1,33 @@
+# Single (unstacked) motor controller parameters.
+
+# SBO is used as the target since several motor controllers are configured as
+# this position. For motor controllers that are not configured as SBO, modify
+# this file on a local branch as needed.
+
+# Open up limits to allow full power operation.
+set_param sbo phase_current_limit 270
+set_param sbo bus_current_limit 200
+
+# Bus current command limits.
+# With the stacking controller disabled, these are interpreted as single motor
+# limits. A 1000 V Magna can go up to 150 A which leaves about 5 A margin.
+set_param sbo ibus_upper_limit 145
+set_param sbo ibus_lower_limit 0
+
+# Quadrature current command limits.
+set_param sbo iq_upper_limit 225
+set_param sbo iq_lower_limit -225
+
+# Turn on ISR diagnostic data.
+set_param sbo isr_diag_enable 1
+
+# Explicitly disable the stacking controller for single or parallel motor
+# operation.
+set_param sbo stacking_enable 0
+
+# Allow motors to turn off if they throw a warning.
+set_param sbo shutdown_on_warning_enable 1
+
+# Increase the motor status message rate to 100 Hz.
+set_param sbo motor_status_message_period 0.01
+

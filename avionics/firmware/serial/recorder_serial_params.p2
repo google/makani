@@ -1,0 +1,10 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 RecorderHardware {
+  RevAa = 0,
+  RevBa = 1,
+}
+
+specialize(SerialParams) RecorderSerialParams {
+  RecorderHardware hardware_revision;
+}

@@ -1,0 +1,22 @@
+param SerialParamsV1 {
+  int32 serial_number;
+  string[32] part_name;
+  string[32] makani_part_number;
+  string[32] google_part_number;
+  int32 hardware_revision;
+  uint32 date_of_manufacture;  // BCD format (e.g., 0x20150801).
+}
+
+param SerialParamsV2 {
+  int32 serial_number;
+  date date_of_manufacture;
+  string[32] part_number;
+}
+
+param SerialParams {
+  string[32] serial_number;
+  string[32] part_name;
+  string[32] part_number;
+  int32 hardware_revision;
+  uint32 date_of_manufacture;  // BCD format (e.g., 0x20150801).
+}

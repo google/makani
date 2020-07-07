@@ -1,0 +1,177 @@
+14
+1
+95,0,Host Config State,2:0:0:1792:-1:0:150:0:0:0:0:0:0:0:0:0:0:0:0:0
+87,0,Amp Family,3
+40,0,Motor Type,48
+89,0,Amp Max Voltage,910
+84,0,Amp ISense,2800
+83,0,Amp Continuous Current,1200
+82,0,Amp Peak Current,2400
+88,0,Amp Peak Current Time,1000
+0,0,Current Cp,410
+1,0,Current Ci,34
+2,0,Programmed Current Command,0
+19,0,Analog Input Scale,462
+1a,0,Analog Input Offset,0
+21,0,User Peak Current Limit,500
+22,0,User Continuous Current Limit,222
+23,0,User Peak Current Time Limit,2000
+24,0,Desired State,21
+26,0,Analog Input Deadband,0
+27,0,Velocity Vp,12000
+28,0,Velocity Vi,800
+2f,0,Programmed Velocity Command,0
+31,0,Velocity Gains Scalor,0
+36,0,Velocity Loop Acceleration Limit,36
+37,0,Velocity Loop Deceleration Limit,36
+39,0,Velocity Fast Stop Ramp,36
+3a,0,Velocity Loop Velocity Limit,6000
+3f,0,Velocity Tracking Time,100
+3e,0,Velocity Tracking Window,4000
+41,0,Motor Manufacturer,Harmonic Drive LLC
+42,0,Motor Model Number,SPA-25-160-SP3743
+43,0,Motor Units,0
+44,0,Motor Inertia,670000
+46,0,Motor Brake,1
+48,0,Motor Torque Constant,23800
+49,0,Motor Resistance,89
+4a,0,Motor Inductance,136
+4b,0,Motor Peak Torque,110000
+4c,0,Motor Continuous Torque,40000
+4d,0,Motor Velocity Limit,36000
+4e,0,Motor Wiring,1
+53,0,Brake/Stop Delay Time,0
+54,0,Motor Brake Delay Time,0
+55,0,Motor Brake Activation Velocity,0
+56,0,Motor Back Emf Constant,2500
+6a,0,Commanded Current Ramp,0
+70,0,Output 1 Config,100:4044007f:0
+78,0,Input 1 Config,11
+79,0,Input 2 Config,0
+7a,0,Input 3 Config,0
+7b,0,Input 4 Config,0
+7c,0,Input 5 Config,0
+7d,0,Input 6 Config,0
+80,0,Amp Model Number,R22-090-24-R
+86,0,Servo Period,5
+8a,0,Voltage Sense,2278
+92,0,Amp Name,unnamed
+98,0,Function Generator Config,8193
+99,0,Function Generator Frequency,2
+9a,0,Function Generator Amplitude,0
+9b,0,Function Generator Duty Cycle,1000
+a5,0,Input Configuration Register,0
+a7,0,Fault Mask,671
+a8,0,Digital Command Config,0
+a9,0,Digital Command Scaling,1
+ad,0,Hardware Type,992
+ae,0,Current Loop Offset,0
+30,0,Position Pp,600
+33,0,Position Vff,1000
+34,0,Position Aff,7000
+45,0,Motor Pole Pairs,6
+4f,0,Motor Hall Offset,30
+50,0,Motor Hall Type,1
+52,0,Motor Hall Wiring,4
+5f,0,Velocity Loop Output Filter,8448:200:0:775:1550:775:-12774:32763:5813
+60,0,Motor Encoder Type,6
+61,0,Motor Encoder Units,0
+62,0,Motor Encoder Counts,16384
+63,0,Motor Encoder Resolution,100
+64,0,Motor Electrical Distance,100000
+65,0,Motor Encoder Direction,0
+6c,0,Position Capture Control Register,5
+71,0,Output 2 Config,0:0:0
+8e,0,Amp Ref Scale,11220
+af,0,Amp Options Register,2
+b1,0,Increment Rate,90
+b2,0,Commutation Mode,1
+ba,0,Position Following Error Limit,2147483647
+bb,0,Position Following Warning Limit,18
+bc,0,Position Tracking Window,9
+bd,0,Position Tracking Window Time,10
+c8,0,Trajectory Profile Mode,0
+ca,0,Trajectory Position Command,-500
+cb,0,Trajectory Max Velocity,34133
+cc,0,Trajectory Max Accel,100
+cd,0,Trajectory Max Decel,100
+cf,0,Trajectory Abort Decel,819200
+f0,0,Input 1 Debounce Time,0
+f1,0,Input 2 Debounce Time,0
+f2,0,Input 3 Debounce Time,0
+f3,0,Input 4 Debounce Time,0
+f4,0,Input 5 Debounce Time,0
+f5,0,Input 6 Debounce Time,0
+114,0,Velocity Vi Drain,0
+10c,0,Network Heart Beat Time,0
+10d,0,CANopen Node Guarding Time,0
+10e,0,CANopen Node Guarding Life Time Factor,0
+109,0,Camming Master Velocity,0
+105,0,Camming Configuration,4352
+106,0,Camming Forward Delay,0
+107,0,Camming Reverse Delay,0
+104,0,Phase Init Config,0
+be,0,Software Limit Deceleration,0
+e4,0,Phase Init Current,336
+e5,0,Phase Init Time,400
+58,0,Gear Ratio,10485761
+b6,0,PWM Deadband,1000
+ea,0,Detent Correction Gain,0
+57,0,Micro Steps Per Rev.,0
+59,0,Hall Velocity Shift,0
+5a,0,Multi Mode Port Configuration,0
+5b,0,Position Encoder Resolution,16384
+5c,0,Position Encoder Direction,0
+5d,0,Position Encoder Type,5
+67,0,Analog Encoder Shift,0
+6b,0,Velocity Loop Command Filter,-7936:200:0:775:1550:775:-12774:32763:5813
+6f,0,PWM Mode,0
+72,0,Output 3 Config,0:0:0
+73,0,Output 4 Config,0:0:0
+7e,0,Input 7 Config,0
+7f,0,Input 8 Config,0
+b3,0,Analog Encoder Scale,30030
+b8,0,Positive Software Limit,0
+b9,0,Negative Software Limit,0
+bf,0,Home Current Delay Time,250
+c1,0,Node ID configuration,1024
+c2,0,Home Configuration,0
+c3,0,Home Velocity Fast,409600
+c4,0,Home Velocity Slow,81920
+c5,0,Home Accel/Decel,81920
+c6,0,Home Offset,0
+c7,0,Home Current,84
+ce,0,Trajectory Max Jerk,7193
+d0,0,Input 9 Config,0
+d1,0,Input 10 Config,0
+d2,0,Input 11 Config,0
+d3,0,Input 12 Config,0
+d8,0,Regen Resistance,0
+d9,0,Regen Continuous Power,0
+da,0,Regen Peak Power,0
+db,0,Regen Peak Power Time,0
+e1,0,Regen Resistor Model Number,None
+e3,0,Position Loop Gains Multiplier,100
+e8,0,uStep Holding Current,0
+e9,0,uStep Run To Hold Time,0
+f6,0,Input 7 Debounce Time,0
+f7,0,Input 8 Debounce Time,0
+f8,0,Input 9 Debounce Time,0
+f9,0,Input 10 Debounce Time,0
+fa,0,Input 11 Debounce Time,0
+fb,0,Input 12 Debounce Time,0
+103,0,Network address Input Map,-2147444618
+11a,0,Amp Scaling Config,0
+121,0,Network Options,0
+123,0,Motor Position Wrap Value,36
+124,0,Load Position Wrap Value,16384
+125,0,MACRO Amplifier's Encoder Capture Config,0
+127,0,Gain Scheduling Config,0
+12a,0,Motor Encoder Options,5
+12b,0,Position Encoder Options,0
+12d,0,Analog Input Filter,-7936:200:0:775:1550:775:-12774:32763:5813
+10f,0,Registration Offset For Pulse and Direction,0
+13c,0,Minimum PWM Pulse Width PWM Position Mode,1000
+13d,0,Maximum PWM Pulse Width PWM Position Mode,2000
+6e,0,Number Of Resolver Cycles Per Motor Rev,1
+94c,0,basic host cfg,96

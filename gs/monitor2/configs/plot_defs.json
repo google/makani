@@ -1,0 +1,32 @@
+{
+  "DictIndicator": {
+    "javascript": "dict_indicator.js"
+  },
+  "ListIndicator": {
+    "javascript": "list_indicator.js"
+  },
+  "ScalarIndicator": {
+    "javascript": "scalar_indicator.js"
+  },
+  "StripChartFromList": {
+    "javascript": "list_stripchart.js"
+  },
+  "StripChartFromDict": {
+    "javascript": "dict_stripchart.js"
+  },
+  "Scatter": {
+    "javascript": "scatter.js"
+  },
+  "LineChartFromDict": {
+    "javascript": "dict_linechart.js"
+  },
+  "AttributesIndicator": {
+    "javascript": "attributes_indicator.js"
+  },
+  "Sketch2DWindow": {
+    "javascript": "sketch2d_window.js"
+  },
+  "TapeIndicator": {
+    "javascript": "tape_indicator.js"
+  }
+}

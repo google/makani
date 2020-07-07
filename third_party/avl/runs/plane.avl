@@ -1,0 +1,77 @@
+!***************************************
+!Sample AVL input dataset
+!***************************************
+Plane Vanilla
+!Mach
+ 0.0    
+!IYsym   IZsym   Zsym
+ 0       0       0.0
+!Sref    Cref    Bref
+12.0     1.0     15.0
+!Xref    Yref    Zref
+0.0      0.0      0.0
+
+#--------------------------------------------------
+SURFACE 
+WING 
+!Nchordwise  Cspace  Nspanwise  Sspace
+1            1.0     16         -2.0
+YDUPLICATE 
+0.0
+ANGLE
+4.0
+
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.25   0.     0.      1.000   0.    8          1.0
+CONTROL
+aileron  1.0  0.0  0. 0. 0.  -1
+
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.175  7.5    0.5     0.700   0.    0          0
+CONTROL
+aileron  1.0  0.0  0. 0. 0.  -1
+
+#--------------------------------------------------
+SURFACE
+STAB
+!Nchordwise  Cspace  Nspanwise  Sspace
+1            1.0     7          -2.0
+YDUPLICATE 
+0.0
+TRANSLATE 
+6.0  0.0  0.5
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.1    0.     0.0     0.4     0.    7          -1.25
+CONTROL
+elevator  1.0  0.0  0. 0. 0.  1
+
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.075  2.00   0.0     0.3     0.    0          0
+CONTROL
+elevator  1.0  0.0  0. 0. 0.  1
+
+#--------------------------------------------------
+SURFACE
+FIN
+!Nchordwise  Cspace   Nspanewise  Sspace
+1            1.0      10          1.0
+TRANSLATE
+6.0   0.0  0.5
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.1    0.     0.0     0.4     0.    7          -1.25
+CONTROL
+rudder  1.0  0.0  0. 0. 0.  1
+
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+-0.075  0.     1.0     0.3     0.    0          0
+CONTROL
+rudder  1.0  0.0  0. 0. 0.  1
+
+
+

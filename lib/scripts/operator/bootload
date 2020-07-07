@@ -1,0 +1,357 @@
+#!/bin/bash -u
+#
+# Loads software onto the flight computer and avionics.  See --help for usage.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/network_config.sh"
+source "${MAKANI_HOME}/lib/scripts/system.sh"
+
+# Source shflags.
+source /opt/shflags-1.0.3/src/shflags
+
+DEFINE_boolean 'bootload_avionics' true \
+  'Whether to load the avionics software.'
+DEFINE_string 'bootload_flight_controllers' 'a' \
+  'Which flight controllers to bootload, if any.'
+DEFINE_boolean 'bootload_recorder_platform' true \
+  'Whether to bootload the logging software to the platform recorder.'
+DEFINE_boolean 'bootload_ground_estimator' true \
+  'Whether to bootload the ground station estimator.'
+DEFINE_boolean 'bootload_ground_power_monitor' true \
+  'Whether to bootload the ground power monitor software.'
+DEFINE_boolean 'bootload_recorder_wing' true \
+  'Whether to bootload the logging software to the wing recorder.'
+DEFINE_boolean 'hitl' false \
+  'Whether to bootload for HITL. Only relevant when bootloading controller.'
+DEFINE_string 'system' '' \
+  "$(echo 'Whether to program YM600-01, YM600-04, YM600-06, YM600-07, ' \
+    'GS02-01, GS02-02, iron_bird, tophat, ground_power and/or birdcage. '\
+    'Space separated.')"
+DEFINE_string 'site' '' \
+  'Bootload default systems by test site (norway or pr).'
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+if [ $# -ne 0 ]; then
+  echo "Unprocessed trailing arguments: '$@'"
+  exit 1
+fi
+
+# Exit on any error, printing a message.
+trap 'echo -e "\nERROR: Bootload script terminated prematurely."' ERR
+set -o errexit
+
+readonly OPERATOR_DIRECTORY="${MAKANI_HOME}/lib/scripts/operator"
+
+if [[ "${FLAGS_hitl}" -eq "${FLAGS_TRUE}" ]]; then
+  readonly CONTROLLER_BIN="${Q7_BUILD_DIR}/control/hitl_controller"
+  readonly GROUND_ESTIMATOR_BIN="${Q7_BUILD_DIR}/control/hitl_ground_estimator"
+else
+  readonly CONTROLLER_BIN="${Q7_BUILD_DIR}/control/flight_controller"
+  readonly GROUND_ESTIMATOR_BIN="${Q7_BUILD_DIR}/control/ground_estimator"
+fi
+
+readonly GROUND_POWER_MONITOR_BIN=\
+"${Q7_BUILD_DIR}/avionics/ground_power/q7/ground_power_monitor"
+readonly GROUND_POWER_MONITOR_NAME='ground_power_monitor'
+
+readonly GROUND_ESTIMATOR_NAME="estimator"
+
+readonly STATUS_BIN_NAME='q7_slow_status_sender'
+readonly STATUS_BIN_DEST="/apps/${STATUS_BIN_NAME}"
+readonly STATUS_BIN_CMD="pidof \"${STATUS_BIN_NAME}\" || \
+                         LD_LIBRARY_PATH=\"/apps/sos/\" \
+                         nice -n 19 \"/apps/q7_slow_status_sender\"  &"
+
+# Args:
+#   $1: Target IP address.
+function make_apps_writeable  {
+  ssh "root@$1" "mount -o remount,rw,sync /apps"
+}
+
+# Args:
+#   $1: Target IP address.
+function make_apps_readonly  {
+  ssh "root@$1" "mount -o remount,ro /apps"
+}
+
+# Args:
+#   $1: Target name.
+#   $2: Target IP address.
+function push_to_flight_controller() {
+  local CONTROLLER_IP="$2"
+  echo Loading flight controller $1...
+  if file "${CONTROLLER_BIN}" | grep -v ' ARM,' > /dev/null; then
+    echo 'Binary is not built for ARM: exiting.'
+    exit 1
+  fi
+
+  make_apps_writeable "${CONTROLLER_IP}"
+  echo -n "Uploading to Controller (${CONTROLLER_IP}): "
+  ssh "root@${CONTROLLER_IP}" \
+    "date -u -s $(date -u +%Y.%m.%d-%H:%M:%S) > /dev/null"
+  scp "${CONTROLLER_BIN}" "root@${CONTROLLER_IP}:/apps/control"
+  if [[ $? -eq 0 ]]; then
+    local readonly REMOTE_MD5SUM="$(ssh root@"${CONTROLLER_IP}" \
+      'md5sum /apps/control' | cut -d' ' -f1)"
+    local readonly LOCAL_MD5SUM="$(md5sum "${CONTROLLER_BIN}" | cut -d' ' -f1)"
+    if [[ ! ( "${REMOTE_MD5SUM}" = "${LOCAL_MD5SUM}" ) ]]; then
+      echo 'Failure.'
+      make_apps_readonly "${CONTROLLER_IP}"
+      exit 1
+    else
+      echo 'Success.'
+    fi
+  else
+    make_apps_readonly "${CONTROLLER_IP}"
+    exit 1
+  fi
+  make_apps_readonly "${CONTROLLER_IP}"
+}
+
+# Args:
+#  $1: Target IP address.
+#  $2: NAME
+#  $3: BIN
+function push_to_q7() {
+  local IP="$1"
+  local NAME="$2"
+  local BIN="$3"
+
+  if file "${BIN}" | grep -v ' ARM,' > /dev/null; then
+    echo 'Binary is not built for ARM: exiting.'
+    exit 1
+  fi
+
+  make_apps_writeable "${IP}"
+  echo -n "Uploading to ${IP}: "
+
+  ssh "root@${IP}" \
+    "date -u -s $(date -u +%Y.%m.%d-%H:%M:%S) > /dev/null &&
+    (killall -SIGKILL \"${NAME}\" > /dev/null 2>&1 || true)\
+    && (date -u -s $(date -u +%Y.%m.%d-%H:%M:%S) > /dev/null)"
+  scp "${BIN}" \
+    "root@${IP}:/apps/${NAME}" > /dev/null
+
+  ssh "root@${IP}" \
+    "rm -f /apps/startup > /dev/null &&
+    echo '#!/bin/bash' > /apps/startup &&
+    echo '/apps/${NAME} > /dev/null 2>&1' >> /apps/startup &&
+    chmod +x /apps/startup > /dev/null"
+
+  ssh "root@${IP}" "/apps/startup &"
+  if [[ $? -eq 0 ]]; then
+    local readonly REMOTE_MD5SUM="$(ssh root@"${IP}" \
+      "md5sum /apps/${NAME}" | cut -d' ' -f1)"
+    local readonly LOCAL_MD5SUM="$(md5sum "${BIN}" \
+      | cut -d' ' -f1)"
+    if [[ ! ( "${REMOTE_MD5SUM}" = "${LOCAL_MD5SUM}" ) ]]; then
+      echo 'Failure.'
+      make_apps_readonly "${IP}"
+      exit 1
+    else
+      echo 'Success.'
+    fi
+  else
+    make_apps_readonly "${IP}"
+    exit 1
+  fi
+  make_apps_readonly "${IP}"
+}
+
+# Args:
+#   $1: Target IP address.
+function push_to_ground_power_monitor() {
+  echo Loading ground power monitor.
+  push_to_q7 $1 ${GROUND_POWER_MONITOR_NAME} ${GROUND_POWER_MONITOR_BIN}
+}
+
+# Args:
+#   $1: Target IP address.
+function push_to_ground_estimator() {
+  echo Loading ground estimator.
+  push_to_q7 $1 ${GROUND_ESTIMATOR_NAME} ${GROUND_ESTIMATOR_BIN}
+}
+
+if (([[ -z "${FLAGS_site}" ]] && [[ -z "${FLAGS_system}" ]]) ||
+    ([[ -n "${FLAGS_site}" ]] && [[ -n "${FLAGS_system}" ]])); then
+  echo "Exactly one of --site or --system is required."
+  exit 1
+fi
+
+# TODO: Use the test site config value and deprecate this argument.
+if [[ -n "${FLAGS_site}" ]]; then
+  case "${FLAGS_site}" in
+    'pr')
+      echo "Selected Parker Ranch test site."
+      SYSTEMS="YM600-06 GS02-01 ground_power"
+      ;;
+    'norway')
+      echo "Selected Norway test site."
+      SYSTEMS="YM600-05 GS02-02 ground_power"
+      ;;
+    *)
+      echo "Unknown test site selected: ${FLAGS_site}"
+      exit 1
+      ;;
+  esac
+else
+  SYSTEMS="${FLAGS_system}"
+fi
+
+HAS_WING_RECORDER="${FLAGS_FALSE}"
+HAS_PLATFORM_RECORDER="${FLAGS_FALSE}"
+
+echo "Bootloading" ${SYSTEMS} "nodes."
+PROGRAM_ARGS=("./program" "--parallel" "--system_config" ${SYSTEMS})
+# TODO(b/28599502): Get this info moved into the system config definition.
+for SYSTEM in ${SYSTEMS}; do
+  case "${SYSTEM}" in
+    'iron_bird')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'tophat')
+      HAS_PLATFORM_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'YM600-01')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'YM600-04')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'YM600-06')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'YM600-07')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+    'ping_wing')
+      HAS_WING_RECORDER="${FLAGS_TRUE}"
+      ;;
+  esac
+done
+
+if [[ "${FLAGS_bootload_avionics}" -eq "${FLAGS_TRUE}" ]]; then
+  # In batch mode, program needs commands like '--prefix cs --location wing'
+  # passed as a single ARGV argument.  In order to work around bash's
+  # idiosyncratic handling of spaces in strings and command evaluation, we
+  # wrap every string in $PROGRAM_ARGS with double quotes.
+  PROGRAM_COMMAND=$(printf "\"%s\" " "${PROGRAM_ARGS[@]}")
+  cd "${OPERATOR_DIRECTORY}"
+  eval "$PROGRAM_COMMAND" || true
+fi
+
+for CONTROLLER in ${FLAGS_bootload_flight_controllers}
+  do
+    case "${CONTROLLER}" in
+      'a')
+        push_to_flight_controller ${CONTROLLER} ${M600_CONTROLLER_A}
+        ;;
+      'b')
+        push_to_flight_controller ${CONTROLLER} ${M600_CONTROLLER_B}
+        ;;
+      'c')
+        push_to_flight_controller ${CONTROLLER} ${M600_CONTROLLER_C}
+        ;;
+      *)
+        echo "Unrecognized flight controller '${CONTROLLER}'"
+        exit 1
+        ;;
+    esac
+  done
+
+if [[ "${FLAGS_bootload_ground_power_monitor}" -eq "${FLAGS_TRUE}" ]]; then
+  push_to_ground_power_monitor ${M600_GROUND_POWER_Q7}
+fi
+
+if [[ "${FLAGS_bootload_ground_estimator}" -eq "${FLAGS_TRUE}" ]]; then
+  push_to_ground_estimator ${M600_GROUND_ESTIMATOR_Q7}
+fi
+
+# Argument: an empty temp directory.
+function prepare_recorder_uploads() {
+  echo 'Preparing files.'
+  cd "${MAKANI_HOME}"
+
+  # The recorder script needs our scripting environment and the status of our
+  # git repo.
+  cp -rL --parents lib/scripts "$1"
+  mkdir "$1/lib/datatools"
+  cp "${BUILD_DIR}/lib/datatools/validate_pcap" "$1/lib/datatools"
+  mkdir "$1/lib/pcap_to_hdf5"
+  cp "${BUILD_DIR}/lib/pcap_to_hdf5/pcap_to_hdf5" "$1/lib/pcap_to_hdf5"
+  git diff HEAD > "$1/git.diff"
+  git rev-parse HEAD > "$1/git.hash"
+  echo '#!/bin/bash' > "$1/startup"
+  echo "${STATUS_BIN_CMD}" >> "$1/startup"
+  chmod +x "$1/startup"
+  cp "${BUILD_DIR}/avionics/linux/${STATUS_BIN_NAME}" "$1"
+  mkdir "$1/sos"
+  cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 "$1/sos"
+  cp /usr/lib/x86_64-linux-gnu/libgsl.so.19 "$1/sos"
+  cp /usr/lib/x86_64-linux-gnu/libgslcblas.so.0 "$1/sos"
+}
+
+# Args:
+#   $1: Target IP address.
+#   $2: Payload source directory.
+function push_to_recorder() {
+  echo 'Pushing files.'
+  # There's still a race here where a new gzip could start up in time to
+  # interfere with make_apps_writeable, but it's a very small one.
+  ssh "root@$1" 'killall gzip > /dev/null 2>&1 || true'
+  make_apps_writeable "$1"
+  ssh "root@$1" \
+    "rm -rf /apps/git.diff /apps/git.hash /apps/upload_lib /apps/old_lib \
+    /apps/startup /apps/upload_sos /apps/old_sos \"${STATUS_BIN_DEST}\""
+  scp -r "$2/lib" "root@$1:/apps/upload_lib" > /dev/null
+  scp -r "$2/sos" "root@$1:/apps/upload_sos" > /dev/null
+  scp "$2/git.diff" "$2/git.hash" "$2/startup" "$2/${STATUS_BIN_NAME}" \
+    "root@$1:/apps/" > /dev/null
+
+  echo "Restarting the recorder at IP $1."
+  # TODO: We should really gzip the last pcap file here as we restart,
+  # but if we do that, make_apps_readonly will fail due to the open script file.
+  # There's probably a workaround involving a temporary script outside of /apps.
+  ssh "root@$1" \
+    "(crontab -r > /dev/null 2>&1 || true) && \
+    (killall -SIGKILL \"${STATUS_BIN_NAME}\" > /dev/null 2>&1 || true) && \
+    (date -u -s $(date -u +%Y.%m.%d-%H:%M:%S) > /dev/null) && \
+    (/apps/lib/scripts/recorder/recorder stop || true) && \
+    (mv /apps/lib /apps/old_lib || true) && \
+    (mv /apps/sos /apps/old_sos || true) && \
+    mv /apps/upload_lib /apps/lib && \
+    mv /apps/upload_sos /apps/sos && \
+    /apps/startup && \
+    crontab /apps/lib/scripts/recorder/recorder_crontab"
+  #TODO: Any output on stderr from the q7_slow_status_sender after ssh
+  # exits will kill it [and the cronjob will restart it].  Nohup and redirection
+  # don't seem to fix this.
+
+  echo 'Cleaning up.'
+  ssh "root@$1" 'rm -rf /apps/old_lib'
+  make_apps_readonly "$1"
+}
+
+if [[ ( "${FLAGS_bootload_recorder_platform}" -eq "${FLAGS_TRUE}" ) || \
+    ( "${FLAGS_bootload_recorder_wing}" -eq "${FLAGS_TRUE}") ]]; then
+  if ( ! $(system::is_stretch) ) ; then
+    echo "Recorder bootloading is only supported on stretch. Please see" \
+    "b/129371447 for more details."
+    exit 1
+  fi
+  readonly makani_recorder_tmp_dir=$(mktemp -d)
+  prepare_recorder_uploads "${makani_recorder_tmp_dir}"
+
+  if [[ ( "${FLAGS_bootload_recorder_wing}" -eq "${FLAGS_TRUE}" ) && \
+      ( "${HAS_WING_RECORDER}" -eq "${FLAGS_TRUE}" ) ]]; then
+    echo 'Uploading to wing recorder.'
+    push_to_recorder "${M600_RECORDER_Q7_WING}" "${makani_recorder_tmp_dir}"
+  fi
+  if [[ ( "${FLAGS_bootload_recorder_platform}" -eq "${FLAGS_TRUE}" ) && \
+      ( "${HAS_PLATFORM_RECORDER}" -eq "${FLAGS_TRUE}" ) ]]; then
+    echo 'Uploading to platform recorder.'
+    push_to_recorder "${M600_RECORDER_Q7_PLATFORM}" "${makani_recorder_tmp_dir}"
+  fi
+  rm -rf "${makani_recorder_tmp_dir}" &
+fi

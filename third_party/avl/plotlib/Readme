@@ -1,0 +1,132 @@
+/*********************************************************************** 
+    Module:  Readme
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+    Report problems to:    guppy@maine.com 
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+C     Version 4.46 11/28/01
+
+
+Make the plotlib under Unix by:
+
+  Before anything is compiled, the config.make file needs to be changed
+  to reflect your compiler and library options.  Two versions of config.make
+  are supplied (config.make.SP and config.make.DP) which contain options for 
+  making single and double precision versions of the plotlib.  Note that there
+  are sample declarations several architectures in the Makefile, you may need 
+  to be comment or uncomment options for your machine. Note that under Unix 
+  you can simply make a symbolic link to one of these config.make.xx files to 
+  define config.make using:
+
+    % ln -s config.make.SP config.make
+
+  or simply 
+
+    % cp config.make.SP config.make
+
+  Then do the make using 
+
+    % make 
+
+
+
+Make the plotlib under Windoze:
+
+  You need Visual C and either the Compaq Visual Fortran compiler or the Intel
+  Fortran compiler.  You should check the options in Makefile.NT to ensure that
+  they match your system.  The supplied files match the Intel Fortran compiler.
+
+  Compile and link with command in DOS window: 
+  C:\Xfoil\plotlib: cd win32
+  C:\Xfoil\plotlib\win32: nmake /f Makefile.NT
+
+  This places all the .obj files in the win32 directory and copies libPltxx.lib
+  to the parent plotlib directory.
+
+  Alternatively you could load all the files into a Visual Studio project and
+  create the library that way.
+
+
+To create plot library libPlt.a (single precision) you can normally just type:
+  % make
+  provided the file config.make matches your machine. The supplied config.make
+  matches the config.make.SP single precision options file.
+
+To create plot library libPltDP.a (double precision version):
+  Link or copy file config.make.DP to config.make and check that the options
+  match your machine.  Then type:
+  % make
+
+If you don't have a file config.make.DP your alternative is to to this:
+  go into the config.make and uncomment the line 
+#PLTLIB = libPltDP.a
+  set the DP flag for your compiler (uncomment appropriate line) and then:
+  % make
+
+
+To install plot library libPlt.a:
+  check the config.make and Makefile for proper install options and 
+  destination for your system
+  % make install
+
+
+To create test, example and color selection programs (all optional):
+  % make test
+
+OR, go into the examples directory and do a:
+  % make
+
+if you want to put the examples in the parent library directory as well:
+  % make test
+
+To create the test and examples under Windoze:
+  C:\Xfoil\plotlib: cd examples
+  C:\Xfoil\plotlib\examples: nmake /f Makefile.NT
+
+
+
+To set black-on-white video, define Unix variable as follows:
+  % setenv XPLOT11_BACKGROUND white
+
+
+To restore white-on-black video:
+  % unsetenv XPLOT11_BACKGROUND
+
+
+
+
+See the following files for more info:
+
+ Doc           Discussion, sample application calls, some routine descriptions
+ pltlib.inc    Description of all global plot data (for tinkering with source)
+
+ plt_base.f    Routine headers describe call lists
+ plt_font.f     "
+ plt_util.f     "
+ plt_color.f    "
+ plt_3D.f       "
+
+ sym/Readme    Description of vector font generation and/or modification
+
+ Readme-examples    Description of test and example programs		
+ Readme.absoft      Info on Absoft Linux f77 for Xplot11 compile
+
+examples/Readme-examples
+

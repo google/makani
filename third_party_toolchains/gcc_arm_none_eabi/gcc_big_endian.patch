@@ -1,0 +1,35 @@
+diff -urw ./gcc-orig/gcc/config/arm/t-rmprofile ./gcc/gcc/config/arm/t-rmprofile
+--- ./gcc-orig/gcc/config/arm/t-rmprofile	2015-02-26 21:16:50.000000000 -0700
++++ ./gcc/gcc/config/arm/t-rmprofile	2015-06-12 09:35:02.479818688 -0600
+@@ -14,6 +14,8 @@
+ MULTILIB_DIRNAMES += softfp fpu
+ MULTILIB_OPTIONS  += mfpu=fpv4-sp-d16/mfpu=vfpv3-d16/mfpu=fpv5-sp-d16/mfpu=fpv5-d16
+ MULTILIB_DIRNAMES += fpv4-sp-d16 vfpv3-d16 fpv5-sp-d16 fpv5-d16
++MULTILIB_OPTIONS  += mbig-endian
++MULTILIB_DIRNAMES += eb
+ 
+ MULTILIB_MATCHES   = march?armv6s-m=mcpu?cortex-m0
+ MULTILIB_MATCHES  += march?armv6s-m=mcpu?cortex-m0plus
+@@ -53,6 +55,7 @@
+ MULTILIB_OSDIRNAMES  = mthumb=!thumb
+ MULTILIB_OSDIRNAMES += marm=!arm
+ MULTILIB_OSDIRNAMES += mfloat-abi.hard=!fpu
++MULTILIB_OSDIRNAMES += mbig-endian=!eb
+ 
+ ifneq (,$(findstring armv6-m,$(subst $(comma),$(space),$(with_multilib_list))))
+ MULTILIB_REQUIRED   += mthumb/march=armv6s-m
+@@ -90,10 +93,13 @@
+ MULTILIB_REQUIRED   += mthumb/march=armv7
+ MULTILIB_REQUIRED   += mthumb/march=armv7/mfloat-abi=softfp/mfpu=vfpv3-d16
+ MULTILIB_REQUIRED   += mthumb/march=armv7/mfloat-abi=hard/mfpu=vfpv3-d16
++MULTILIB_REQUIRED   += mthumb/march=armv7/mfloat-abi=hard/mfpu=vfpv3-d16/mbig-endian
+ MULTILIB_OSDIRNAMES += mthumb/march.armv7=!armv7-ar/thumb
+ MULTILIB_OSDIRNAMES += mthumb/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16=!armv7-ar/thumb/fpu
++MULTILIB_OSDIRNAMES += mthumb/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16/mbig-endian=!armv7-ar/thumb/fpu/eb
+ MULTILIB_OSDIRNAMES += mthumb/march.armv7/mfloat-abi.softfp/mfpu.vfpv3-d16=!armv7-ar/thumb/softfp
+ MULTILIB_REUSE      += mthumb/march.armv7=marm/march.armv7
+ MULTILIB_REUSE      += mthumb/march.armv7/mfloat-abi.softfp/mfpu.vfpv3-d16=marm/march.armv7/mfloat-abi.softfp/mfpu.vfpv3-d16
+ MULTILIB_REUSE      += mthumb/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16=marm/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16
++MULTILIB_REUSE      += mthumb/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16/mbig-endian=marm/march.armv7/mfloat-abi.hard/mfpu.vfpv3-d16/mbig-endian
+ endif
+Only in ./gcc/gcc/config/arm: .t-rmprofile.swp

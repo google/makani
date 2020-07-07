@@ -1,0 +1,13 @@
+      PARAMETER (NMAX=2001,NRMAX=3)
+      COMPLEX A,B,C,R, F0,F1, VT
+      COMPLEX ALPHA
+C
+      COMMON/OSP_CPX/
+     &    A(2,2,NMAX),B(2,2,NMAX),C(2,2,NMAX),R(2,NRMAX,NMAX),
+     &    F0(NMAX),F1(NMAX), VT(NMAX),
+     &    ALPHA
+      COMMON/OSP_REL/
+     &    Y(NMAX),U(NMAX),
+     &    RLX,DFMAX,DFRMS, RESMAX,RESRMS
+      COMMON/OSP_INT/
+     &    N, NRHS, ITER, ITMAX, IBC,ISOL

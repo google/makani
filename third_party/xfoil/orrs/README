@@ -1,0 +1,100 @@
+
+Orr-Sommerfeld Computation and Database Package
+Last update:  2 Aug 04
+Mark Drela, MIT Aero & Astro
+                                              
+=============================================================================
+Execute the following commands to enable OS-database lookup table routine.
+Start in the directory containing this README file.
+
+
+% pwd
+% cd src
+% edit osmap.f
+
+1) Find the following line in osmap.f (roughly line 100) :
+
+      DATA OSFILE / '/var/local/codes/orrs/osmap.dat' /
+
+  Take the absolute directory string which is generated
+  by the pwd command above, paste it in front of the
+  osmap.dat filename, e.g.
+
+      DATA OSFILE / '/usr/whatever/orrs/osmap.dat' /
+     
+  This statement will tell SUBROUTINE OSMAP where to 
+  find this table data file.
+
+2) Find the following line in osmap.f (roughly line 75):
+
+      REAL*4 RLSP, WLSP, HLSP,
+     &    RINCR, WINCR, RL, WL, HL,
+     &    A, AR, AW, AH, ARW, ARH, AWH, ARWH
+
+If you choose to use single-precision for the OS data file (should be adequate),
+leave this line as is.  If you wish to do everything in double precision,
+change the REAL*4 to REAL.
+
+
+% cd ../bin
+% edit Makefile
+  Change the compiler flags to match the Fortran compiler on your system.
+  Use Makefile_DP for double-precision OS database file.
+
+% make osgen           OR      make -f Makefile_DP osgen
+% make osmap.o
+% cd ..
+
+% bin/osgen osmaps_ns.lst   (creates binary file osmap.dat)
+
+SUBROUTINE OSMAP is now enabled.  Programs which call it must 
+be linked with the object file  bin/osmap.o
+
+
+=============================================================================
+Brief description of relevant files.
+
+ osm.0220
+ osm.0230
+ osm.0240
+ osm.0250
+ osm.0260
+ osm.0270
+ osm.0280
+ osm.0300
+ osm.0320
+ osm.0350
+ osm.0400
+ osm_ns.0500
+ osm_ns.0600
+ osm_ns.0800
+ osm_ns.1000
+ osm_ns.1200
+ osm_ns.1500
+ osm_ns.2000
+
+These contain the data defining the alpha(H,Re,w) function, in ascii format.
+Program osgen reads and collates this data into one binary file osmap.dat .
+Each file contains data from a constant-H "slice" through the (H,Re,w) space.
+The suffix indicates the H value: 
+ 
+ osm.0220 is for H=2.20
+ osm.0230 is for H=2.30, etc
+
+The mean-flow U(y) and dU/dy profiles which were used by the OS solver 
+to generate each slice is contained in each osm.xxxx file near the top.  
+SUBROUTINE READOS (src/io.f) can be used to extract these mean-flow profiles.
+
+The profiles in osm.0220 through osm.0400 are the Falkner-Skan similarity 
+profiles for attached flow.  The profiles in osm_ns.0500 through osm_ns.2000
+are non-similar separated-flow profiles, which have smaller reverse flow 
+velocities than the alternative Falkner-Skan profiles with the same H.  
+The non-similar profiles are a better match to actual profiles found 
+in typical separation bubbles.
+
+=============================================================================
+Other useful routines.
+
+ fs.f         Generates Falkner-Skan profiles
+
+ orrs.f       Solves Orr-Sommerfeld spatial or temporal-stability problem

@@ -1,0 +1,10 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 LoadcellHardware {
+  RevAa = 0,
+  RevAb = 1,
+}
+
+specialize(SerialParams) LoadcellSerialParams {
+  LoadcellHardware hardware_revision;
+}

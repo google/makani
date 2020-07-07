@@ -1,0 +1,187 @@
+#***********************************************************************
+#    Module:  Makefile (examples directory)
+# 
+#    Copyright (C) 1996 Harold Youngren, Mark Drela 
+# 
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Library General Public
+#    License as published by the Free Software Foundation; either
+#    version 2 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Library General Public License for more details.
+#
+#    You should have received a copy of the GNU Library General Public
+#    License along with this library; if not, write to the Free
+#    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#    Report problems to:    guppy@maine.com
+#                        or drela@mit.edu  
+#***********************************************************************
+
+
+
+########################################
+# makefile for Xplot11 library examples
+########################################
+
+PLTLIB  = ..\libPlt.lib 
+#PLTLIB = ..\libPltDP.lib 
+
+AR = lib  
+
+#### Link libs 
+LINKLIB = gdi32.lib user32.lib 
+
+###================================================
+###  Compaq Visual Fortran compiler and flags, install commands
+#FC = f77
+#CC  = cl
+### Defines for C interface
+#DEFINE = -DUNDERSCORE -D_CVF
+### Uncomment DP to make double-precision version
+#DP = /realsize:64
+#FFLAGS  = /Oxp $(DP) /threads
+#CFLAGS  = $(DEFINE) -MT
+#LFLAGS  = /libs:qwin /threads /LINK /NODEFAULTLIB:LIBC.LIB
+
+###================================================
+###  Intel Fortran compiler and flags, install commands
+FC = ifl.exe
+LINK32 = xilink.exe
+#
+FC = ifl
+CC  = cl
+### Defines for C interface
+#DEFINE = -DUNDERSCORE
+# Uncomment DP to make double-precision version
+#DP = /4R8
+### use flags for processor optimization G5 G6 G7 for PII,PIII,P4
+FFLAGS  = /O2 $(DP) /MT /4Yportlib -W0 
+CFLAGS  = $(DEFINE) -MT
+LFLAGS  = /MT /link /NODEFAULTLIB:LIBC.LIB
+
+###================================================
+
+
+
+PROGS = symbols.exe symbolsall.exe \
+	squares.exe squaresdoublebuff.exe \
+	spectrum.exe cmap2.exe cmap3.exe defmap.exe \
+        gridtest.exe zoomtest.exe contest.exe \
+        volts.exe volts_old.exe 
+
+
+examples:  $(PROGS)
+
+
+test:  $(PROGS)
+
+clean:
+	del *.obj
+	del $(PROGS)
+	del plot*.ps
+
+
+
+#Test routines for package
+
+volts.exe: volts.obj 
+	$(FC) /Fevolts.exe volts.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+volts_old.exe: volts_old.obj 
+	$(FC) /Fevolts_old.exe volts_old.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+symbols.exe: symbols.obj 
+	$(FC) /Fesymbols.exe symbols.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+symbolsall.exe: symbolsall.obj 
+	$(FC) /Fesymbolsall.exe symbolsall.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+squares.exe: squares.obj
+	$(FC) /Fesquares.exe squares.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+squares3.exe: squares3.obj
+	$(FC) squares3.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+squaresdoublebuff.exe: squaresdoublebuff.obj
+	$(FC) /Fesquaresdoublebuff.exe squaresdoublebuff.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+spectrum.exe: spectrum.obj 
+	$(FC) /Fespectrum.exe spectrum.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+cmap2.exe: cmap2.obj 
+	$(FC) /Fecmap2.exe cmap2.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+cmap3.exe: cmap3.obj 
+	$(FC) /Fecmap3.exe cmap3.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+ 
+defmap.exe: defmap.obj
+	$(FC) /Fedefmap.exe defmap.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+gridtest.exe: gridtest.obj 
+	$(FC) /Fegridtest.exe gridtest.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+zoomtest.exe: zoomtest.obj 
+	$(FC) /Fezoomtest.exe zoomtest.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+contest.exe: contest.obj 
+	$(FC) /Fecontest.exe contest.obj $(PLTLIB) $(LINKLIB) $(LFLAGS)
+
+
+
+volts.obj: volts.f
+	$(FC) /c $(FFLAGS) volts.f
+
+volts_old.obj: volts_old.f
+	$(FC) /c $(FFLAGS) volts_old.f
+
+symbols.obj: symbols.f
+	$(FC) /c $(FFLAGS) symbols.f
+
+symbolsall.obj: symbolsall.f
+	$(FC) /c $(FFLAGS) symbolsall.f
+
+squares.obj: squares.f
+	$(FC) /c $(FFLAGS) squares.f
+
+squares3.obj: squares3.f
+	$(FC) /c $(FFLAGS) squares3.f
+
+squaresdoublebuff.obj: squaresdoublebuff.f
+	$(FC) /c $(FFLAGS) squaresdoublebuff.f
+
+spectrum.obj: spectrum.f
+	$(FC) /c $(FFLAGS) spectrum.f
+
+cmap2.obj: cmap2.f
+	$(FC) /c $(FFLAGS) cmap2.f
+
+cmap3.obj: cmap3.f
+	$(FC) /c $(FFLAGS) cmap3.f
+
+defmap.obj: defmap.f
+	$(FC) /c $(FFLAGS) defmap.f
+
+gridtest.obj: gridtest.f
+	$(FC) /c $(FFLAGS) gridtest.f
+
+zoomtest.obj: zoomtest.f
+	$(FC) /c $(FFLAGS) zoomtest.f
+
+contest.obj: contest.f
+	$(FC) /c $(FFLAGS) contest.f
+
+#May need to specify these on a brain-dead make system
+#.f.obj:	$(FC) /c $(FFLAGS) $<
+#.c.obj:	$(CC) /c $(CFLAGS) $<
+
+
+
+
+
+
+
+

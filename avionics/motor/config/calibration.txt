@@ -1,0 +1,27 @@
+# Single motor controller calibration parameters.
+
+# SBO is used as the target since several motor controllers are configured as
+# this position. For motor controllers that are not configured as SBO, modify
+# this file on a local branch as needed.
+
+# Use conservative limits for calibration.
+set_param sbo phase_current_limit 75
+set_param sbo bus_current_limit 50
+
+# Quadrature current command limits.
+set_param sbo iq_upper_limit 50
+set_param sbo iq_lower_limit 0
+
+# Turn on ISR diagnostic data.
+set_param sbo isr_diag_enable 1
+
+# Explicitly disable the stacking controller for single or parallel motor
+# operation.
+set_param sbo stacking_enable 0
+
+# Allow motors to turn off if they throw a warning.
+set_param sbo shutdown_on_warning_enable 1
+
+# Increase the motor status message rate to 100 Hz.
+set_param sbo motor_status_message_period 0.01
+

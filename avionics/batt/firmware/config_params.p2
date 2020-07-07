@@ -1,0 +1,8 @@
+enum32 BattConfigType {
+  Default = 0,
+  DualBig = 1,
+}
+
+param BattConfigParams {
+  BattConfigType dual_big_box;
+}

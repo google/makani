@@ -1,0 +1,12 @@
+# Command file for running ftnchek to "lint" the XPLOT11 fortran source
+#
+ftnchek -common=2 -novice=5 \
+plt_base.f plt_font.f plt_util.f plt_color.f \
+plt_old.f plt_3D.f\
+set_subs.f gw_subs.f ps_subs.f
+
+
+
+
+
+

@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+SYSTEM='YM600-02/wing_recorder_logs'
+
+if [[ "$#" != 2 ]]; then
+  echo "Usage: get_timing <date> <log_keyword>"
+  echo "Example: get_timing 20161214 flight (for hover)"
+  echo "Example: get_timing 20161214 rpx02 (for the 2nd crosswind)"
+  exit
+fi
+
+cd "${MAKANI_HOME}"
+bazel build analysis/log_analysis:time_logs
+bazel-bin/analysis/log_analysis/time_logs -c gs://m600_testing_logs/"${SYSTEM}" -p "$1".*"$2".* -v -g
+

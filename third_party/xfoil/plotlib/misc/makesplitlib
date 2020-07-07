@@ -1,0 +1,50 @@
+#!/bin/csh
+# Shell script for making split version of the Xplot11 library
+# The split version allows one to link to routines of the same name without
+# fatal link errors as each module can be extracted as needed.
+#
+# This makes a subdirectory ../merge in the Xplot11 source directory
+# that contains an fsplit version of the source files.  It then compiles
+# these to make objects, then a library in a crude hack (no makefile).
+# The resulting library is placed in this directory as libPlt-split.a for
+# the user to do what he wishes.   
+#                                                             HHY 8/30/96
+
+# Optionally get f77 flags from #1 argument to makesplitlib
+# i.e. makesplitlib "-I../foobar -O4 -r8" 
+# 
+set f77flags = "-O2"
+set f77 = "g77"
+set fsplit = "fsplit-gup"
+
+
+if ($1 != "") set f77flags = $1
+echo "Using fortran compile flags ($f77flags)  (option set by arg 1)"
+
+echo "Creating ../merge subdirectory"
+if !(-e ./merge) mkdir merge
+
+cd merge
+
+echo  "Starting fsplit of all files in Xplot11 directory"
+foreach file (../*.f)
+ echo "Splitting $file"
+ $fsplit $file
+end
+
+echo "Compiling all split fortran files..."
+foreach file (*.f)
+ $f77 -c $f77flags -I../ $file
+end
+
+echo "Compiling the C interface file"
+cc -c -O -I../ ../Xwin.c
+
+echo "Making library from objects"
+ar -r libPlt-split.a *.o
+
+echo "Moving library to main Xplot11 directory"
+mv libPlt-split.a ..
+
+exit
+

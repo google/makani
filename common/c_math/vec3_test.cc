@@ -1,0 +1,1353 @@
+// Copyright 2020 Makani Technologies LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <gtest/gtest.h>
+
+#include <float.h>
+#include <math.h>
+
+#include "common/c_math/util.h"
+#include "common/c_math/vec3.h"
+#include "lib/util/test_util.h"
+
+using ::test_util::RandNormal;
+
+TEST(Vec3Min, PermuteArgs) {
+  for (int32_t i = 0; i < 22; ++i) {
+    Vec3 a = {RandNormal(), RandNormal(), RandNormal()};
+    Vec3 b = {RandNormal(), RandNormal(), RandNormal()};
+    Vec3 c1, c2;
+    Vec3Min(&a, &b, &c1);
+    Vec3Min(&b, &a, &c2);
+    EXPECT_EQ_VEC3(c1, c2);
+  }
+}
+
+TEST(Vec3Min, PermuteInd) {
+  for (int32_t i = 0; i < 22; ++i) {
+    Vec3 a = {RandNormal(), RandNormal(), RandNormal()};
+    Vec3 b = {RandNormal(), RandNormal(), RandNormal()};
+    Vec3 c;
+    Vec3Min(&a, &b, &c);
+
+    Vec3 c_permute;
+    SwapInPlace(&a.x, &a.y);
+    SwapInPlace(&b.x, &b.y);
+    SwapInPlace(&c.x, &c.y);
+    Vec3Min(&a, &b, &c_permute);
+    EXPECT_EQ_VEC3(c, c_permute);
+
+    SwapInPlace(&a.y, &a.z);
+    SwapInPlace(&b.y, &b.z);
+    SwapInPlace(&c.y, &c.z);
+    Vec3Min(&a, &b, &c_permute);
+    EXPECT_EQ_VEC3(c, c_permute);
+  }
+}
+
+TEST(Vec3Norm, Zero) {
+  double v_norm = Vec3Norm(&kVec3Zero);
+  EXPECT_EQ(v_norm, 0.0);
+}
+
+TEST(Vec3Norm, Infinity) {
+  Vec3 vx = {-INFINITY, 0.0, 0.0};
+  Vec3 vy = {0.0, INFINITY, 0.0};
+  Vec3 vz = {0.0, 0.0, INFINITY};
+
+  double vx_norm = Vec3Norm(&vx);
+  double vy_norm = Vec3Norm(&vy);
+  double vz_norm = Vec3Norm(&vz);
+
+  EXPECT_EQ(vx_norm, INFINITY);
+  EXPECT_EQ(vy_norm, INFINITY);
+  EXPECT_EQ(vz_norm, INFINITY);
+}
+
+TEST(Vec3Norm, InfNaN) {
+  // Expect the conventions of hypot(): if any vector component is
+  // infinity, we expect positive infinity.  If any component is NaN
+  // (and none is infinite), we expect NaN.
+  Vec3 vw = {NAN, NAN, NAN};
+  Vec3 vx = {NAN, 0.0, 0.0};
+  Vec3 vy = {NAN, -INFINITY, 0.0};
+  Vec3 vz = {INFINITY, NAN, NAN};
+
+  double vw_norm = Vec3Norm(&vw);
+  double vx_norm = Vec3Norm(&vx);
+  double vy_norm = Vec3Norm(&vy);
+  double vz_norm = Vec3Norm(&vz);
+
+  EXPECT_TRUE(isnan(vw_norm));
+  EXPECT_TRUE(isnan(vx_norm));
+  EXPECT_EQ(vy_norm, INFINITY);
+  EXPECT_EQ(vz_norm, INFINITY);
+}
+
+TEST(Vec3Norm, Underflow) {
+  Vec3 vx = {DBL_MIN, 0.0, 0.0};
+  Vec3 vy = {0.0, DBL_MIN, 0.0};
+  Vec3 vz = {0.0, 0.0, DBL_MIN};
+
+  double vx_norm = Vec3Norm(&vx);
+  double vy_norm = Vec3Norm(&vy);
+  double vz_norm = Vec3Norm(&vz);
+
+  EXPECT_EQ(vx_norm, DBL_MIN);
+  EXPECT_EQ(vy_norm, DBL_MIN);
+  EXPECT_EQ(vz_norm, DBL_MIN);
+}
+
+TEST(Vec3Norm, Underflow2) {
+  // This is a very small number whose reciprocal is infinite.
+  double very_small = nextafter(0.0, 1.0);  // Smallest representable double.
+
+  Vec3 vx = {very_small, 0.0, 0.0};
+  Vec3 vy = {0.0, very_small, 0.0};
+  Vec3 vz = {0.0, 0.0, very_small};
+
+  double vx_norm = Vec3Norm(&vx);
+  double vy_norm = Vec3Norm(&vy);
+  double vz_norm = Vec3Norm(&vz);
+
+  EXPECT_EQ(vx_norm, very_small);
+  EXPECT_EQ(vy_norm, very_small);
+  EXPECT_EQ(vz_norm, very_small);
+}
+
+TEST(Vec3Norm, Overflow) {
+  Vec3 vx = {DBL_MAX, 0.0, 0.0};
+  Vec3 vy = {0.0, DBL_MAX, 0.0};
+  Vec3 vz = {0.0, 0.0, DBL_MAX};
+
+  double vx_norm = Vec3Norm(&vx);
+  double vy_norm = Vec3Norm(&vy);
+  double vz_norm = Vec3Norm(&vz);
+
+  EXPECT_NEAR(vx_norm, DBL_MAX, DBL_MAX * DBL_EPSILON);
+  EXPECT_NEAR(vy_norm, DBL_MAX, DBL_MAX * DBL_EPSILON);
+  EXPECT_NEAR(vz_norm, DBL_MAX, DBL_MAX * DBL_EPSILON);
+}
+
+TEST(Vec3Normalize, BigVector) {
+  Vec3 v = {DBL_MAX, DBL_MAX, DBL_MAX};
+  Vec3Normalize(&v, &v);
+
+  EXPECT_EQ(1.0 / sqrt(3.0), v.x);
+  EXPECT_EQ(1.0 / sqrt(3.0), v.y);
+  EXPECT_EQ(1.0 / sqrt(3.0), v.z);
+
+  EXPECT_NEAR(Vec3Norm(&v), 1.0, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3Normalize, Inf) {
+  Vec3 v = {INFINITY, -INFINITY, 22.0};
+  Vec3Normalize(&v, &v);
+
+  EXPECT_EQ(1.0 / sqrt(2.0), v.x);
+  EXPECT_EQ(-1.0 / sqrt(2.0), v.y);
+  EXPECT_NEAR(22.0 / sqrt(2.0) / DBL_MAX, v.z, DBL_MIN);
+
+  EXPECT_NEAR(Vec3Norm(&v), 1.0, DBL_EPSILON);
+}
+
+TEST(Vec3Normalize, Inf2) {
+  Vec3 vx = {INFINITY, 0.0, 0.0};
+  Vec3 vy = {0.0, INFINITY, 0.0};
+  Vec3 vz = {0.0, 0.0, INFINITY};
+
+  Vec3Normalize(&vx, &vx);
+  Vec3Normalize(&vy, &vy);
+  Vec3Normalize(&vz, &vz);
+
+  EXPECT_EQ_VEC3(vx, kVec3X);
+  EXPECT_EQ_VEC3(vy, kVec3Y);
+  EXPECT_EQ_VEC3(vz, kVec3Z);
+}
+
+TEST(Vec3Normalize, SingleNaN) {
+  Vec3 v = {1.0, NAN, 0.0};
+  Vec3Normalize(&v, &v);
+
+  EXPECT_EQ(1.0, v.x);
+  EXPECT_EQ(0.0, v.y);
+  EXPECT_EQ(0.0, v.z);
+
+  EXPECT_NEAR(Vec3Norm(&v), 1.0, DBL_EPSILON);
+}
+
+TEST(Vec3Normalize, AllNaN) {
+  Vec3 v = {NAN, NAN, NAN};
+  Vec3Normalize(&v, &v);
+
+  EXPECT_EQ(0.0, v.x);
+  EXPECT_EQ(0.0, v.y);
+  EXPECT_EQ(0.0, v.z);
+}
+
+TEST(Vec3Normalize, Zero) {
+  Vec3 v = kVec3Zero;
+  Vec3Normalize(&v, &v);
+
+  EXPECT_EQ(0.0, v.x);
+  EXPECT_EQ(0.0, v.y);
+  EXPECT_EQ(0.0, v.z);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3Normalize, NoClobber) {
+  Vec3 v_in = {-1.0, 20.0, 3.0};
+  Vec3 v_out = {123.0, 99.8, -56.2};
+  Vec3Normalize(&v_in, &v_out);
+
+  // Verify that the input was not clobbered.
+  EXPECT_EQ(-1.0, v_in.x);
+  EXPECT_EQ(20.0, v_in.y);
+  EXPECT_EQ(3.0, v_in.z);
+
+  // Verify that the output is normalized and parallel to the input.
+  EXPECT_NEAR(Vec3Norm(&v_out), 1.0, DBL_EPSILON);
+  EXPECT_NEAR(Vec3Dot(&v_in, &v_out), Vec3Norm(&v_in), DBL_EPSILON);
+}
+
+TEST(Vec3XyNorm, Normal) {
+  Vec3 v = {3.0, 4.0, 22.0};
+  EXPECT_NEAR(Vec3XyNorm(&v), 5.0, DBL_EPSILON);
+}
+
+TEST(Vec3XzNorm, Normal) {
+  Vec3 v = {4.0, 22.0, 3.0};
+  EXPECT_NEAR(Vec3XzNorm(&v), 5.0, DBL_EPSILON);
+}
+
+TEST(Vec3YzNorm, Normal) {
+  Vec3 v = {22.0, 4.0, 3.0};
+  EXPECT_NEAR(Vec3YzNorm(&v), 5.0, DBL_EPSILON);
+}
+
+TEST(Vec3AxpyTest, Normal) {
+  const Vec3 x = {0.603510315099689, 0.265730454435706, 0.188188919436278};
+  Vec3 y = {0.3493157678185849, 0.0773055504347321, 0.0797215727300547};
+  const Vec3 zout = {0.687106507771254, 0.226037534936056, 0.185052787055320};
+  const double a = 0.559709969326492;
+
+  Vec3Axpy(a, &x, &y);
+  // TODO: Investigate why we can't use DBL_EPSILON here.
+  EXPECT_NEAR_VEC3(zout, y, 1e-9);
+}
+
+TEST(Vec3AxpyTest, Consistency) {
+  for (int32_t i = 0; i < test_util::kNumTests; i++) {
+    const Vec3 x = {RandNormal(), RandNormal(), RandNormal()};
+    Vec3 y = {RandNormal(), RandNormal(), RandNormal()};
+    double a = RandNormal();
+    Vec3 z = kVec3Zero;
+    Vec3 w = kVec3Zero;
+
+    // w = -y
+    // y = a*x + y
+    // w = y + w
+    // z = w/a
+    // => z == x
+    Vec3Axpy(-1.0, &y, &w);
+    Vec3Axpy(a, &x, &y);
+    Vec3Axpy(1.0, &y, &w);
+    Vec3Axpy(1.0 / a, &w, &z);
+    // TODO: Investigate why we can't use DBL_EPSILON here.
+    EXPECT_NEAR_VEC3(x, z, 1e-9);
+  }
+}
+
+// The remaining tests are generated code comparing the results to
+// MATLAB.
+
+TEST(Vec3NormTest, Normal1) {
+  const Vec3 v = {0.5367702526124893, -0.4260820531771103, 0.0239257162803643};
+  double v_norm = Vec3Norm(&v);
+
+  EXPECT_NEAR(0.6857409569427992, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Unbounded1) {
+  const Vec3 v = {-0.2303068939695418, 0.4617951054964475, -0.4544887764605945};
+  double v_norm = Vec3NormBound(&v, 0.5774509303531977);
+
+  EXPECT_NEAR(0.6876452812308256, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Bounded1) {
+  const Vec3 v = {0.9265032594833635, 0.5911502601488472, -0.5127920011272906};
+  double v_norm = Vec3NormBound(&v, 2.0619801096902344);
+
+  EXPECT_NEAR(2.0619801096902344, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormSquaredTest, Normal1) {
+  const Vec3 v = {-0.6687971816684477, 0.0130227044755817, 0.8264218437770381};
+  double v_norm_sqrd = Vec3NormSquared(&v);
+
+  EXPECT_NEAR(1.1304323249113561, v_norm_sqrd, DBL_EPSILON);
+}
+
+TEST(Vec3NormalizeTest, Normal1) {
+  Vec3 v = {0.8420114420131575, -0.6763637083427534, -0.0863678034960516};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.7771422021234553, v.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.6242561033151141, v.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0797139583293674, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.7771422021234553, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.6242561033151141, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0797139583293674, v_out_ptr->z, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3NormalizeTest, Zero_1) {
+  Vec3 v = {0.0000000000000000, 0.0000000000000000, 0.0000000000000000};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.0000000000000000, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->z, DBL_EPSILON);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3ScaleTest, Normal1) {
+  const Vec3 v = {-0.1644879149932854, 0.6427201538828351, -0.9340521997382087};
+  Vec3 v_out = {0.5517522819833633, 0.2388025183107527, -0.7807407593672366};
+  const Vec3 *v_out_ptr = Vec3Scale(&v, -0.8023639014165720, &v_out);
+
+  EXPECT_NEAR(0.1319791652098899, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5156954501884911, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.7494497671086803, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.1319791652098899, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5156954501884911, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.7494497671086803, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3AddTest, Normal1) {
+  const Vec3 v0 = {-0.1478831571559869, -0.2567374627753023,
+                   -0.0123440884023902};
+  const Vec3 v1 = {-0.9739330432167523, 0.4058302368576159, 0.1015556273908707};
+  Vec3 v_out = {-0.4500020725584011, 0.9195757878627335, 0.8028451634961025};
+  const Vec3 *v_out_ptr = Vec3Add(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-1.1218162003727392, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.1490927740823136, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0892115389884804, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.1218162003727392, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.1490927740823136, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0892115389884804, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3Add3Test, Normal1) {
+  const Vec3 v0 = {0.6599076801606711, 0.3503162626705241, 0.6140936231935474};
+  const Vec3 v1 = {0.2605656957992768, 0.4856778791661713, -0.3567832603321217};
+  const Vec3 v2 = {0.5566181827999006, 0.0839612311831071, 0.1145621134624220};
+  Vec3 v0c = {0.6599076801606711, 0.3503162626705241, 0.6140936231935474};
+  Vec3 v1c = {0.2605656957992768, 0.4856778791661713, -0.3567832603321217};
+  Vec3 v2c = {0.5566181827999006, 0.0839612311831071, 0.1145621134624220};
+  Vec3 v_out = {-0.6951257011121486, -0.4643466868093897, 0.7954443333909311};
+  const Vec3 *v_out_ptr = Vec3Add3(&v0, &v1, &v2, &v_out);
+  Vec3Add3(&v0c, &v1, &v2, &v0c);
+  Vec3Add3(&v0, &v1c, &v2, &v1c);
+  Vec3Add3(&v0, &v1, &v2c, &v2c);
+
+  EXPECT_NEAR(1.4770915587598485, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.9199553730198025, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3718724763238477, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.4770915587598485, v0c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.9199553730198025, v0c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3718724763238477, v0c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.4770915587598485, v1c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.9199553730198025, v1c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3718724763238477, v1c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.4770915587598485, v2c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.9199553730198025, v2c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3718724763238477, v2c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.4770915587598485, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.9199553730198025, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.3718724763238477, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3SubTest, Normal1) {
+  const Vec3 v0 = {0.6766932755174186, -0.9962267335320423,
+                   -0.2110364564189453};
+  const Vec3 v1 = {0.4697670300417833, -0.8089695215392609,
+                   -0.3245848530679498};
+  Vec3 v_out = {0.5257322073508937, 0.7635724211233310, -0.4459327109112239};
+  const Vec3 *v_out_ptr = Vec3Sub(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.2069262454756353, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1872572119927813, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.1135483966490045, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2069262454756353, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1872572119927813, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.1135483966490045, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinCombTest, Normal1) {
+  const Vec3 v0 = {0.2674433189118164, 0.7857832103283664, -0.9309107927791354};
+  const Vec3 v1 = {0.7982576750757842, -0.3323133234393580, 0.4954047249089635};
+  Vec3 v_out = {-0.5062570639231658, 0.3430758576211665, -0.2031135335265573};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb(-0.6641621523381429, &v0, 0.1712432676141122, &v1, &v_out);
+
+  EXPECT_NEAR(-0.0409294776389068, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5787938876203245, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.7031104396518788, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.0409294776389068, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5787938876203245, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.7031104396518788, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinComb3Test, Normal1) {
+  const Vec3 v0 = {-0.7546510030033908, 0.3704451278835053, 0.6640463277605138};
+  const Vec3 v1 = {0.3433385306612882, 0.2126343590682989, -0.7918223874050583};
+  const Vec3 v2 = {-0.6046805279105418, 0.7919650295736314,
+                   -0.5489419844219976};
+  Vec3 v_out = {0.0451612961133447, -0.2061715785301237, 0.8606211659267344};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb3(0.6224819598251061, &v0, -0.2799285848080595, &v1,
+                   -0.7336872774962144, &v2, &v_out);
+
+  EXPECT_NEAR(-0.1222204940539666, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.4099816924230578, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(1.0377623298986112, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1222204940539666, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.4099816924230578, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(1.0377623298986112, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3DotTest, Normal1) {
+  const Vec3 v0 = {0.4984800705693784, 0.5270289236303241, 0.2673143832374629};
+  const Vec3 v1 = {0.5548888677474180, -0.2117005486838590,
+                   -0.2188018092068686};
+  double v_dot = Vec3Dot(&v0, &v1);
+
+  EXPECT_NEAR(0.1065398589687170, v_dot, DBL_EPSILON);
+}
+
+TEST(Vec3MultTest, Normal1) {
+  const Vec3 v0 = {-0.4019846845889379, -0.9445145506261914,
+                   -0.2196442368237426};
+  const Vec3 v1 = {0.9126289942107253, 0.3503899871409848, 0.7621759362910447};
+  Vec3 v_out = {0.3283086149111243, 0.3823580496403809, -0.0468320656530856};
+  const Vec3 *v_out_ptr = Vec3Mult(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.3668628783845180, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3309484412483842, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.1674075518520680, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.3668628783845180, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3309484412483842, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.1674075518520680, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3CrossTest, Normal0) {
+  const Vec3 v0 = {-0.2083752660290958, -0.5824329527967755,
+                   -0.4510204716959005};
+  const Vec3 v1 = {0.1083629892868154, -0.2094894230836941,
+                   -0.2308901701131918};
+  Vec3 v_out = {0.9077912846400851, 0.8193497634327238, 0.7946423012944603};
+  const Vec3 *v_out_ptr = Vec3Cross(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.0399940251362663, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0969857271633568, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.1067665900895518, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0399940251362663, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0969857271633568, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.1067665900895518, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3NormTest, Normal5) {
+  const Vec3 v = {0.3280127653486116, 0.2421450280486086, -0.8173297668101331};
+  double v_norm = Vec3Norm(&v);
+
+  EXPECT_NEAR(0.9133753535946826, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Unbounded5) {
+  const Vec3 v = {-0.3000657279204451, 0.6160988521300801, -0.8841593808159371};
+  double v_norm = Vec3NormBound(&v, 0.8752355704095247);
+
+  EXPECT_NEAR(1.1186398202072239, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Bounded5) {
+  const Vec3 v = {0.7593995167965277, -0.9956466234278525, -0.9162006409318304};
+  double v_norm = Vec3NormBound(&v, 2.0353017006257286);
+
+  EXPECT_NEAR(2.0353017006257286, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormSquaredTest, Normal5) {
+  const Vec3 v = {-0.3451725884774099, -0.6745536096950111, 0.0326845696949909};
+  double v_norm_sqrd = Vec3NormSquared(&v);
+
+  EXPECT_NEAR(0.5752349692849116, v_norm_sqrd, DBL_EPSILON);
+}
+
+TEST(Vec3NormalizeTest, Normal5) {
+  Vec3 v = {-0.5994888872635027, -0.3502395159589060, -0.6569427657571214};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(-0.6271859652959697, v.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3664209855568628, v.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.6872942792423781, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.6271859652959697, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3664209855568628, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.6872942792423781, v_out_ptr->z, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3NormalizeTest, Zero_5) {
+  Vec3 v = {0.0000000000000000, 0.0000000000000000, 0.0000000000000000};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.0000000000000000, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->z, DBL_EPSILON);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3ScaleTest, Normal5) {
+  const Vec3 v = {0.6247576085731952, 0.7847415230573362, -0.0912514967997951};
+  Vec3 v_out = {0.4264724364750425, 0.8409634250436200, 0.2920849893201807};
+  const Vec3 *v_out_ptr = Vec3Scale(&v, -0.1418968624644088, &v_out);
+
+  EXPECT_NEAR(-0.0886511444573036, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1113523599673775, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0129483010910720, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.0886511444573036, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1113523599673775, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0129483010910720, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3AddTest, Normal5) {
+  const Vec3 v0 = {-0.8499887665574646, -0.5202824297132036,
+                   -0.2807972122668778};
+  const Vec3 v1 = {0.8958137842465088, 0.5257801379118276, -0.8548859642364537};
+  Vec3 v_out = {-0.0744746064139561, 0.0417691802188671, 0.0052946333988333};
+  const Vec3 *v_out_ptr = Vec3Add(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.0458250176890442, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0054977081986241, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-1.1356831765033315, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0458250176890442, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0054977081986241, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-1.1356831765033315, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3Add3Test, Normal5) {
+  const Vec3 v0 = {-0.7930446418895178, -0.9922740282210696,
+                   -0.7247845538551627};
+  const Vec3 v1 = {0.1395517240820978, 0.8402973453306137, -0.9645953801617726};
+  const Vec3 v2 = {0.4949342401878045, -0.1998357191849807,
+                   -0.4699342534129838};
+  Vec3 v0c = {-0.7930446418895178, -0.9922740282210696, -0.7247845538551627};
+  Vec3 v1c = {0.1395517240820978, 0.8402973453306137, -0.9645953801617726};
+  Vec3 v2c = {0.4949342401878045, -0.1998357191849807, -0.4699342534129838};
+  Vec3 v_out = {0.1206977849541890, 0.7472340796806078, 0.9513878870945605};
+  const Vec3 *v_out_ptr = Vec3Add3(&v0, &v1, &v2, &v_out);
+  Vec3Add3(&v0c, &v1, &v2, &v0c);
+  Vec3Add3(&v0, &v1c, &v2, &v1c);
+  Vec3Add3(&v0, &v1, &v2c, &v2c);
+
+  EXPECT_NEAR(-0.1585586776196155, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3518124020754365, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-2.1593141874299189, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1585586776196155, v0c.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3518124020754365, v0c.y, DBL_EPSILON);
+  EXPECT_NEAR(-2.1593141874299189, v0c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1585586776196155, v1c.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3518124020754365, v1c.y, DBL_EPSILON);
+  EXPECT_NEAR(-2.1593141874299189, v1c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1585586776196155, v2c.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3518124020754365, v2c.y, DBL_EPSILON);
+  EXPECT_NEAR(-2.1593141874299189, v2c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1585586776196155, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3518124020754365, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-2.1593141874299189, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3SubTest, Normal5) {
+  const Vec3 v0 = {-0.6650133458925320, -0.7138954511649391,
+                   -0.6193888143977264};
+  const Vec3 v1 = {-0.9240789349889980, 0.4744553131060507,
+                   -0.1040192768909076};
+  Vec3 v_out = {0.1807143485814426, 0.9831779885001866, -0.5293606931514121};
+  const Vec3 *v_out_ptr = Vec3Sub(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.2590655890964659, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-1.1883507642709898, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.5153695375068188, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2590655890964659, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-1.1883507642709898, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.5153695375068188, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinCombTest, Normal5) {
+  const Vec3 v0 = {-0.0685294097150932, -0.1751244364420363,
+                   -0.2245181368994498};
+  const Vec3 v1 = {0.4695557000508626, -0.0868949598138307, 0.2741851546438758};
+  Vec3 v_out = {-0.9395537125857720, -0.6254790565049011, -0.6925528939466816};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb(0.5355639112504176, &v0, 0.6849658495554161, &v1, &v_out);
+
+  EXPECT_NEAR(0.2849277402962295, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1533104081073864, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0675636558415995, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2849277402962295, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1533104081073864, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0675636558415995, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinComb3Test, Normal5) {
+  const Vec3 v0 = {-0.0939619143279544, 0.2362686642867331, 0.7220377453598541};
+  const Vec3 v1 = {0.6693452098786703, -0.9853276874000878, 0.7622255225662449};
+  const Vec3 v2 = {0.0281595156522720, 0.9990653638489897, -0.5046935873378480};
+  Vec3 v_out = {-0.3570600089555287, -0.9197891732707526, -0.2926810630752030};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb3(0.3598048816818096, &v0, 0.8834105783461450, &v1,
+                   -0.3419938976526125, &v2, &v_out);
+
+  EXPECT_NEAR(0.5478683009908418, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-1.1271125411802152, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(1.1057529223133915, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.5478683009908418, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-1.1271125411802152, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(1.1057529223133915, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3DotTest, Normal5) {
+  const Vec3 v0 = {-0.9620382927787867, 0.9205105525834723, 0.2463128629761429};
+  const Vec3 v1 = {-0.2704520951296421, 0.7260433533652026, 0.5195421882627813};
+  double v_dot = Vec3Dot(&v0, &v1);
+
+  EXPECT_NEAR(1.0564857641106227, v_dot, DBL_EPSILON);
+}
+
+TEST(Vec3MultTest, Normal5) {
+  const Vec3 v0 = {-0.1838588164901567, -0.1075940672017186,
+                   -0.0282362842439785};
+  const Vec3 v1 = {0.2920674378173924, 0.9058862428745307, 0.2552559461597399};
+  Vec3 v_out = {-0.0444558939862263, 0.7298459177794947, 0.1010724084258454};
+  const Vec3 *v_out_ptr = Vec3Mult(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.0536991734524182, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0974679852929546, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0072074794507321, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.0536991734524182, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0974679852929546, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0072074794507321, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3CrossTest, Normal1) {
+  const Vec3 v0 = {-0.6764992137955061, -0.9146635028029626,
+                   0.4607022747071750};
+  const Vec3 v1 = {0.2214359324988560, -0.1805957517930052, 0.4800794112013538};
+  Vec3 v_out = {0.4401456638848431, 0.9495624845262263, 0.1087389732398125};
+  const Vec3 *v_out_ptr = Vec3Cross(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.3559102422195242, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.4267893820412527, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3247122497686204, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.3559102422195242, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.4267893820412527, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.3247122497686204, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3NormTest, Normal9) {
+  const Vec3 v = {0.5808260832296135, 0.5922695614036191, -0.1694815147788191};
+  double v_norm = Vec3Norm(&v);
+
+  EXPECT_NEAR(0.8466794884587746, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Unbounded9) {
+  const Vec3 v = {0.9316956534433496, 0.1787929162952937, 0.0599260293110035};
+  double v_norm = Vec3NormBound(&v, 0.3313565627667132);
+
+  EXPECT_NEAR(0.9505865697302847, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Bounded9) {
+  const Vec3 v = {0.1467027610475362, -0.4714413318389643, -0.7572528793440667};
+  double v_norm = Vec3NormBound(&v, 1.3554532671751538);
+
+  EXPECT_NEAR(1.3554532671751538, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormSquaredTest, Normal9) {
+  const Vec3 v = {0.4009023052419520, 0.3314888769839504, -0.1469763079001782};
+  double v_norm_sqrd = Vec3NormSquared(&v);
+
+  EXPECT_NEAR(0.2922095689963599, v_norm_sqrd, DBL_EPSILON);
+}
+
+TEST(Vec3NormalizeTest, Normal9) {
+  Vec3 v = {0.2766904485844199, 0.6403886563647754, 0.1847774110244784};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.3834065641149065, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.8873787139785118, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.2560437942451343, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.3834065641149065, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.8873787139785118, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.2560437942451343, v_out_ptr->z, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3NormalizeTest, Zero_9) {
+  Vec3 v = {0.0000000000000000, 0.0000000000000000, 0.0000000000000000};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.0000000000000000, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->z, DBL_EPSILON);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3ScaleTest, Normal9) {
+  const Vec3 v = {0.1564175171363360, -0.5928003064979888, -0.7251831432396201};
+  Vec3 v_out = {0.0161593596423752, 0.5658506405701715, -0.7104761965558826};
+  const Vec3 *v_out_ptr = Vec3Scale(&v, -0.9720439053818959, &v_out);
+
+  EXPECT_NEAR(-0.1520446942273437, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.5762279250398898, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.7049098546717592, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1520446942273437, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.5762279250398898, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.7049098546717592, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3AddTest, Normal9) {
+  const Vec3 v0 = {-0.1874458060054163, 0.2609798151088987,
+                   -0.8520759883002875};
+  const Vec3 v1 = {0.0970432591201233, 0.8304779456499265, -0.6511301867613077};
+  Vec3 v_out = {0.7865124802218066, 0.5713707031423259, -0.5767817461730829};
+  const Vec3 *v_out_ptr = Vec3Add(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.0904025468852929, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(1.0914577607588252, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-1.5032061750615953, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.0904025468852929, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(1.0914577607588252, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-1.5032061750615953, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3Add3Test, Normal9) {
+  const Vec3 v0 = {0.8693297264443576, 0.9610149363578462, 0.6551867685579851};
+  const Vec3 v1 = {-0.4887371184993261, 0.4517688907210851, 0.5059698789610241};
+  const Vec3 v2 = {-0.1800884707233683, 0.4341860076266801, 0.7087599202489370};
+  Vec3 v0c = {0.8693297264443576, 0.9610149363578462, 0.6551867685579851};
+  Vec3 v1c = {-0.4887371184993261, 0.4517688907210851, 0.5059698789610241};
+  Vec3 v2c = {-0.1800884707233683, 0.4341860076266801, 0.7087599202489370};
+  Vec3 v_out = {0.5754014248614572, -0.6465311596291174, -0.4995093173608245};
+  const Vec3 *v_out_ptr = Vec3Add3(&v0, &v1, &v2, &v_out);
+  Vec3Add3(&v0c, &v1, &v2, &v0c);
+  Vec3Add3(&v0, &v1c, &v2, &v1c);
+  Vec3Add3(&v0, &v1, &v2c, &v2c);
+
+  EXPECT_NEAR(0.2005041372216632, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(1.8469698347056114, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(1.8699165677679461, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2005041372216632, v0c.x, DBL_EPSILON);
+  EXPECT_NEAR(1.8469698347056114, v0c.y, DBL_EPSILON);
+  EXPECT_NEAR(1.8699165677679461, v0c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2005041372216632, v1c.x, DBL_EPSILON);
+  EXPECT_NEAR(1.8469698347056114, v1c.y, DBL_EPSILON);
+  EXPECT_NEAR(1.8699165677679461, v1c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2005041372216632, v2c.x, DBL_EPSILON);
+  EXPECT_NEAR(1.8469698347056114, v2c.y, DBL_EPSILON);
+  EXPECT_NEAR(1.8699165677679461, v2c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2005041372216632, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(1.8469698347056114, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(1.8699165677679461, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3SubTest, Normal9) {
+  const Vec3 v0 = {-0.2283674493043861, -0.9014328921117525,
+                   -0.6363353672373084};
+  const Vec3 v1 = {-0.0143925514381493, 0.3383132223497405,
+                   -0.6742920168150697};
+  Vec3 v_out = {0.9402371365747340, 0.2139969018476338, 0.2552918238895079};
+  const Vec3 *v_out_ptr = Vec3Sub(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.2139748978662368, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-1.2397461144614930, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0379566495777612, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.2139748978662368, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-1.2397461144614930, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0379566495777612, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinCombTest, Normal9) {
+  const Vec3 v0 = {0.6550471116645695, -0.2153879652204482,
+                   -0.8835693971435579};
+  const Vec3 v1 = {0.9972032503337704, -0.0601914771464085,
+                   -0.4320440353170660};
+  Vec3 v_out = {-0.9138865362858917, -0.7334554478756057, 0.7317667274237456};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb(0.6365223438594392, &v0, 0.1843987218984677, &v1, &v_out);
+
+  EXPECT_NEAR(0.6008351276896327, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1481984839162137, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.6420800315486126, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.6008351276896327, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1481984839162137, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.6420800315486126, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinComb3Test, Normal9) {
+  const Vec3 v0 = {0.2721656980963250, 0.7439043767825189, -0.6606313034653339};
+  const Vec3 v1 = {0.3030186261976140, -0.6539574477087946,
+                   -0.8155949803008553};
+  const Vec3 v2 = {-0.9834181291663000, 0.2409230887886793,
+                   -0.4666921731161049};
+  Vec3 v_out = {0.5403502815697727, 0.4690281493074104, 0.8982080003084418};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb3(0.6719751290823228, &v0, -0.7093069530347784, &v1,
+                   -0.7307597956787206, &v2, &v_out);
+
+  EXPECT_NEAR(0.6865977927853595, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7876848971245620, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.4756192620369019, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.6865977927853595, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.7876848971245620, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.4756192620369019, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3DotTest, Normal9) {
+  const Vec3 v0 = {-0.8134148512138326, -0.2085083380971571,
+                   0.2476157835112773};
+  const Vec3 v1 = {-0.3982153847348187, -0.9322421131796628,
+                   0.6479840620617590};
+  double v_dot = Vec3Dot(&v0, &v1);
+
+  EXPECT_NEAR(0.6787456428786476, v_dot, DBL_EPSILON);
+}
+
+TEST(Vec3MultTest, Normal9) {
+  const Vec3 v0 = {0.6176037319138981, -0.9824204181640221, 0.6700402073758693};
+  const Vec3 v1 = {0.9038076294910025, -0.6015116040562272,
+                   -0.4133818335289658};
+  Vec3 v_out = {0.1602431564312929, 0.8822212476536690, 0.6521965665060454};
+  const Vec3 *v_out_ptr = Vec3Mult(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.5581949649058968, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.5909372815874304, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.2769824494631654, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.5581949649058968, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.5909372815874304, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.2769824494631654, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3CrossTest, Normal2) {
+  const Vec3 v0 = {-0.8682328113783639, -0.6632068278920162,
+                   0.4973950204357509};
+  const Vec3 v1 = {0.5811618559965335, 0.5025464754438578, 0.2329020791955703};
+  Vec3 v_out = {0.8614810073566896, -0.7688544844599099, -0.8415814650412219};
+  const Vec3 *v_out_ptr = Vec3Cross(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.4044263635760615, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.4912802402357110, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0508968282156109, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.4044263635760615, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.4912802402357110, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.0508968282156109, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3NormTest, Normal13) {
+  const Vec3 v = {0.1089781761285467, -0.9136381466688563, -0.8993518947221482};
+  double v_norm = Vec3Norm(&v);
+
+  EXPECT_NEAR(1.2866408731503616, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Unbounded13) {
+  const Vec3 v = {-0.1477720297813589, 0.3805663847744476, -0.9572246478522421};
+  double v_norm = Vec3NormBound(&v, 0.9604937775004271);
+
+  EXPECT_NEAR(1.0406470931405347, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Bounded13) {
+  const Vec3 v = {0.8501942861670015, -0.7559542213691750, -0.5031235706295509};
+  double v_norm = Vec3NormBound(&v, 1.5509570924415381);
+
+  EXPECT_NEAR(1.5509570924415381, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormSquaredTest, Normal13) {
+  const Vec3 v = {0.7884754816377799, -0.8385943227016530, -0.8342250138569103};
+  double v_norm_sqrd = Vec3NormSquared(&v);
+
+  EXPECT_NEAR(2.0208653969559354, v_norm_sqrd, DBL_EPSILON);
+}
+
+TEST(Vec3NormalizeTest, Normal13) {
+  Vec3 v = {-0.9427571104185044, -0.4860656308265348, -0.2323228040170791};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(-0.8682371685863967, v.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.4476447245978872, v.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.2139589204140803, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.8682371685863967, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.4476447245978872, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.2139589204140803, v_out_ptr->z, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3NormalizeTest, Zero_13) {
+  Vec3 v = {0.0000000000000000, 0.0000000000000000, 0.0000000000000000};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.0000000000000000, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->z, DBL_EPSILON);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3ScaleTest, Normal13) {
+  const Vec3 v = {0.0596802821329565, 0.9066534966906223, -0.1090525658216739};
+  Vec3 v_out = {0.6059729313853439, 0.8399363862432556, -0.8703496009694609};
+  const Vec3 *v_out_ptr = Vec3Scale(&v, -0.6228805491712335, &v_out);
+
+  EXPECT_NEAR(-0.0371736869096701, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5647368279266740, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0679267220875363, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.0371736869096701, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5647368279266740, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0679267220875363, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3AddTest, Normal13) {
+  const Vec3 v0 = {0.2836526783851223, 0.8315315747116210, 0.7841935311427746};
+  const Vec3 v1 = {0.7399198885757061, -0.1245570166161289, 0.2591704104448207};
+  Vec3 v_out = {-0.9902615957976295, 0.5403371702743311, 0.0783200347887563};
+  const Vec3 *v_out_ptr = Vec3Add(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(1.0235725669608284, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7069745580954920, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(1.0433639415875953, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.0235725669608284, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.7069745580954920, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(1.0433639415875953, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3Add3Test, Normal13) {
+  const Vec3 v0 = {0.9238706464398476, 0.3438554757791441, -0.6071685139577589};
+  const Vec3 v1 = {-0.8941590063985037, 0.7140891202658142, 0.6435182537637201};
+  const Vec3 v2 = {0.8175935979005813, -0.7410745640869674, 0.3949477137278348};
+  Vec3 v0c = {0.9238706464398476, 0.3438554757791441, -0.6071685139577589};
+  Vec3 v1c = {-0.8941590063985037, 0.7140891202658142, 0.6435182537637201};
+  Vec3 v2c = {0.8175935979005813, -0.7410745640869674, 0.3949477137278348};
+  Vec3 v_out = {-0.4365920509928007, -0.1954229708614825, -0.4937690311824776};
+  const Vec3 *v_out_ptr = Vec3Add3(&v0, &v1, &v2, &v_out);
+  Vec3Add3(&v0c, &v1, &v2, &v0c);
+  Vec3Add3(&v0, &v1c, &v2, &v1c);
+  Vec3Add3(&v0, &v1, &v2c, &v2c);
+
+  EXPECT_NEAR(0.8473052379419252, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.3168700319579909, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.4312974535337959, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.8473052379419252, v0c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.3168700319579909, v0c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.4312974535337959, v0c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.8473052379419252, v1c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.3168700319579909, v1c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.4312974535337959, v1c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.8473052379419252, v2c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.3168700319579909, v2c.y, DBL_EPSILON);
+  EXPECT_NEAR(0.4312974535337959, v2c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.8473052379419252, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.3168700319579909, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.4312974535337959, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3SubTest, Normal13) {
+  const Vec3 v0 = {0.8928540403091885, 0.2899643959846412, 0.6938761626236207};
+  const Vec3 v1 = {-0.5282575035720876, -0.2511046824900267,
+                   0.8416000815962716};
+  Vec3 v_out = {0.0278196325456206, -0.7299743947211050, -0.5716453655670475};
+  const Vec3 *v_out_ptr = Vec3Sub(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(1.4211115438812760, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.5410690784746679, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.1477239189726509, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(1.4211115438812760, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.5410690784746679, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.1477239189726509, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinCombTest, Normal13) {
+  const Vec3 v0 = {-0.4656397750996888, -0.0899998838278602,
+                   0.3610148213185371};
+  const Vec3 v1 = {0.6614405432895130, -0.5761754167998201, 0.5731031455888651};
+  Vec3 v_out = {0.4545933240274511, -0.6682646711062756, 0.0236357642928082};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb(-0.1337137710719969, &v0, -0.8846217415542821, &v1, &v_out);
+
+  EXPECT_NEAR(-0.5228622350496835, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.5217315245128861, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.5552521559124438, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.5228622350496835, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.5217315245128861, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.5552521559124438, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinComb3Test, Normal13) {
+  const Vec3 v0 = {0.3698081393521835, 0.6078463556261542, -0.1225246868668557};
+  const Vec3 v1 = {0.1181868381870310, -0.8306047589279235, 0.6201096518544660};
+  const Vec3 v2 = {-0.5178480679588717, -0.2474484523805625,
+                   0.4203620298524120};
+  Vec3 v_out = {-0.4925549380582988, -0.4646545685677774, 0.5583185003984297};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb3(-0.1197758224415517, &v0, 0.1739711626689577, &v1,
+                   0.5229317255640360, &v2, &v_out);
+
+  EXPECT_NEAR(-0.2945321561426570, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3467052189838005, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.3423773338865579, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.2945321561426570, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.3467052189838005, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.3423773338865579, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3DotTest, Normal13) {
+  const Vec3 v0 = {0.1474130676718000, 0.8087665856059540, 0.8014935200996285};
+  const Vec3 v1 = {-0.4542791519426888, -0.9806813673402233,
+                   0.7290508449970545};
+  double v_dot = Vec3Dot(&v0, &v1);
+
+  EXPECT_NEAR(-0.2757794763100483, v_dot, DBL_EPSILON);
+}
+
+TEST(Vec3MultTest, Normal13) {
+  const Vec3 v0 = {-0.6613701546518296, 0.0575800694754700, 0.3037824685912978};
+  const Vec3 v1 = {-0.6405349916024616, -0.0634890376584154,
+                   0.0881922309829326};
+  Vec3 v_out = {0.3993123419317641, 0.3408205787925083, 0.2448795173715939};
+  const Vec3 *v_out_ptr = Vec3Mult(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.4236307264560284, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0036557031993023, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0267912536385692, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.4236307264560284, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.0036557031993023, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0267912536385692, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3CrossTest, Normal3) {
+  const Vec3 v0 = {0.3951306207190080, -0.8786709319178831, 0.0098176906855341};
+  const Vec3 v1 = {0.5927897212175395, 0.0057579721354335, 0.7165869499815805};
+  Vec3 v_out = {-0.5944968273433429, -0.0007433188229025, 0.3673608024588699};
+  const Vec3 *v_out_ptr = Vec3Cross(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.6297006531299104, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.2773256202208848, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.5231422478775142, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.6297006531299104, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.2773256202208848, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.5231422478775142, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3NormTest, Normal17) {
+  const Vec3 v = {0.0309435440394410, -0.2110076214913605, -0.1052672490121829};
+  double v_norm = Vec3Norm(&v);
+
+  EXPECT_NEAR(0.2378295880662350, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Unbounded17) {
+  const Vec3 v = {0.1039707708752737, -0.3727048007412765, -0.6046493500070114};
+  double v_norm = Vec3NormBound(&v, 0.5085926469314221);
+
+  EXPECT_NEAR(0.7178576642732838, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormBoundTest, Bounded17) {
+  const Vec3 v = {0.0427401484746950, 0.5888597611281718, 0.5448131624545518};
+  double v_norm = Vec3NormBound(&v, 1.5280693955873637);
+
+  EXPECT_NEAR(1.5280693955873637, v_norm, DBL_EPSILON);
+}
+
+TEST(Vec3NormSquaredTest, Normal17) {
+  const Vec3 v = {0.1819191820018540, -0.7811024063100254, 0.5492200909941696};
+  double v_norm_sqrd = Vec3NormSquared(&v);
+
+  EXPECT_NEAR(0.9448582662751795, v_norm_sqrd, DBL_EPSILON);
+}
+
+TEST(Vec3NormalizeTest, Normal17) {
+  Vec3 v = {0.9397100769790467, 0.3482193003095639, -0.9878428268501911};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.6677983931066236, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.2474596100352606, v.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.7020035951228514, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.6677983931066236, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.2474596100352606, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.7020035951228514, v_out_ptr->z, DBL_EPSILON);
+}
+
+#if defined(NDEBUG)
+TEST(Vec3NormalizeTest, Zero_17) {
+  Vec3 v = {0.0000000000000000, 0.0000000000000000, 0.0000000000000000};
+  const Vec3 *v_out_ptr = Vec3Normalize(&v, &v);
+
+  EXPECT_NEAR(0.0000000000000000, v.x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0000000000000000, v_out_ptr->z, DBL_EPSILON);
+}
+#endif  // defined(NDEBUG)
+
+TEST(Vec3ScaleTest, Normal17) {
+  const Vec3 v = {-0.8603480877491050, -0.6407724885131456,
+                  -0.0569471541483630};
+  Vec3 v_out = {0.1115498484481505, -0.1650318402491182, 0.9371708403419812};
+  const Vec3 *v_out_ptr = Vec3Scale(&v, -0.2315908607175066, &v_out);
+
+  EXPECT_NEAR(0.1992487541584761, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.1483970521388580, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.0131884404446319, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.1992487541584761, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.1483970521388580, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.0131884404446319, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3AddTest, Normal17) {
+  const Vec3 v0 = {-0.8069170174246405, 0.2941291925394900,
+                   -0.5409928871337641};
+  const Vec3 v1 = {-0.8152866757495973, 0.1163964590176354,
+                   -0.4375021385193112};
+  Vec3 v_out = {0.8564669317248157, 0.5529849810952754, 0.8891287272438448};
+  const Vec3 *v_out_ptr = Vec3Add(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-1.6222036931742378, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.4105256515571254, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.9784950256530753, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.6222036931742378, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.4105256515571254, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.9784950256530753, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3Add3Test, Normal17) {
+  const Vec3 v0 = {-0.0302465641833307, -0.5608734613643123,
+                   0.6668843113394458};
+  const Vec3 v1 = {-0.8956481819163189, 0.8634911748805276,
+                   -0.6032576582887736};
+  const Vec3 v2 = {-0.5941898145417317, 0.4488695440429267,
+                   -0.5631905320421389};
+  Vec3 v0c = {-0.0302465641833307, -0.5608734613643123, 0.6668843113394458};
+  Vec3 v1c = {-0.8956481819163189, 0.8634911748805276, -0.6032576582887736};
+  Vec3 v2c = {-0.5941898145417317, 0.4488695440429267, -0.5631905320421389};
+  Vec3 v_out = {0.6762373626794087, 0.9911057948837927, 0.0418949124070727};
+  const Vec3 *v_out_ptr = Vec3Add3(&v0, &v1, &v2, &v_out);
+  Vec3Add3(&v0c, &v1, &v2, &v0c);
+  Vec3Add3(&v0, &v1c, &v2, &v1c);
+  Vec3Add3(&v0, &v1, &v2c, &v2c);
+
+  EXPECT_NEAR(-1.5200845606413813, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7514872575591420, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.4995638789914667, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.5200845606413813, v0c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7514872575591420, v0c.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.4995638789914667, v0c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.5200845606413813, v1c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7514872575591420, v1c.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.4995638789914667, v1c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.5200845606413813, v2c.x, DBL_EPSILON);
+  EXPECT_NEAR(0.7514872575591420, v2c.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.4995638789914667, v2c.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-1.5200845606413813, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(0.7514872575591420, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.4995638789914667, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3SubTest, Normal17) {
+  const Vec3 v0 = {-0.6497500786402031, 0.7189437409525017,
+                   -0.3740454112339746};
+  const Vec3 v1 = {-0.8655121625683944, -0.4477580823105713,
+                   -0.0087234797128810};
+  Vec3 v_out = {0.8028428864869437, -0.9826278353110933, -0.3066070681119892};
+  const Vec3 *v_out_ptr = Vec3Sub(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.2157620839281913, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(1.1667018232630730, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(-0.3653219315210936, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2157620839281913, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(1.1667018232630730, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(-0.3653219315210936, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinCombTest, Normal17) {
+  const Vec3 v0 = {0.5786257987678165, 0.5000289322718239, -0.8226467756795237};
+  const Vec3 v1 = {-0.4915666842744630, 0.9228925531430792, 0.8799817098997516};
+  Vec3 v_out = {0.2392122368391820, -0.3550752785665461, -0.3693708116872825};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb(-0.3179878737786455, &v0, -0.0311796144941490, &v1, &v_out);
+
+  EXPECT_NEAR(-0.1686691277498036, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1877785710274457, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.2341542085926138, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.1686691277498036, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1877785710274457, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.2341542085926138, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3LinComb3Test, Normal17) {
+  const Vec3 v0 = {-0.1250558191215512, 0.4076601903139478,
+                   -0.5807133583327919};
+  const Vec3 v1 = {0.9699194636215120, 0.9807730160422994, -0.3923627011240849};
+  const Vec3 v2 = {-0.3697439037174279, 0.0373739300195339, 0.9386290150708447};
+  Vec3 v_out = {-0.1140355255576238, -0.4060251145772744, -0.4960198508449611};
+  const Vec3 *v_out_ptr =
+      Vec3LinComb3(-0.2074790665746116, &v0, -0.6850652355451436, &v1,
+                   0.7837499767211191, &v2, &v_out);
+
+  EXPECT_NEAR(-0.9282984171159375, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.7271826362345186, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(1.1249303805105371, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.9282984171159375, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.7271826362345186, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(1.1249303805105371, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3DotTest, Normal17) {
+  const Vec3 v0 = {-0.8565262904855220, 0.7497424879534840,
+                   -0.7101905810352720};
+  const Vec3 v1 = {0.9697066138351822, -0.5142678127417943,
+                   -0.7518027067631843};
+  double v_dot = Vec3Dot(&v0, &v1);
+
+  EXPECT_NEAR(-0.6822244370669184, v_dot, DBL_EPSILON);
+}
+
+TEST(Vec3MultTest, Normal17) {
+  const Vec3 v0 = {0.7865443408781227, 0.2669686488304712, -0.2730416494805599};
+  const Vec3 v1 = {0.3091909459938575, -0.6862745140716260,
+                   -0.9655222039349101};
+  Vec3 v_out = {0.1943731433920355, -0.3315137926381417, 0.9055899763016606};
+  const Vec3 *v_out_ptr = Vec3Mult(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(0.2431923888222219, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1832137797484902, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.2636277751724934, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(0.2431923888222219, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.1832137797484902, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.2636277751724934, v_out_ptr->z, DBL_EPSILON);
+}
+
+TEST(Vec3CrossTest, Normal4) {
+  const Vec3 v0 = {0.4158606774397273, -0.0594934954178941, 0.9418075672427990};
+  const Vec3 v1 = {-0.4306611688693243, 0.3561415195483060, 0.2272569686579682};
+  Vec3 v_out = {-0.7952570746219685, 0.9728699361678961, -0.5860936866479094};
+  const Vec3 *v_out_ptr = Vec3Cross(&v0, &v1, &v_out);
+
+  EXPECT_NEAR(-0.3489370895434811, v_out.x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5001071846977601, v_out.y, DBL_EPSILON);
+  EXPECT_NEAR(0.1224837153069804, v_out.z, DBL_EPSILON);
+
+  EXPECT_NEAR(-0.3489370895434811, v_out_ptr->x, DBL_EPSILON);
+  EXPECT_NEAR(-0.5001071846977601, v_out_ptr->y, DBL_EPSILON);
+  EXPECT_NEAR(0.1224837153069804, v_out_ptr->z, DBL_EPSILON);
+}
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

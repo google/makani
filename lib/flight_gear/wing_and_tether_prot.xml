@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<PropertyList>
+<generic>
+
+   <input>
+
+      <line_separator>\n</line_separator>
+      <var_separator>,</var_separator>
+
+      <chunk>
+         <name>Latitude</name>
+         <node>/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Longitude</name>
+         <node>/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Altitude</name>
+         <node>/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Roll</name>
+         <node>/orientation/roll-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Pitch</name>
+         <node>/orientation/pitch-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Yaw</name>
+         <node>/orientation/heading-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 1</name>
+         <node>sim/multiplay/generic/float[0]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 2</name>
+         <node>sim/multiplay/generic/float[1]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 3</name>
+         <node>sim/multiplay/generic/float[2]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 4</name>
+         <node>sim/multiplay/generic/float[3]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 5</name>
+         <node>sim/multiplay/generic/float[4]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Aileron 6</name>
+         <node>sim/multiplay/generic/float[5]</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Elevator</name>
+         <node>/controls/flight/elevator</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Rudder</name>
+         <node>/controls/flight/rudder</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk> 
+
+      <chunk>
+         <name>Airspeed</name>
+         <node>/velocities/airspeed-kt</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tower Lat</name>
+         <node>/sim/tower/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tower Long</name>
+         <node>/sim/tower/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tower Altitude</name>
+         <node>/sim/tower/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tower heading</name>
+         <node>/sim/tower/heading-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tower Pitch</name>
+         <node>/sim/tower/pitch-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 0 Lat</name>
+         <node>/ai/models/aircraft/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 0 Long</name>
+         <node>/ai/models/aircraft/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 0 Alt</name>
+         <node>/ai/models/aircraft/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 1 Lat</name>
+         <node>/ai/models/aircraft[1]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 1 Long</name>
+         <node>/ai/models/aircraft[1]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 1 Alt</name>
+         <node>/ai/models/aircraft[1]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 2 Lat</name>
+         <node>/ai/models/aircraft[2]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 2 Long</name>
+         <node>/ai/models/aircraft[2]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 2 Alt</name>
+         <node>/ai/models/aircraft[2]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 3 Lat</name>
+         <node>/ai/models/aircraft[3]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 3 Long</name>
+         <node>/ai/models/aircraft[3]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 3 Alt</name>
+         <node>/ai/models/aircraft[3]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 4 Lat</name>
+         <node>/ai/models/aircraft[4]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 4 Long</name>
+         <node>/ai/models/aircraft[4]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 4 Alt</name>
+         <node>/ai/models/aircraft[4]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 5 Lat</name>
+         <node>/ai/models/aircraft[5]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 5 Long</name>
+         <node>/ai/models/aircraft[5]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 5 Alt</name>
+         <node>/ai/models/aircraft[5]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 6 Lat</name>
+         <node>/ai/models/aircraft[6]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 6 Long</name>
+         <node>/ai/models/aircraft[6]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 6 Alt</name>
+         <node>/ai/models/aircraft[6]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 7 Lat</name>
+         <node>/ai/models/aircraft[7]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 7 Long</name>
+         <node>/ai/models/aircraft[7]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 7 Alt</name>
+         <node>/ai/models/aircraft[7]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 8 Lat</name>
+         <node>/ai/models/aircraft[8]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 8 Long</name>
+         <node>/ai/models/aircraft[8]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 8 Alt</name>
+         <node>/ai/models/aircraft[8]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+
+      <chunk>
+         <name>Tether 9 Lat</name>
+         <node>/ai/models/aircraft[9]/position/latitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 9 Long</name>
+         <node>/ai/models/aircraft[9]/position/longitude-deg</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+      <chunk>
+         <name>Tether 9 Alt</name>
+         <node>/ai/models/aircraft[9]/position/altitude-ft</node>
+         <type>double</type>
+         <format>%f</format>
+      </chunk>
+   </input>
+
+   <!-- <output> -->
+   <!--    <line_separator>\n</line_separator> -->
+   <!--    <var_separator>,</var_separator> -->
+
+   <!--    <chunk> -->
+   <!--       <name>Altitude</name> -->
+   <!--       <node>/position/altitude-ft</node> -->
+   <!--       <type>float</type> -->
+   <!--       <format>%f</format> -->
+   <!--    </chunk> -->
+
+   <!-- </output> -->
+
+</generic>
+</PropertyList>

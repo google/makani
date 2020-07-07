@@ -1,0 +1,51 @@
+#************************************
+#Sample "HERSEY BAR" wing AVL dataset
+#Design variables specified
+#************************************
+SWEPT HERSEY BAR Wing with Design Variables
+#Mach
+ 0.0    
+#IYsym   IZsym   Zsym
+ 1       0       0.0
+#Sref    Cref    Bref
+3.894    0.708   5.5
+#Xref    Yref    Zref
+0.177    0.0     0.0
+#
+SURFACE 
+WING 
+#Nchordwise  Space
+ 8           1.0
+#
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.000  0.000   0.708    0.     7         2.0
+DESIGN
+Des1 1.0
+#
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.500   1.375  0.000   0.708    0.     3        -2.8
+DESIGN
+Des2 1.0
+#
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.800   2.20   0.000   0.708    0.     3        -2.5
+DESIGN
+Des3 1.0
+#
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.950   2.6125 0.000   0.708    0.     3        -2.0
+DESIGN
+Des4 1.0
+#
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+1.000   2.75   0.000   0.708    0.     0         0.0
+DESIGN
+Des5 1.0
+
+
+

@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+if [[ $# -ge 1 ]]; then
+  readonly GIT_BASE="$1"
+else
+  readonly GIT_BASE=master
+fi
+
+# Assumes current commit has a common ancestor in the master branch.
+bazel run //lib/scripts/style:run_lint -- --run_splint --git_base "${GIT_BASE}"

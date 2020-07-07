@@ -1,0 +1,60 @@
+Circular-Disk Wing (CL = 1.790750a)
+#Mach
+ 0.0    
+#IYsym     IZsym   Zsym
+ 1         0       0.0
+#Sref      Cref     Bref
+3.1415926  0.78540  2.0
+#Xref      Yref    Zref
+0.5        0.0      0.0
+#
+#
+SURFACE 
+Wing
+# 
+#Nchord Cspace ! Nspanwise  Sspace
+6      1.0    ! 58          0
+
+SCALE
+2.0  1.0  1.0
+
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.50000  0.000  0.000   1.000     0.    1         0.0  
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.49569  0.131  0.000   0.99138   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.48294  0.259  0.000   0.96588   0.    1         0.0 
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.46187  0.383  0.000   0.92375   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.43301  0.500  0.000   0.86603   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.39659  0.609  0.000   0.79317   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.35355  0.707  0.000   0.70711   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.30461  0.793  0.000   0.60922   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.25     0.866  0.000   0.50000   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.19120  0.924  0.000   0.38239   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.12927  0.966  0.000   0.25854   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc  Nspanwise  Space
+-0.06693  0.991  0.000   0.13386   0.    1         0.0
+SECTION
+#Xle      Yle    Zle     Chord   Ainc   Nspanwise  Space
+0.000    1.000  0.000    0.02      0.    1         0.0
+

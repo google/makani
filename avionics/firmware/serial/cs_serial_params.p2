@@ -1,0 +1,13 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 CsHardware {
+  RevAa = 0,
+  RevAb = 1,
+  RevAc = 2,
+  RevAdClk8 = 3,
+  RevAdClk16 = 4,
+}
+
+specialize(SerialParams) CsSerialParams {
+  CsHardware hardware_revision;
+}

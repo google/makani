@@ -1,0 +1,200 @@
+#*********************************************************
+# Makefile for XROTOR Version 6.80
+# M.Drela
+# H.Youngren 11/28/98
+#*********************************************************
+
+SHELL = sh
+BINDIR = /home/codes/bin/
+
+###================================================
+###  Default compilers and flags
+
+### Default system
+FC = f77
+FFLAGS = -O
+FFLOPT = -O
+#FFLAGS = -g -C -O0
+#FFLOPT = -g -C -O0
+INSTALLCMD = install -s
+
+###  Plot libraries and link libs
+
+PLTOBJ = -lPlt
+#PLTOBJ = ../plotlib/libPlt.a 
+#PLTOBJ = $(HOME)/lib/libPlt.a
+#PLTOBJ = /usr/local/lib/libPlt.a
+
+LIBS = -lX11
+#LIBS = -L/usr/X11R6/lib -lX11
+###================================================
+
+
+
+###================================================
+### Select any special compile options from this if 
+### they apply to your system or add your own to 
+### override the defaults
+
+
+##--------------------------
+## Linux Intel ifort Fortran
+FC = ifort
+FFLAGS = -O -static
+FFLOPT = -O -static
+LIBS = -L/usr/X11R6/lib -lX11
+FTNLIB =
+#FTNLIB = -Vaxlib
+#PLTOBJ = $(HOME)/lib/libPltDP_ifort.a
+PLTOBJ = ../plotlib/libPlt.a
+
+##--------------------------
+## DEC Alpha with OSF and DEC f77/f90 compiler
+#FC = f77
+#FFLAGS = -O4 
+#FFLOPT = -O4 
+#FFLAGS = -O4 -tune host -fast
+#FFLOPT = -O5 -fast -tune host -unroll 3
+#FFLAGS =  -O0 -g
+#FFLOPT =  -O0 -g
+
+##--------------------------
+## SGI setup
+#FC = f77
+#FFLAGS = -O -static 
+#FFLOPT = -O -static 
+#PLTOBJ = $(HOME)/lib/libPlt.a
+#LIBS = -lX11
+
+##--------------------------
+## Absoft Linux f77 (you need to compile the plotlib correctly too!)
+#FC = f77
+#FFLAGS = -O -f -s -W -B108 -N34
+#FFLOPT = -O -f -s -W -B108 -N34
+#PLTOBJ = -L$(HOME)/lib -lPlt_absoft
+#LIBS = -L/usr/X11R6/lib -lX11
+
+##--------------------------
+## Linux GNU g77
+#FC = g77
+#FFLAGS =  -O3 -fomit-frame-pointer
+#FFLOPT =  -O3 -fomit-frame-pointer
+#FFLAGS =  -g -O0 -C
+#FFLOPT =  -g -O0 -C
+#LIBS = -L/usr/X11R6/lib -lX11
+
+##--------------------------
+## Linux pgf77
+#FC = pgf77
+#FFLAGS =  -O -fast -Msave
+#FFLOPT =  -O2 -fast -Msave
+#LIBS = -g77libs -L/usr/X11R6/lib -lX11
+
+##--------------------------
+##  Uncomment for RS/6000
+#FC = f77
+#FFLAGS = -O -qextname
+#FFLOPT = -O -qextname
+
+##--------------------------
+##  Uncomment for HP-9000
+#FC = f77
+#FFLAGS = -O +ppu
+#FFLOPT = -O +ppu
+###================================================
+
+
+SRC = ../src
+
+PROGS = xrotor jplot jplote
+#PROGS = xrotor
+
+XROTOROBJS = xrotor.o xoper.o xdesi.o \
+             xmodi.o  xaero.o xjmap.o xio.o \
+             xnoise.o xrotpl.o xcasepl.o xbend.o \
+             xinte.o xutils.o jputil.o \
+             plutil.o modify.o srclin.o spline.o userio.o vortex.o \
+             plotdata.o 
+
+JPLOTOBJS  = jplot.o  xutils.o jputil.o userio.o
+JPLOTEOBJS = jplote.o xutils.o jputil.o userio.o
+
+
+all:	 $(PROGS)
+
+install: 
+	$(INSTALLCMD) $(PROGS) $(BINDIR)
+
+clean:
+	-/bin/rm *.o
+	-/bin/rm $(PROGS)
+	-/bin/rm plot.ps
+
+
+### Make targets
+
+xrotor: $(XROTOROBJS)
+	$(FC) -o xrotor $(XROTOROBJS) $(PLTOBJ) $(LIBS)
+
+jplot: $(JPLOTOBJS)
+	$(FC) -o jplot $(JPLOTOBJS) $(PLTOBJ) $(LIBS)
+
+jplote: $(JPLOTEOBJS)
+	$(FC) -o jplote $(JPLOTEOBJS) $(PLTOBJ) $(LIBS)
+
+
+xrotor.o: $(SRC)/xrotor.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xrotor.f
+xoper.o: $(SRC)/xoper.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xoper.f
+xio.o: $(SRC)/xio.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xio.f
+xdesi.o: $(SRC)/xdesi.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xdesi.f
+xmodi.o: $(SRC)/xmodi.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xmodi.f
+xaero.o: $(SRC)/xaero.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xaero.f
+xjmap.o: $(SRC)/xjmap.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xjmap.f
+xnoise.o: $(SRC)/xnoise.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xnoise.f
+xrotpl.o: $(SRC)/xrotpl.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xrotpl.f
+xcasepl.o: $(SRC)/xcasepl.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xcasepl.f
+xbend.o: $(SRC)/xbend.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xbend.f
+xinte.o: $(SRC)/xinte.f $(SRC)/XROTOR.INC
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xinte.f
+xutils.o: $(SRC)/xutils.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/xutils.f
+srclin.o: $(SRC)/srclin.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/srclin.f
+plutil.o: $(SRC)/plutil.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/plutil.f
+modify.o: $(SRC)/modify.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/modify.f
+spline.o: $(SRC)/spline.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/spline.f
+userio.o: $(SRC)/userio.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/userio.f
+vortex.o: $(SRC)/vortex.f
+	$(FC) -c -I$(SRC) $(FFLOPT) $(SRC)/vortex.f
+plotdata.o: $(SRC)/plotdata.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/plotdata.f
+
+jplot.o: $(SRC)/jplot.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/jplot.f
+jplote.o: $(SRC)/jplote.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/jplote.f
+jputil.o: $(SRC)/jputil.f
+	$(FC) -c -I$(SRC) $(FFLAGS) $(SRC)/jputil.f
+
+
+
+
+
+
+
+

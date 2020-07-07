@@ -1,0 +1,9 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 GroundIoHardware {
+  RevAa = 1,
+}
+
+specialize(SerialParams) GroundIoSerialParams {
+  GroundIoHardware hardware_revision;
+}

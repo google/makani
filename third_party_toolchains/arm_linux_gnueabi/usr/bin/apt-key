@@ -1,0 +1,362 @@
+#!/bin/sh
+
+set -e
+unset GREP_OPTIONS
+
+GPG_CMD="gpg --ignore-time-conflict --no-options --no-default-keyring"
+
+# gpg needs (in different versions more or less) files to function correctly,
+# so we give it its own homedir and generate some valid content for it
+GPGHOMEDIR="$(mktemp -d)"
+CURRENTTRAP="${CURRENTTRAP} rm -rf '${GPGHOMEDIR}';"
+trap "${CURRENTTRAP}" 0 HUP INT QUIT ILL ABRT FPE SEGV PIPE TERM
+chmod 700 "$GPGHOMEDIR"
+# We don't use a secret keyring, of course, but gpg panics and
+# implodes if there isn't one available - and writeable for imports
+SECRETKEYRING="${GPGHOMEDIR}/secring.gpg"
+touch $SECRETKEYRING
+GPG_CMD="$GPG_CMD --homedir $GPGHOMEDIR"
+# create the trustdb with an (empty) dummy keyring
+# older gpgs required it, newer gpgs even warn that it isn't needed,
+# but require it nonetheless for some commands, so we just play safe
+# here for the foreseeable future and create a dummy one
+$GPG_CMD --quiet --check-trustdb --keyring $SECRETKEYRING >/dev/null 2>&1
+# tell gpg that it shouldn't try to maintain a trustdb file
+GPG_CMD="$GPG_CMD --no-auto-check-trustdb --trust-model always"
+
+GPG="$GPG_CMD"
+
+APT_DIR="/"
+eval $(apt-config shell APT_DIR Dir)
+
+MASTER_KEYRING='/usr/share/keyrings/ubuntu-master-keyring.gpg'
+eval $(apt-config shell MASTER_KEYRING APT::Key::MasterKeyring)
+ARCHIVE_KEYRING='/usr/share/keyrings/ubuntu-archive-keyring.gpg'
+eval $(apt-config shell ARCHIVE_KEYRING APT::Key::ArchiveKeyring)
+REMOVED_KEYS='/usr/share/keyrings/ubuntu-archive-removed-keys.gpg'
+eval $(apt-config shell REMOVED_KEYS APT::Key::RemovedKeys)
+ARCHIVE_KEYRING_URI='http://archive.ubuntu.com/ubuntu/project/ubuntu-archive-keyring.gpg'
+eval $(apt-config shell ARCHIVE_KEYRING_URI APT::Key::ArchiveKeyringURI)
+TMP_KEYRING=${APT_DIR}/var/lib/apt/keyrings/maybe-import-keyring.gpg
+
+requires_root() {
+	if [ "$(id -u)" -ne 0 ]; then
+		echo >&1 "ERROR: This command can only be used by root."
+		exit 1
+	fi
+}
+
+# gpg defaults to mode 0600 for new keyrings. Create one with 0644 instead.
+init_keyring() {
+    for path; do
+        if ! [ -e "$path" ]; then
+            touch -- "$path"
+            chmod 0644 -- "$path"
+        fi
+    done
+}
+
+add_keys_with_verify_against_master_keyring() {
+    ADD_KEYRING=$1
+    MASTER=$2
+
+    if [ ! -f "$ADD_KEYRING" ]; then
+	echo "ERROR: '$ADD_KEYRING' not found"
+	return
+    fi 
+    if [ ! -f "$MASTER" ]; then
+	echo "ERROR: '$MASTER' not found"
+	return
+    fi
+
+    # when adding new keys, make sure that the archive-master-keyring
+    # is honored. so:
+    #   all keys that are exported must have a valid signature
+    #   from a key in the $distro-master-keyring
+    add_keys=`$GPG_CMD --keyring $ADD_KEYRING --with-colons --list-keys | grep ^pub | cut -d: -f5`
+    all_add_keys=`$GPG_CMD --keyring $ADD_KEYRING --with-colons --list-keys | grep ^[ps]ub | cut -d: -f5`
+    master_keys=`$GPG_CMD --keyring $MASTER --with-colons --list-keys | grep ^pub | cut -d: -f5`
+
+    # ensure there are no colisions LP: #857472
+    for all_add_key in $all_add_keys; do
+	for master_key in $master_keys; do
+            if [ "$all_add_key" = "$master_key" ]; then
+                echo >&2 "Keyid collision for '$all_add_key' detected, operation aborted"
+                return 1
+            fi
+        done
+    done
+    
+    for add_key in $add_keys; do
+        # export the add keyring one-by-one
+        rm -f $TMP_KEYRING
+        $GPG_CMD --keyring $ADD_KEYRING --output $TMP_KEYRING --export $add_key 
+        # check if signed with the master key and only add in this case
+        ADDED=0
+	for master_key in $master_keys; do
+	    if $GPG_CMD --keyring $MASTER --keyring $TMP_KEYRING --check-sigs --with-colons $add_key | grep '^sig:!:' | cut -d: -f5 | grep -q $master_key; then
+		$GPG --import $TMP_KEYRING
+		ADDED=1
+	    fi
+	done
+	if [ $ADDED = 0 ]; then
+	    echo >&2 "Key '$add_key' not added. It is not signed with a master key"
+	fi
+    done
+    rm -f $TMP_KEYRING
+}
+
+# update the current archive signing keyring from a network URI
+# the archive-keyring keys needs to be signed with the master key
+# (otherwise it does not make sense from a security POV)
+net_update() {
+    # Disabled for now as code is insecure (LP: #1013639 (and 857472, 1013128))
+    APT_KEY_NET_UPDATE_ENABLED=""
+    eval $(apt-config shell APT_KEY_NET_UPDATE_ENABLED APT::Key::Net-Update-Enabled)
+    if [ -z "$APT_KEY_NET_UPDATE_ENABLED" ]; then
+        exit 1
+    fi
+
+    if [ -z "$ARCHIVE_KEYRING_URI" ]; then
+	echo >&2 "ERROR: Your distribution is not supported in net-update as no uri for the archive-keyring is set"
+	exit 1
+    fi
+    requires_root
+    # in theory we would need to depend on wget for this, but this feature
+    # isn't useable in debian anyway as we have no keyring uri nor a master key
+    if ! which wget >/dev/null 2>&1; then
+	echo >&2 "ERROR: an installed wget is required for a network-based update"
+	exit 1
+    fi
+    if [ ! -d ${APT_DIR}/var/lib/apt/keyrings ]; then
+	mkdir -p ${APT_DIR}/var/lib/apt/keyrings
+    fi
+    keyring=${APT_DIR}/var/lib/apt/keyrings/$(basename $ARCHIVE_KEYRING_URI)
+    old_mtime=0
+    if [ -e $keyring ]; then
+	old_mtime=$(stat -c %Y $keyring)
+    fi
+    (cd  ${APT_DIR}/var/lib/apt/keyrings; wget --timeout=90 -q -N $ARCHIVE_KEYRING_URI)
+    if [ ! -e $keyring ]; then
+	return
+    fi
+    new_mtime=$(stat -c %Y $keyring)
+    if [ $new_mtime -ne $old_mtime ]; then
+	echo "Checking for new archive signing keys now"
+	add_keys_with_verify_against_master_keyring $keyring $MASTER_KEYRING
+    fi
+}
+
+update() {
+    if [ ! -f $ARCHIVE_KEYRING ]; then
+	echo >&2 "ERROR: Can't find the archive-keyring"
+	echo >&2 "Is the ubuntu-keyring package installed?"
+	exit 1
+    fi
+    requires_root
+
+    # add new keys from the package;
+
+    # we do not use add_keys_with_verify_against_master_keyring here,
+    # because "update" is run on regular package updates.  A
+    # attacker might as well replace the master-archive-keyring file
+    # in the package and add his own keys. so this check wouldn't
+    # add any security. we *need* this check on net-update though
+    $GPG_CMD --quiet --batch --keyring $ARCHIVE_KEYRING --export | $GPG --import
+
+    if [ -r "$REMOVED_KEYS" ]; then
+	# remove no-longer supported/used keys
+	keys=`$GPG_CMD --keyring $REMOVED_KEYS --with-colons --list-keys | grep ^pub | cut -d: -f5`
+	for key in $keys; do
+	    if $GPG --list-keys --with-colons | grep ^pub | cut -d: -f5 | grep -q $key; then
+		$GPG --quiet --batch --delete-key --yes ${key}
+	    fi
+	done
+    else
+	echo "Warning: removed keys keyring  $REMOVED_KEYS missing or not readable" >&2
+    fi
+}
+
+remove_key_from_keyring() {
+    local GPG="$GPG_CMD --keyring $1"
+    # check if the key is in this keyring: the key id is in the 5 column at the end
+    if ! $GPG --with-colons --list-keys 2>&1 | grep -q "^pub:[^:]*:[^:]*:[^:]*:[0-9A-F]\+$2:"; then
+	return
+    fi
+    if [ ! -w "$1" ]; then
+	echo >&2 "Key ${2} is in keyring ${1}, but can't be removed as it is read only."
+	return
+    fi
+    # check if it is the only key in the keyring and if so remove the keyring altogether
+    if [ '1' = "$($GPG --with-colons --list-keys | grep "^pub:[^:]*:[^:]*:[^:]*:[0-9A-F]\+:" | wc -l)" ]; then
+	mv -f "$1" "${1}~" # behave like gpg
+	return
+    fi
+    # we can't just modify pointed to files as these might be in /usr or something
+    local REALTARGET
+    if [ -L "$1" ]; then
+	REALTARGET="$(readlink -f "$1")"
+	mv -f "$1" "${1}.dpkg-tmp"
+	cp -a "$REALTARGET" "$1"
+	ls "$(dirname $1)"
+    fi
+    # delete the key from the keyring
+    $GPG --batch --delete-key --yes "$2"
+    if [ -n "$REALTARGET" ]; then
+	# the real backup is the old link, not the copy we made
+	mv -f "${1}.dpkg-tmp" "${1}~"
+    fi
+}
+
+remove_key() {
+    requires_root
+
+    # if a --keyring was given, just remove from there
+    if [ -n "$FORCED_KEYRING" ]; then
+	remove_key_from_keyring "$FORCED_KEYRING" "$1"
+    else
+	# otherwise all known keyrings are up for inspection
+	local TRUSTEDFILE="/etc/apt/trusted.gpg"
+	eval $(apt-config shell TRUSTEDFILE Apt::GPGV::TrustedKeyring)
+	eval $(apt-config shell TRUSTEDFILE Dir::Etc::Trusted/f)
+	remove_key_from_keyring "$TRUSTEDFILE" "$1"
+	TRUSTEDPARTS="/etc/apt/trusted.gpg.d"
+	eval $(apt-config shell TRUSTEDPARTS Dir::Etc::TrustedParts/d)
+	if [ -d "$TRUSTEDPARTS" ]; then
+	    for trusted in $(run-parts --list "$TRUSTEDPARTS" --regex '^.*\.gpg$'); do
+		remove_key_from_keyring "$trusted" "$1"
+	    done
+	fi
+    fi
+    echo "OK"
+}
+
+
+usage() {
+    echo "Usage: apt-key [--keyring file] [command] [arguments]"
+    echo
+    echo "Manage apt's list of trusted keys"
+    echo
+    echo "  apt-key add <file>          - add the key contained in <file> ('-' for stdin)"
+    echo "  apt-key del <keyid>         - remove the key <keyid>"
+    echo "  apt-key export <keyid>      - output the key <keyid>"
+    echo "  apt-key exportall           - output all trusted keys"
+    echo "  apt-key update              - update keys using the keyring package"
+    echo "  apt-key net-update          - update keys using the network"
+    echo "  apt-key list                - list keys"
+    echo "  apt-key finger              - list fingerprints"
+    echo "  apt-key adv                 - pass advanced options to gpg (download key)"
+    echo
+    echo "If no specific keyring file is given the command applies to all keyring files."
+}
+
+while [ -n "$1" ]; do
+   case "$1" in
+      --keyring)
+	 shift
+	 TRUSTEDFILE="$1"
+	 FORCED_KEYRING="$1"
+	 if [ -r "$TRUSTEDFILE" ] || [ "$2" = 'add' ] || [ "$2" = 'adv' ]; then
+	    GPG="$GPG --keyring $TRUSTEDFILE --primary-keyring $TRUSTEDFILE"
+	 else
+	    echo >&2 "Error: The specified keyring »$TRUSTEDFILE« is missing or not readable"
+	    exit 1
+	 fi
+	 shift
+	 ;;
+      --fakeroot)
+	 requires_root() { true; }
+	 shift
+	 ;;
+      --*)
+	 echo >&2 "Unknown option: $1"
+	 usage
+	 exit 1;;
+      *)
+	 break;;
+   esac
+done
+
+if [ -z "$TRUSTEDFILE" ]; then
+   TRUSTEDFILE="/etc/apt/trusted.gpg"
+   eval $(apt-config shell TRUSTEDFILE Apt::GPGV::TrustedKeyring)
+   eval $(apt-config shell TRUSTEDFILE Dir::Etc::Trusted/f)
+   if [ -r "$TRUSTEDFILE" ]; then
+      GPG="$GPG --keyring $TRUSTEDFILE"
+   fi
+   GPG="$GPG --primary-keyring $TRUSTEDFILE"
+   TRUSTEDPARTS="/etc/apt/trusted.gpg.d"
+   eval $(apt-config shell TRUSTEDPARTS Dir::Etc::TrustedParts/d)
+   if [ -d "$TRUSTEDPARTS" ]; then
+      # strip / suffix as gpg will double-slash in that case (#665411)
+      STRIPPED_TRUSTEDPARTS="${TRUSTEDPARTS%/}"
+      if [ "${STRIPPED_TRUSTEDPARTS}/" = "$TRUSTEDPARTS" ]; then
+	 TRUSTEDPARTS="$STRIPPED_TRUSTEDPARTS"
+      fi
+      for trusted in $(run-parts --list "$TRUSTEDPARTS" --regex '^.*\.gpg$'); do
+	 GPG="$GPG --keyring $trusted"
+      done
+   fi
+fi
+
+command="$1"
+if [ -z "$command" ]; then
+    usage
+    exit 1
+fi
+shift
+
+if [ "$command" != "help" ] && ! which gpg >/dev/null 2>&1; then
+    echo >&2 "Warning: gnupg does not seem to be installed."
+    echo >&2 "Warning: apt-key requires gnupg for most operations."
+    echo >&2
+fi
+
+case "$command" in
+    add)
+        requires_root
+        init_keyring "$TRUSTEDFILE"
+        $GPG --quiet --batch --import "$1"
+        echo "OK"
+        ;;
+    del|rm|remove)
+        init_keyring "$TRUSTEDFILE"
+	remove_key "$1"
+        ;;
+    update)
+        init_keyring "$TRUSTEDFILE"
+	update
+	;;
+    net-update)
+        init_keyring "$TRUSTEDFILE"
+	net_update
+	;;
+    list)
+        init_keyring "$TRUSTEDFILE"
+        $GPG --batch --list-keys
+        ;;
+    finger*)
+        init_keyring "$TRUSTEDFILE"
+        $GPG --batch --fingerprint
+        ;;
+    export)
+        init_keyring "$TRUSTEDFILE"
+        $GPG --armor --export "$1"
+        ;;
+    exportall)
+        init_keyring "$TRUSTEDFILE"
+        $GPG --armor --export
+        ;;
+    adv*)
+        init_keyring "$TRUSTEDFILE"
+        echo "Executing: $GPG $*"
+        $GPG $*
+        ;;
+    help)
+        usage
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac

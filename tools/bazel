@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -eu
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/system.sh"
+source "${MAKANI_HOME}/lib/scripts/install/bazel_defs.sh"
+run_preflight_actions
+
+BAZEL_BIN="/opt/makani/bazel/output/bazel"
+readonly BAZEL_VERSION_PATH="${MAKANI_HOME}/.bazelversion"
+if [[ -e "${BAZEL_VERSION_PATH}" ]]; then
+  BAZEL_VERSION="$(head -n 1 ${BAZEL_VERSION_PATH})"
+  if [[ "${BAZEL_VERSION}" != "" ]]; then
+    BAZEL_BIN="/opt/makani/bazel/${BAZEL_VERSION}"
+    if [[ ! -e "${BAZEL_BIN}" ]]; then
+    gsutil -m cp gs://makani_pub/bazel_binaries/"${BAZEL_VERSION}" \
+      "${BAZEL_BIN}"
+    fi
+    if [[ ! -x "${BAZEL_BIN}" ]]; then
+      chmod +x "${BAZEL_BIN}"
+    fi
+  fi
+fi
+
+readonly JAVA_DIR='/usr/lib/jvm/java-8-openjdk-amd64'
+
+JAVA_HOME="${JAVA_DIR}" exec ${BAZEL_BIN} $@

@@ -1,0 +1,72 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{dsp,fit}
+
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\filt}{\mathrm{filt}}
+\newcommand{\meas}{\mathrm{meas}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\motor}{\mathrm{motor}}
+\newcommand{\prop}{\mathrm{prop}}
+
+\begin{document}
+
+\subsection{Motor model}
+
+The motor model in the simulator is described by the following
+equations:
+%
+\begin{eqnarray}
+I_{\prop} \dot \omega &=& \tau_{\motor} - \tau_{\aero} \\
+\dot{\omega}_{\cmd,f} &=& 2 \pi f_{\cmd} (\omega_{\cmd} - \omega_{\cmd,f}) \\
+\dot{\omega}_{\meas,f} &=& 2 \pi f_{\meas} (\omega - \omega_{\meas,f}) \\
+\tau_{\motor} &=& k_{\omega}_p \left( \omega_{\cmd,f} - \omega_{\meas,f} \right) +
+k_{\omega}_i \int_0^t dt' \left( \omega_{\mathrm{cmd,f}} - \omega_{\meas,f} \right) \\
+\tau_{\mathrm{aero}} &=& k_P \omega^2
+\end{eqnarray}
+where $I_{\mathrm{prop}}$ is the moment-of-inertia of the propeller
+and rotor, $\omega$ is the angular rate of the motor, $f_{\cmd}$ is
+the cut-off frequency of the speed command filter, $f_{\meas}$ is the
+cut-off frequency of the speed measurement filter, $k_{\omega}$ is the
+gain of the speed control loop, and $k_P$ is the torque constant of
+the propellers.  Currently, in the simulator we have
+$I_{\mathrm{prop}} = 1.1$ kg m$^2$, $k_P = 0.024$ N-m-s$^2$/rad$^2$,
+$k_{\omega}_p = 36.2$ N-m-s/rad, $k_{\omega}_i = 36.2$ N-m-s$^2$/rad.
+The typical operating point of the rotors is around,
+$\omega_{\mathrm{nom}} = 130$ rad/s.
+
+Based on the motor model equations, the transfer function for the
+motor's angular rate is:
+\begin{eqnarray}
+\frac{\Omega(s)}{\Omega_{\mathrm{cmd}}(s)}
+&=& \frac{H(s)}{I_{\mathrm{prop}} s + H(s) + 2 k_P \omega_{\mathrm{nom}}} \\
+H(s) &=& \frac{\omega_m}{s + \omega_m} (k_{\omega}_p + k_{\omega}_i / (s - p))
+\end{eqnarray}
+The DC gain of the motors is
+\begin{equation}
+\frac{\Omega(0)}{\Omega_{\mathrm{cmd}}(0)} =
+\frac{k_{\omega}_p + k_{\omega}_i / p}
+{k_{\omega}_p + k_{\omega}_i / p + 2 k_P \omega_{\mathrm{nom}}}
+\end{equation}
+Here $p = 2 \pi 0.03$ rad/s is a ``fake'' pole that we put into the
+simulator so the motor transfer function doesn't fight the stacking
+controller.
+
+And thus, we can reasonably describe the overall motor moment, and
+thrust, transfer functions by a second order sytem:
+\begin{equation}
+\frac{M_{\mathrm{motor}}(s)}{M_{\mathrm{cmd}}(s)} =
+\frac{\omega_0^2}{s^2 + 2 \zeta \omega_0 s + \omega_0^2}
+\end{equation}
+For the motors currently in the simulator $\omega_0 = 2 \pi 10$ rad/s and
+$\zeta = 1$.
+
+\end{document}

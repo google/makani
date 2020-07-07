@@ -1,0 +1,294 @@
+\documentclass[11pt]{amsart}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{fp}  % Prevents issues with arithmetic overflow.
+\usepackage{pgfplots}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage[section]{placeins}  % Prevents figure placement outside of section.
+\usetikzlibrary{arrows, fixedpointarithmetic}
+
+\newcommand{\Athrustshover}{\mathbf{A}_{\mathrm{thrusts}}^{\mathrm{hover}}}
+\newcommand{\Astackingthrusts}{\mathbf{A}_{\mathrm{stacking}}^{\mathrm{thrusts}}}
+\newcommand{\Astackinghover}{\mathbf{A}_{\mathrm{stacking}}^{\mathrm{hover}}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\title{Motor solver}
+\author{Makani Technologies LLC}
+\date{November 3, 2016\; (DRAFT)}
+
+\begin{document}
+\maketitle
+
+\section{Basic motor solver}
+
+The motor solver is the interface between the hover controller and the
+motors.  The hover controller outputs a command vector
+$\mathbf{u_{\mathrm{hover}}}$ that contains an overall thrust command,
+$T$, which is applied at the kite's center-of-mass, and the three
+components, $m_i$, of the moment vector command:
+%
+\begin{equation}
+  \label{eqn:hover_command}
+  \mathbf{u_{\mathrm{hover}}} = [T, m_x, m_y, m_z]^T
+\end{equation}
+%
+This thrust-moment vector must eventually be converted to individual
+motor speed commands that can be sent to the motor
+controllers\footnote{It is also possible to send a torque command to
+  the motor controllers, but at the cost of reduced control bandwidth
+  because there will be no compensation for the torque required to
+  accelerate the rotor.}:
+%
+\begin{equation}
+  \label{eqn:motors_command}
+  \mathbf{u_{\mathrm{motors}}} = [\Omega_1, \Omega_2, \Omega_3, \Omega_4,
+                                  \Omega_5, \Omega_6, \Omega_7, \Omega_8]^T
+\end{equation}
+
+A straightforward method for accomplishing this is to determine the
+transformation between a command vector of individual motors thrusts
+%
+\begin{equation}
+  \label{eqn:thrusts_command}
+  \mathbf{u_{\mathrm{thrusts}}} = [T_1, T_2, T_3, T_4, T_5, T_6, T_7, T_8]^T
+\end{equation}
+%
+and the hover command:
+%
+\begin{equation}
+  \mathbf{u_{\mathrm{hover}}} = \Athrustshover \mathbf{u_{\mathrm{thrusts}}}
+\end{equation}
+%
+This transformation is related to the positions of the motors as
+%
+\begin{equation}
+  \Athrustshover =
+  \begin{bmatrix}
+    1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+    \multicolumn{8}{c}{\vec{r}_i \times \hat{x} + k_{\tau/T, i}
+      \hat{x}}
+  \end{bmatrix}
+\end{equation}
+%
+where $\vec{r}_i$ is the lever arm from the center-of-mass of the
+$i$-th motor, assuming that the motor thrust directions are aligned
+with the $\hat{x}$ axis\footnote{Note that the motors on the M600 are
+  all pitched down by 3$^\circ$ from the body axes.}, and
+$k_{\tau/T, i}$ is the torque-to-thrust ratio of the $i$-th propeller
+including the propeller direction.
+
+Now, the traditional method, not used in our controller, for
+converting the hover command to the thrust command is to use the
+pseudoinverse of $\Athrustshover$.  Because there are eight
+degrees-of-freedom in the thrusts command and only four
+degrees-of-freedom in the hover command, there is a large space of
+solutions.  The pseudoinverse is nice because it will find the
+solution with minimum $\norm{\mathbf{u}_{\mathrm{thrusts}}}$.
+
+Finally, the individual thrust commands can be converted to motor
+speeds using the current inflow velocity and the rotor aerodynamic
+database.  A more detailed description of the method for converting
+thrust commands to motor speed commands is in
+Sec. \ref{sec:rotor_models}.
+
+\section{Description of constraints}
+
+The motor solver, however, does not use the traditional method because
+there are constraints imposed by the stacked power system, the
+individual motor limits, and the ground power limits.  Specifically,
+the stacked topology of the power electronics requires that each block
+of motors consumes a similar amount of power.  Thus, assuming small
+perturbations of thrust about a mean thrust and similar inflow
+velocities, the mean thrust of the motors in each block must be equal.
+This leaves five degress-of-freedom, and a stacking command vector
+that consists of a common mode thrust, $T_c$, and four differential
+thrusts, $\Delta T_{i(i+4)}$:
+%
+\begin{equation}
+  \label{eqn:stacking_command}
+  \mathbf{u_{\mathrm{stacking}}} = [T_c, \Delta T_{15}, \Delta T_{26},
+                                    \Delta T_{37}, \Delta T_{48}]^T
+\end{equation}
+
+Moreover, the motors, rotors, and power system have multiple
+constraints associated with them.  Each motor has maximum torque and
+power limits, which depend on the motor speed.  The rotors have a
+maximum speed at which they can safely operate, and a minimum speed
+before stalling in crosswind.  Finally, the kite power system as a
+whole has a total power limit set by the ground inverter's power limit
+and the power loss in the tether.
+
+\section {Weighted, constrained least squares}
+
+To enforce the above constraints, while also minimizing the
+differential thrusts and motor commands that can easily bend the wing,
+i.e. the symmetric torsional mode of the wing, the motor solver solves
+the following weighted, constrained least squares problem\footnote{
+  See {\texttt{common/c\_math/optim.c}}}:
+%
+\begin{equation}
+  \min_{\mathbf{u}_{\mathrm{stacking}}}
+  \norm{\mathbf{W} \left(\mathbf{A} \mathbf{u}_{\mathrm{stacking}} - \mathbf{b}
+    \right)}^2
+\end{equation}
+%
+\begin{equation}
+  \mathbf{l} \le \mathbf{C}\, \mathbf{u}_{\mathrm{stacking}} \le \mathbf{u}
+\end{equation}
+
+The $\mathbf{A}$ and $\mathbf{b}$ matrices are given by
+%
+\begin{equation}
+  \mathbf{A} =
+  \begin{bmatrix}
+    0 & 1 & -1 & -1 & 1 \\
+    0 & 1 &  0 &  0 & 0 \\
+    0 & 0 &  1 &  0 & 0 \\
+    0 & 0 &  0 &  1 & 0 \\
+    0 & 0 &  0 &  0 & 1 \\
+      &   &    &    &   \\
+    \multicolumn{5}{c}{\Astackinghover} \\
+      &   &    &    &
+  \end{bmatrix}
+\end{equation}
+%
+\begin{equation}
+  \mathbf{b} = [0, 0, 0, 0, 0, \mathbf{u}_{\mathrm{hover}}]^T
+\end{equation}
+%
+where $\Astackinghover = \Athrustshover \Astackingthrusts$ and
+%
+\begin{equation}
+  \Astackingthrusts =
+  \begin{bmatrix}
+    1 &  1 &  0 &  0 &  0 \\
+    1 &  0 &  1 &  0 &  0 \\
+    1 &  0 &  0 &  1 &  0 \\
+    1 &  0 &  0 &  0 &  1 \\
+    1 & -1 &  0 &  0 &  0 \\
+    1 &  0 & -1 &  0 &  0 \\
+    1 &  0 &  0 & -1 &  0 \\
+    1 &  0 &  0 &  0 & -1 \\
+  \end{bmatrix}
+\end{equation}
+
+The first five rows of the $\mathbf{A}$ and $\mathbf{b}$ matrices are
+used to ``regularize'' the problem, that is to ensure that the cost
+function is strongly convex and that the minimizers are unique.  The
+first row penalizes a motor combination that applies a symmetric
+torisional force to the main wing, which caused issues in early hover
+tests.  The next four rows simply penalize large magnitude
+differential thrusts.
+
+The weighting matrix is defined by:
+%
+\begin{equation}
+  \mathbf{W} = \diag(
+  [w_{\mathrm{torsion}},
+   w_{\Delta T_{15}}, w_{\Delta T_{26}}, w_{\Delta T_{37}}, w_{\Delta T_{48}},
+   w_T, w_{m_x}, w_{m_y}, w_{m_z}]^T)
+\end{equation}
+%
+A typical weight vector currently used in the hover controller is:
+%
+\begin{equation}
+  \mathbf{w} = [3, 10^{-6}, 10^{-6}, 10^{-6}, 10^{-6}, 1, 10^{-9}, 20, 1]^T
+\end{equation}
+
+The constraint matrix is
+%
+\begin{equation}
+  \mathbf{C} =
+  \begin{bmatrix}
+      &   &   &   & \\
+    \multicolumn{5}{c}{\Astackingthrusts} \\
+      &   &   &   & \\
+    8 & 0 & 0 & 0 & 0
+  \end{bmatrix}
+\end{equation}
+%
+The first eight rows, given by $\Astackingthrusts$, simply select
+individual motor thrusts.  Thus, the first eight rows of $\mathbf{l}$
+and $\mathbf{u}$ are the minimum and maximum individual motor thrust
+limits.  These limits are determined by converting the individual
+motor torque, power, and speed limits to an equivalent thrust limit at
+the current inflow velocity using the rotor aerodynamic model.  The
+last row of the constraint matrix is the total thrust on all the
+motors.  This limit is determined by the maximum total thrust that
+both balances pitch and yaw moments and does not exceed the ground
+power limit at the given inflow velocity.
+
+Most of the setup of the matrices and constraints is done in the
+configuration system during compilation\footnote{ See
+  {\texttt{config/m600/control/rotor\_control.py}}}.  Some
+aspects, such as the determination of the constraint limits as a
+function of inflow velocity is done in real-time in the motor
+solver\footnote{ See
+  {\texttt{control/actuator\_util.c}}}.
+
+Once constrained least squares solver determines the the stacking
+vector, the stacking vector is converted to a thrust vector using
+$\Astackingthrusts$.
+
+\section{Rotor models}
+\label{sec:rotor_models}
+
+The rotor aerodynamic model is used to convert the various torque,
+power, and speed constraints into thrust constraints that can be used
+in the constrained least squares solver.  It is also used to convert
+the output thrust commands of the solver to motor speed commands.
+
+This aerodynamic model is initially based on \textsc{xrotor}, which is
+used to generate a lookup table of rotor thrusts and torques as a
+function of rotor speed, $\Omega$, and inflow velocity, $V_{\infty}$.
+However, this lookup table is not used directly in the autopilot
+because it has a large number of parameters and would be difficult to
+invert, i.e. determine the rotor speed that corresponds to a given
+thrust or torque at a given inflow velocity.  Instead, a simplified
+rotor model is created by fitting a third order polynomial to thrust
+and torque coefficients as a function of advance ratio,
+$J = 2 \pi V_{\infty} / (\Omega D)$.  The simplified models are:
+%
+\begin{align}
+  k_T(J)      &\approx a_1 \Delta J + a_2 \Delta J^2 + a_3 \Delta J^3 \\
+  k_{\tau}(J) &\approx b_1 \Delta J + b_2 \Delta J^2 + b_3 \Delta J^3 \\
+  \Delta J    &= J - J_{\mathrm{neutral}}
+\end{align}
+%
+where the motor thrust and torque coefficients are defined by
+%
+\begin{equation}
+  T = \rho \left(\frac{\Omega}{2 \pi}\right)^2 D^4 k_T(J)
+\end{equation}
+%
+\begin{equation}
+  \tau = \rho \left(\frac{\Omega}{2 \pi}\right)^2 D^5 k_{\tau}(J)
+\end{equation}
+
+The equations for thrust and torque using the polynomial fits can now
+be inverted using a Newton-Raphson method\footnote{ See
+  {\texttt{control/simple\_aero.c}}}.  This iteratively
+finds the zero of the following equation
+%
+\begin{equation}
+  f(\Omega) = T - \rho \frac{D^4}{(2 \pi)^2} k_T(J) \Omega^2
+\end{equation}
+%
+where the iteration step is
+%
+\begin{equation}
+  \Omega_{n+1} = \Omega_n - f(\Omega_n) / f'(\Omega_n)
+\end{equation}
+%
+and
+%
+\begin{equation}
+  f'(\Omega) = \rho \frac{D^4}{(2 \pi)^2} \left(
+  (3 a_3 \Delta J^2 + 2 a_2 \Delta J + a_1) J - 2 k_T(J) \right) \Omega
+\end{equation}
+
+\end{document}

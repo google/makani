@@ -1,0 +1,419 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+
+\begin{document}
+
+%% \section{Aerodynamics model}
+
+%% \subsection{Description of problem}
+
+%% To model the dynamics of the system, the simulator needs to know the
+%% aerodynamic force and moment on the wing.  To make the problem
+%% tractable, we only model {\it steady} aerodynamic forces and moments.
+%% However, the forces and moments on the wing are still a function of
+%% the airspeed, $v$, angle-of-attack, $\alpha$, sideslip, $\beta$,
+%% angular rate, $\vec{\omega}$, flap deflections, $\delta_i$, and
+%% propeller angular rates $\Omega_i$:
+%% \begin{equation}
+%% \label{eqn:force-moment-function}
+%% \left(
+%% \begin{array}{c}
+%% \vec{f}_b \\
+%% \vec{m}_b
+%% \end{array}
+%% \right) = \vec{F}(v, \alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8,
+%% \Omega_1, ..., \Omega_8)
+%% \end{equation}
+%% Because of the large number of dimensions, it would be impractical
+%% generate a look-up table for this very general function.  Fortunately,
+%% we can make a few simplifications.  During crosswind flight, {\it
+%%   i.e.} airplane-like flight, there is little interaction between
+%% rotor wake and the airframe, and thus we can reasonably separate the
+%% airframe and motor force-moments:
+%% \begin{equation}
+%% \label{eqn:force-moment-separate}
+%% \left(
+%% \begin{array}{c}
+%% \vec{f}_b \\
+%% \vec{m}_b
+%% \end{array}
+%% \right) \approx \vec{F}_{\mathrm{airframe}}(v, \alpha, \beta, \vec{\omega},
+%% \delta_1, ..., \delta_8) +
+%% \vec{F}_{\mathrm{prop}}(v, \alpha, \beta, \vec{\omega}, \Omega_1, ..., \Omega_8)
+%% \end{equation}
+%% Also, if we assume the forces on the airframe scale as $v^2$, then the
+%% airframe force-moment can be expressed in terms of coefficients.  This
+%% eliminates $v$ from the look-up table:
+%% \begin{equation}
+%% \label{eqn:force-moment-coefficient}
+%% \vec{F}_{\mathrm{airframe}}(v, \alpha, \beta, \vec{\omega},
+%% \delta_1, ..., \delta_8) \approx \frac{1}{2} \rho v^2 A
+%% \cdot
+%% C_{\vec{F}}(\alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8)
+%% \cdot
+%% [1, 1, 1, b, c, b]^T
+%% \end{equation}
+%% Finally, we can linearize the total coefficient function about a
+%% nominal $\hat{\omega}_0$ and $\vec{\delta}_0$ as follows:
+%% \begin{equation}
+%% \label{eqn:force-moment-derivative}
+%% C_{\vec{F}}(\alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8)
+%% =
+%% C^0_{\vec{F}}(\alpha, \beta) +
+%% \frac{\partial C_{\vec{F}}}{\partial \hat{\omega}}(\alpha, \beta)
+%% \cdot (\hat{\omega} - \hat{\omega}_0) +
+%% \frac{\partial C_{\vec{F}}}{\partial \vec{\delta}}(\alpha, \beta)
+%% \cdot (\vec{\delta} - \vec{\delta}_0)
+%% \end{equation}
+%% (A more common notation for these coefficients is shown in Table
+%% \ref{tbl:coefficients}.)  Now we only need a look-up table on $\alpha$
+%% and $\beta$, which is very managable.
+
+%% \begin{center}
+%%   \begin{table}[h]
+%%     \label{tbl:coefficients}
+%%     \caption{Symbols for the various coefficients, stability
+%%       derivatives, and control derivatives.}
+%%     \begin{tabular}{lllllll}
+%%       \hline
+%%       \hline
+%%       Type & \multicolumn{6}{c}{Symbol} \\
+%%       \hline
+%%       Coefficient
+%%       & $C_x$ & $C_y$ & $C_z$ & $C_l$ & $C_m$ & $C_n$ \\
+%%       Stability derivatives
+%%       & $C_{x_p}$ & $C_{y_p}$ & $C_{z_p}$ & $C_{l_p}$ & $C_{m_p}$ & $C_{n_p}$ \\
+%%       & $C_{x_q}$ & $C_{y_q}$ & $C_{z_q}$ & $C_{l_q}$ & $C_{m_q}$ & $C_{n_q}$ \\
+%%       & $C_{x_r}$ & $C_{y_r}$ & $C_{z_r}$ & $C_{l_r}$ & $C_{m_r}$ & $C_{n_r}$ \\
+%%       Control derivatives
+%%       & $C_{x_{\delta_i}}$ & $C_{y_{\delta_i}}$ & $C_{z_{\delta_i}}$
+%%       & $C_{l_{\delta_i}}$ & $C_{m_{\delta_i}}$ & $C_{n_{\delta_i}}$ \\
+%%       & $C_{x_{\Omega_i}}$ & $C_{y_{\Omega_i}}$ & $C_{z_{\Omega_i}}$
+%%       & $C_{l_{\Omega_i}}$ & $C_{m_{\Omega_i}}$ & $C_{n_{\Omega_i}}$ \\
+%%       \hline
+%%       \hline
+%%     \end{tabular}
+%%   \end{table}
+%% \end{center}
+
+%% \begin{equation}
+%% \vec{\Omega}_i = [
+%% \Omega^0_{\mathrm{bot}},\; \Omega^0_{\mathrm{bot}},\; \Omega^0_{\mathrm{bot}},\;
+%% \Omega^0_{\mathrm{bot}},\; \Omega^0_{\mathrm{top}},\; \Omega^0_{\mathrm{top}},\;
+%% \Omega^0_{\mathrm{top}},\; \Omega^0_{\mathrm{top}}]^T
+%% \end{equation}
+
+%% \begin{equation}
+%% N \sim N_{\alpha} \times N_{\beta} \times
+%% \left(1 + N_{\omega\;\mathrm{deriv.}} + N_{\delta\;\mathrm{deriv.}}\right) \sim 420
+%% \end{equation}
+
+
+
+%% \begin{equation}
+%% N \sim N_v \times N_{\alpha} \times N_{\beta} \times \sum_i N_{\delta_i} \times
+%% N_{\omega\;\mathrm{deriv.}} \sim 83000
+%% \end{equation}
+
+
+%% \begin{equation}
+%% T(\Omega, v_x)
+%% \end{equation}
+%% \begin{equation}
+%% \tau(\Omega, v_x)
+%% \end{equation}
+
+%% \begin{equation}
+%% \label{eqn:force-moment-separate}
+%% \left(
+%% \begin{array}{c}
+%% \vec{f}_b \\
+%% \vec{m}_b
+%% \end{array}
+%% \right) \approx \vec{F}^0(v, \alpha, \beta, \vec{\omega}) +
+%% \sum_i \Delta \vec{F}^i(v, \alpha, \beta, \vec{\omega}, \delta_i)
+%% \end{equation}
+
+
+%% So far, this is all textbook aircraft dynamics modeling.  The unique
+%% aspects of our problem occur during hover and the transition to
+%% crosswind flight.  During these phases, the rotor wake interacts very
+%% strongly with the elevator.  Obviously, this eliminates the
+%% airframe-motor separation simplification in
+%% Eq. \ref{eqn:force-moment-separate}.  However, it also eliminates the
+%% coefficient simplification in Eq. \ref{eqn:force-moment-coefficient}
+%% because the forces now depend on the rotor wake speed, which is mostly
+%% independent of the airspeed (especially at the low airspeeds
+%% encountered during hovering and transitioning flight).  Our problem is
+%% to figure out the best way of modeling this system without requiring a
+%% huge look-up table.  Additionally, for the nominal operating points
+%% where we expect the wing to fly, we want to model the system with
+%% relatively high fidelity methods, {\it e.g.}  Reynolds averaged
+%% Navier-Stokes.  While far away from the nominal operating range, we
+%% still want our aerodynamics model to return reasonable values to the
+%% simulator; though we can accept a significant decrease in fidelity.
+
+
+%% \subsection{Direct approach}
+
+%% The most direct approach to modeling the aerodynamic force-moment
+%% function, Eq. \ref{eqn:force-moment-function}, is to run aerodynamic
+%% simulations at each point in a table of $(v, \alpha, \beta, ...)$
+%% values.  By judiciously selecting the range of conditions for each
+%% flight regime, we can keep the number of operating points relatively
+%% low.  Table \ref{tbl:operating-point-table} shows the recommended
+%% operating points for each flight regime.
+
+%% \begin{center}
+%%   \begin{table}[h]
+%%     \caption{Recommended operating points for each flight regime.}
+%%     \label{tbl:operating-point-table}
+%%     \begin{tabular}{llll}
+%%       \hline
+%%       \hline
+%%       Flight regime & Parameters & Values & Units \\
+%%       \hline
+%%       Hover
+%%       & $v$            & [2.5, 4, 6.3, 10, 16, 25]              & m/s \\
+%%       & $\alpha$       & [60, 90, 120]                          & deg \\
+%%       & $\beta$        & [0, 30, 60, 90]                        & deg \\
+%%       & $\hat{\omega}$ & $\left<0, 0, 0\right>$                 & \# \\
+%%       & $\delta_i$     & $\vec{\delta}_{\mathrm{hover}}(v, \alpha)$ & deg \\
+%%       & $T_i$          & $\vec{T}_{\mathrm{hover}}$                 & N \\
+
+%%       \hline
+%%       Transition
+%%       & $v$            & [2.5, 4, 6.3, 10, 16, 25]                 & m/s \\
+%%       & $\alpha$       & [-5, 0, 5, 10, 30, 60, 90]                & deg \\
+%%       & $\beta$        & [-5, 0, 5]                                & deg \\
+%%       & $\hat{\omega}$ & $\left<0, 0, 0\right>$                    & \# \\
+%%       & $\delta_i$     & $\vec{\delta}_{\mathrm{hover}}(v, \alpha)$    & deg \\
+%%       & $T_i$          & $\vec{T}_{\mathrm{thrust}}(v, \alpha, \beta)$ & N \\
+
+%%       \hline
+%%       Crosswind
+%%       & $v$            & [30, 60, 90]                              & m/s \\
+%%       & $\alpha$       & [-5, 0, 5]                                & deg \\
+%%       & $\beta$        & [-5, 0, 5]                                & deg \\
+%%       & $\hat{\omega}$ & [$\left<0, 0, 0\right>$,
+%%                           $\left<0, 0.0022, -0.1653\right>$]       & \# \\
+%%       & $\delta_i$     & $\vec{\delta}_{\mathrm{crosswind}}(\alpha)$    & deg \\
+%%       & $T_i$          & $\left<0, 0, 0, 0, 0, 0, 0, 0\right>$      & N \\
+%%       \hline
+%%       \hline
+%%     \end{tabular}
+%%   \end{table}
+%% \end{center}
+
+%% In the hover regime, the wing is generally very close to $\alpha =
+%% 90^{\circ}$ and $\beta = 0^{\circ}$.  Multiple angles-of-attack are
+%% used to capture the changes on either side of this orientation.
+%% Multiple sideslip angles are used to model the wing being disturbed by
+%% gusts from the side.  It is assumed that the forces are symmetric
+%% about $\pm \beta$, so only the positive sideslip angles are
+%% calculated.  The number of hover runs is: $6 \times 3 \times 4 = 72$.
+
+%% In the transition regime, the wing passes through a wide range of
+%% angles-of-attack.  And, like the hover case, we cannot remove $v$ from
+%% the look-up table because the elevator interacts strongly with both
+%% the apparent wind and propwash. The number of transition runs is: $6
+%% \times 7 \times 3 = 126$.
+
+%% In the crosswind regime, the coefficients should mostly be independent
+%% of apparent wind speed because there is very little interaction
+%% between the rotor wake and elevator.  However, multiple airspeeds are
+%% still included in the runs to capture Reynolds number effects.  The
+%% operating range of angles-of-attack and sideslips are relatively
+%% small.  Pylon and wing stall will be modeled separately, and thus CFD
+%% will only be used to determine coefficents in the unstalled regime.
+%% Two nominal angular rates are used to capture the dynamics during
+%% straight flight, for example, near the end of transition, and normal
+%% crosswind flight.  The number of crosswind runs is: $3 \times 3 \times
+%% 3 \times 2 = 54$.
+
+%% Note that flap deflections, $\delta_i$, and thrusts, $T_i$, may be a
+%% function of other parameters.  For example, in hover the elevator
+%% should be closely aligned with the vector sum of the apparent wind and
+%% propwash.
+
+%% All together, we have identified 252 operating points where we'd like
+%% to generate a high fidelity model.  Moreover, it may be necessary to
+%% multiply this by a factor of 12 to account for the stability and flap
+%% derivatives (1 nominal, 3 angular rates, 8 flaps).
+
+%% \subsection{Component approach}
+
+%% To avoid the explosion in operating points from a high-dimensional
+%% database, it may be necessary to separate the coefficient analysis
+%% into a main wing component that includes the wing, ailerons, pylons,
+%% and fuselage, and a tail component that includes the horizontal and
+%% vertical stabilizers and rudder.  (Because the entire horizontal
+%% stabilizer rotates, the elevator {\it is} the horizontal stabilizer.)
+%% All coefficients are referenced to the same area, span, and chord and
+%% are calculated about the body center.  Using this strategy, the total
+%% coefficients may be calculated as the sum of the coefficients from
+%% each component, accounting for the fact that the tail experiences a
+%% different dynamic pressure from the propeller slipstream and different
+%% incidence angles from the propeller slipstream and wing downwash.
+%% \begin{equation}
+%% C_i(\bar{q}, \alpha, \beta) = {C_i}^{\mathrm{main}}(\alpha, \beta)
+%% + \frac{\bar{q}_t}{\bar{q}} {C_i}^{\mathrm{tail}}(\alpha_t, \beta_t)
+%% \end{equation}
+%% Here $i$ references any of the standard coefficient or derivative
+%% subscripts (see Tbl. \ref{tbl:coefficients}).  Note that each
+%% coefficient is simply a lookup table with two variables, and thus does
+%% not require evaluation at a huge number of operating points.
+
+%% This method, however, shifts the high-dimensional aspects of the
+%% problem into calculating the local dynamic pressure, $\bar{q}_t$, and
+%% incidence angles, $\alpha_t$ and $\beta_t$, at the tail.  These values
+%% are a function of the rotor thrust, $T$, the apparent wind speed, $v$,
+%% and incidence angles, $\alpha$ and $\beta$, of the body as a whole.
+%% \begin{eqnarray}
+%% \left(
+%% \begin{array}{c}
+%% \bar{q}_t \\
+%% \alpha_t \\
+%% \beta_t
+%% \end{array}
+%% \right) = G(T, v, \alpha, \beta)
+%% \end{eqnarray}
+%% We cannot remove the $v$ dimension from this function by just
+%% calculating the non-dimensional coefficients because the incidence
+%% angles at the tail will be determined by the vector sum of the
+%% apparent wind and propeller slipstream.  For example, during hover
+%% when $\alpha = 90^{\circ}$ and $\beta = 0^{\circ}$, the incidence
+%% angle at the horizontal stabilizer will be approximately $\tan^{-1}(v
+%% / v_{\mathrm{wake}})$.  It is however, relatively straightforward to
+%% calculate this function using either analytical methods or fast
+%% aerodynamic codes such as \textsc{vsaero}.
+
+\section{Description of database formats}
+
+We use two different aerodynamic database formats depending on the
+flight regime.  Both databases are represented in terms of
+dimensionless force-moment coefficients, $C_x$, $C_y$, $C_z$, $C_l$, $C_m$,
+and $C_n$, rather than the forces and moments themselves.  These
+coefficients are converted to the forces and moments as follows:
+\begin{equation}
+\label{eqn:force-moment-coefficient}
+\left(
+\begin{array}{c}
+\vec{f}_b \\
+\vec{m}_b
+\end{array}
+\right) = \frac{1}{2} \rho v^2 A
+\cdot
+C_{\vec{F}}(\alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8)
+\cdot
+[1, 1, 1, b, c, b]^T
+\end{equation}
+Here $\vec{F}$ indicates the subscripts for the force and moment
+coefficients: $x, y, z, l, m, n$.
+
+For crosswind flight, {\it i.e.} unstalled flight, we
+have a look-up table on $\alpha$ and $\beta$ of the nominal
+force-moment coefficients $C_{\vec{F}}^0$, stability derivatives
+$\partial C_{\vec{F}}/\partial \hat{\omega}$, and control
+derivatives $\partial C_{\vec{F}}/\partial \vec{\delta}$.
+These are combined into the total force-moment coefficients as
+follows:
+\begin{equation}
+\label{eqn:force-moment-derivative}
+C_{\vec{F}}(\alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8)
+=
+C^0_{\vec{F}}(\alpha, \beta) +
+\frac{\partial C_{\vec{F}}}{\partial \hat{\omega}}(\alpha, \beta)
+\cdot (\hat{\omega} - \hat{\omega}_0) +
+\frac{\partial C_{\vec{F}}}{\partial \vec{\delta}}(\alpha, \beta)
+\cdot (\vec{\delta} - \vec{\delta}_0)
+\end{equation}
+where $\hat{\omega}_0$ and $\vec{\delta}_0$ are the nominal angular
+rate and flap deflections.  Note that $\hat{\omega}$ is the {\it
+  reduced} angular rate, which is defined as:
+\begin{equation}
+  \hat{\omega} = \vec{\omega} \cdot
+\left<\frac{b}{2 v}, \frac{c}{2 v}, \frac{b}{2 v}\right>
+\end{equation}
+
+For the hover and transition aerodynamic databases, we add airspeed
+and flap deflection as dimensions of the look-up table.  Airspeed is
+added because the rotor wake is advected with the wind during hover.
+Flap deflection is added so we can deflect some flaps, specifically
+the elevator, beyond their linear range.  To reduce dimensions, we
+assume the flaps are weakly interacting and thus only need to perform
+a look-up on a single flap deflection at a time.  Thus, we have a
+nominal force-moment coefficient $C^0_{\vec{F}}$, increments to this
+coefficient from each flap deflection $\Delta C^i_{\vec{F}}$, and the
+stability derivatives for each of these components, $\partial
+C^0_{\vec{F}}/\partial \hat{\omega}$ and $\partial \Delta
+C^i_{\vec{F}}/\partial \hat{\omega}$.
+\begin{eqnarray}
+\label{eqn:dvl-model}
+C_{\vec{F}}(v, \alpha, \beta, \vec{\omega}, \delta_1, ..., \delta_8) &=&
+C^0_{\vec{F}}(v, \alpha, \beta) +
+\sum_i \Delta C^i_{\vec{F}}(v, \alpha, \beta, \delta_i) \\
+&+& \left(
+\frac{\partial C^0_{\vec{F}}}{\partial \hat{\omega}}(v, \alpha, \beta) +
+\sum_i \frac{\partial \Delta C^i_{\vec{F}}}{\partial \hat{\omega}}(v, \alpha, \beta, \delta_i)
+\right) \cdot \hat{\omega}
+\end{eqnarray}
+
+The {\it direct} forces and moments from the propellers are added in
+separately.  However, the {\it indirect} effects from the propellers
+such as the interaction of the propwash with the empennage are
+included in these coefficients.
+
+
+%% \section{Methods}
+
+%% \begin{center}
+%%   \begin{table}[h]
+%%     \label{tbl:airframe_methods}
+%%     \caption{}
+%%     \begin{tabular}{lllllll}
+%%       \hline
+%%       \hline
+%%       Method & Examples & Run time [s] \\
+%%       \hline
+%%       Analytical & Flat plate & \< 1 \\
+%%       Vortex lattice & \textsc{AVL}, \textsc{ASWING} & \< 1 \\
+%%       Panel methods & \textsc{PANAIR}, \textsc{VSAERO} & 10 - 1000 \\
+%%       ??? \\
+%%       Full Navier-Stokes CFD & Star-CCM+ & 10000 - 50000 \\
+%%       \hline
+%%       \hline
+%%     \end{tabular}
+%%   \end{table}
+%% \end{center}
+
+
+
+%% \section{Hover model}
+
+%% \subsection{Analytical calculations}
+
+%% \newcommand{\propwash}{\mathrm{p.w.}}
+
+%% \begin{equation}
+%% m_y(q) = -\frac{1}{2} \rho v_{pw}^2 A_{ht} l_{ht}
+%% \left( 2 \pi \frac{\AR_{ht}}{2 + \AR_{ht}} \frac{q l_{ht}}{v_{pw}} \right)
+%% \end{equation}
+
+%% \begin{equation}
+%% C_{m_q} = \pi \frac{\AR_{ht}}{2 + \AR_{ht}} \frac{v_{pw} A_{ht} l_{ht}^2}{v A_w c^2}
+%% \end{equation}
+
+
+%% \begin{equation}
+%% C_{n_r} = \pi \frac{\AR_{vt}}{2 + \AR_{vt}} \frac{v_{pw} A_{vt} l_{vt}^2}{v A_w b^2}
+%% \end{equation}
+
+
+\end{document}

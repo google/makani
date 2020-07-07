@@ -1,0 +1,377 @@
+#!/bin/bash -u
+#
+# Runs the raw packet logger.
+#
+# Usage: ./log start [system] [interface]
+#        ./log save [flight_name]
+#        ./log discard
+#        ./log stop
+#
+# Example:
+#        ./log start { M600A | iron_bird | YM600-04 }
+#        ./log save start_hover
+#        ./log stop
+#
+# Starting or saving will stop any currently running log and open a new
+# time-stamped directory. The start option runs the post-processing script in
+# the background to decrease wait time while the save option blocks until the
+# post-processing is finished.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+
+# If an interface is not specified, we default to this.
+readonly DEFAULT_INTERFACE='eth0'
+
+# If a system name is not specified, we default to this.
+readonly DEFAULT_SYSTEM=''
+
+# Directory to place the individual log directories in.
+readonly LOG_BASE_DIR="${MAKANI_HOME}/logs"
+
+# Time [s] after which we rotate log files.
+readonly ROTATE_TIME=600
+
+# If a user runs 'make clean' while logging, pcap_to_hdf5 will cease
+# to exist until they next compile.  Data will still be logged, but
+# not be in a user-friendly format.
+readonly LOG_POSTPROCESS_SCRIPT="${MAKANI_HOME}/lib/scripts/operator/log_process.sh"
+
+# Test whether tcpdump has the appropriate capabilities enabled.
+#
+# Returns:
+#   True if tcpdump has appropriate capabilities.
+function is_tcpdump_capable() {
+  getcap $(which tcpdump) | grep --quiet "cap_net_raw+eip"
+}
+
+function check_tcpdump_capabilities() {
+  if ! is_tcpdump_capable; then
+    echo
+    echo 'WARNING: tcpdump does not have raw capture capabilities enabled.'
+    echo 'To fix, run "sudo setcap CAP_NET_RAW+eip /usr/sbin/tcpdump" or'
+    echo 're-run install_packages.sh.'
+    echo
+  fi
+}
+
+function check_is_logger_running() {
+  pgrep tcpdump &> /dev/null
+}
+
+# Check system name.
+#
+# Args:
+#   $1: System name used to create subfolders to store logs.
+function check_system_name() {
+  SYSTEMS_FILE="/etc/makani/logsync_systems"
+  local synced_systems=()
+  if [[ -f "${SYSTEMS_FILE}" ]]; then
+    local synced_systems=($(cat "${SYSTEMS_FILE}"))
+  else
+    echo "WARNING: This system is not configured to sync logs."
+    echo "Logs will only be stored locally."
+  fi
+  local is_synced_system=false
+
+  # Check empty system name.
+  if [[ -z "${1}" ]]; then
+    echo 'Aborted: system name is required.'
+    exit 1
+  fi
+
+  local readonly system_name="${1}"
+
+  # Spell check for synchronized systems.
+  for sys in "${synced_systems[@]}"; do
+    if [[ ${system_name} == ${sys} ]]; then
+      is_synced_system=true
+      break
+    else
+      if [[ ${system_name,,} == ${sys,,} ]]; then
+        local answer=""
+        until [[ "${answer,,}" == "y" || "${answer,,}" == "n" ]]; do
+          echo "Did you mean \"${sys}\", which will be uploaded to the"
+          echo "cloud by the log synchronizer? If so, abort and try again."
+          echo -n "Abort using \"${1}\"? [y/N]: "
+          read answer
+        done
+        if [[ "${answer,,}" == "y" ]]; then
+          echo 'Aborted.'
+          exit 1
+        fi
+        break
+      fi
+    fi
+  done
+
+  # Warn user for systems that are not synchronized.
+  if [[ "${is_synced_system}" == false ]]; then
+    local system_list="$(mbash::join , ${synced_systems[@]})"
+    echo "WARNING: ${system_name} is not in the sync list at ${SYSTEMS_FILE}."
+    echo
+    echo "Only logs with system names '${system_list}' will be"
+    echo "uploaded to Google Cloud Storage."
+  fi
+}
+
+# Creates a folder with debug information and starts tcpdump.
+#
+# Args:
+#   $1: System name used to create subfolders to store logs.
+#   $2: Interface for tcpdump to listen to.
+function start_log() {
+  local readonly INTERFACE="$2"
+
+  # Create log directory and log description file.
+  local log_dir
+
+  log_dir="${LOG_BASE_DIR}/$1/$(date +%Y%m%d-%H%M%S)"
+
+  mkdir -p "${log_dir}"
+  ln -sfn "${log_dir}" "${LOG_BASE_DIR}/current_log"
+  echo $INTERFACE > "${LOG_BASE_DIR}/.current_interface"
+  echo $1 > "${LOG_BASE_DIR}/.current_system"
+  cat > "${log_dir}/log_desc.json" << EOL
+{
+  "version": 0.1,
+  "log_name": "",
+  "description": "",
+  "username": "$(whoami)",
+  "hostname": "$(hostname)",
+  "interface": "${INTERFACE}",
+  "time": "$(date)",
+  "git_hash": "$(git --git-dir=${MAKANI_HOME}/.git rev-parse HEAD)"
+}
+EOL
+
+  # Store diff from HEAD.
+  git --git-dir=${MAKANI_HOME}/.git diff HEAD > "${log_dir}/git.diff"
+
+  # Store format.h5.
+  #
+  # TODO: It would be super-nice if format.h5 ended up in bazel-bin
+  # instead of bazel-genfiles.
+  if [[ ! -f "${GENFILES_DIR}/lib/pcap_to_hdf5/format.h5" ]]; then
+    echo "WARNING: Missing format.h5 which describes the HDF5 log structure."
+  else
+    cp "${GENFILES_DIR}/lib/pcap_to_hdf5/format.h5" "${log_dir}"
+  fi
+
+  # Start logging all network traffic.
+  #
+  # -i  Select interface.
+  # -U  Write each packet when it is received.
+  # -G  Log rotate time in seconds.
+  # -w  Output file name in strftime format.
+  # -z  Executes script after each rotation.
+  nohup tcpdump -i "${INTERFACE}" -U -G "${ROTATE_TIME}" \
+    -w "${log_dir}/%Y%m%d-%H%M%S.pcap" \
+    -z "${LOG_POSTPROCESS_SCRIPT}" &> tcpdump.log &
+
+  # As a short-term debugging measure, print out tcpdump's output
+  # after a brief delay.
+  sleep 0.5
+  cat tcpdump.log
+
+  if ! grep -Fq "listening on " tcpdump.log ; then
+    echo "WARNING: Logger may not be running!"
+    return 255
+  fi
+}
+
+# Adds the log name to the description file and appends the log name
+# to the log directory and the individual log files.  Stops and starts
+# the logger again.
+#
+# Args:
+#   $1: (Optional) Name to append to the log when saving.
+ function save_log() {
+
+  if [[ -d "${LOG_BASE_DIR}/current_log" ]]; then
+    local interface=`cat ${LOG_BASE_DIR}/.current_interface`
+    local system=`cat ${LOG_BASE_DIR}/.current_system`
+
+    check_system_name "${system}"
+
+    # Stop the old logger and start a new one.
+    # Do not block while post-processing..
+    if [[ "$#" -eq 0 ]]; then
+      stop_log true
+    else
+      stop_log true "$1"
+    fi
+
+    start_log "${system}" "${interface}"
+  else
+    echo "WARNING: Not presently logging; exiting without starting a new log."
+    return 255
+  fi
+}
+
+# Deletes the current log and starts the logger again.
+#
+# Args:
+#   $1: (Optional) System name used to create subfolders to store logs.
+#   $2: (Optional) Interface for tcpdump to listen to.
+function discard_log() {
+  if [[ -d "${LOG_BASE_DIR}/current_log" ]]; then
+    local current_log_dir="$(readlink ${LOG_BASE_DIR}/current_log)"
+
+    # Ask for confirmation that the log should be deleted.
+    local answer='loop'
+    until [[ "${answer,,}" == 'n' || "${answer,,}" == 'y' \
+        || "${answer}" == '' ]]; do
+      # Get the time that the current directory was made. Note that changing the
+      # untagged directory name from YYYYmmdd-HHMMSS will break this function.
+      local date_str="${current_log_dir[0]:$((${#current_log_dir} - 15))}"
+      local date_str="${date_str[@]:0:4}-${date_str[@]:4:2}-${date_str[@]:6:2}
+        ${date_str[@]:9:2}:${date_str[@]:11:2}:${date_str[@]:13:2}"
+      local start_time="$(date --date="${date_str}" +%s)"
+      local log_duration="$(($(date +%s) - ${start_time}))"
+
+      echo "Are you sure you want to delete ${log_duration} seconds of data?"
+      echo -n '[y/N]: '
+      read answer
+    done
+
+    if [[ "${answer,,}" == 'y' ]]; then
+      # Stop tcpdump.
+      pkill -SIGINT tcpdump
+
+      # Remove the current directory where tcpdump was logging to.
+      # Note that ${current_log_dir} does not necessarily exist in which case
+      # rm -rf does nothing.
+      rm -f "${LOG_BASE_DIR}/current_log"
+      rm -rf "${current_log_dir}"
+
+      local interface=`cat ${LOG_BASE_DIR}/.current_interface`
+      local system=`cat ${LOG_BASE_DIR}/.current_system`
+
+      # Start a new logger.
+      start_log "${system}" "${interface}"
+    fi
+  else
+    echo "WARNING: Not presently logging; exiting without starting a new log."
+  fi
+}
+
+# Completely turns off logging and updates last_log symlink.
+#
+# Args:
+#   $1: Boolean that is true to run the post-processing script in background.
+#   $2: Name to append to the log when saving.
+function stop_log() {
+
+  # Stop tcpdump.
+  pkill -SIGINT tcpdump
+
+  # Apply the log-processing script to the last log.
+  if [[ -d "${LOG_BASE_DIR}/current_log" ]]; then
+
+    local current_log_dir="$(readlink ${LOG_BASE_DIR}/current_log)"
+
+    # Tag the current log directory if requested.
+    local tag=""
+    if [[ "$#" -eq 2 ]]; then
+      tag="$2"
+      until [[ ! -d "${current_log_dir}-${tag}" ]]; do
+        tag="${tag}_"
+      done
+
+      mv "${current_log_dir}" "${current_log_dir}-${tag}"
+      current_log_dir="${current_log_dir}-${tag}"
+      ln -sfn "${current_log_dir}" "${LOG_BASE_DIR}/current_log"
+    fi
+
+    # Find the last pcap file.
+    pushd "${current_log_dir}" >> /dev/null
+    readonly LAST_FILE="$(ls | grep '.*\.pcap$' | tail -1)"
+    popd >> /dev/null
+
+    # Update the links.
+    rm -f "${LOG_BASE_DIR}/last_log"
+    mv "${LOG_BASE_DIR}/current_log" "${LOG_BASE_DIR}/last_log"
+
+    rm "${LOG_BASE_DIR}/.current_interface"
+    rm "${LOG_BASE_DIR}/.current_system"
+
+    if [[ "$1" == true ]]; then
+      # Run the post process script in the background.
+      nice -n 19 "${LOG_POSTPROCESS_SCRIPT}" "${current_log_dir}/${LAST_FILE}" \
+          "${tag}" &
+    else
+      echo "Running postprocessing script on ${current_log_dir}/${LAST_FILE}..."
+      nice -n 19 "${LOG_POSTPROCESS_SCRIPT}" "${current_log_dir}/${LAST_FILE}" \
+          "${tag}"
+    fi
+  fi
+}
+
+# Confirm that the pcap to HDF5 utility has been built.
+if [[ ! -f "${BUILD_DIR}/lib/pcap_to_hdf5/pcap_to_hdf5" ]]; then
+  echo "Failed: pcap_to_hdf5 must be built to start logs."
+  exit 1
+fi
+
+if [[ "$#" -lt 1 ]]; then
+  mbash::print_usage
+  exit 1
+fi
+
+command="$1"
+
+# Dispatch log command.
+if [[ $command = 'start' && "$#" -le 3 ]]; then
+  if [[ "$#" -ge 2 ]]; then
+    readonly system="$2"
+  else
+    readonly system="${DEFAULT_SYSTEM}"
+  fi
+
+  readonly CONFIG_FILE="/etc/makani/aio_network.conf"
+
+  if [[ -f "${CONFIG_FILE}" ]]; then
+    source "${CONFIG_FILE}"
+  fi
+
+  if [[ "$#" = 3 ]]; then
+    readonly interface="$3"
+  elif [[ ! -z "${AIO_NETWORK_INTERFACE:-}" ]]; then
+    readonly interface="${AIO_NETWORK_INTERFACE}"
+  else
+    readonly interface="${DEFAULT_INTERFACE}"
+  fi
+
+  check_tcpdump_capabilities
+  # For the post-processing step to run, we disable apparmor for tcpdump:
+  (sudo disable_apparmor || true) >& /dev/null
+
+  # Stop previous logger (and convert file in background).
+  stop_log true
+
+  # Check the system name.
+  check_system_name "${system}"
+
+  start_log "${system}" "${interface}" && echo "Started logger."
+
+elif [[ $command = 'save' && "$#" -le 2 ]]; then
+  check_is_logger_running || echo "WARNING: Logger was not running!"
+
+  if [[ "$#" -eq 1 ]]; then
+    save_log && echo "Saved unnamed log and restarted logger."
+  else
+    save_log "$2" && echo "Saved log as '$2' and restarted logger."
+  fi
+
+elif [[ $command = 'discard' && "$#" -eq 1 ]]; then
+  check_is_logger_running || echo "WARNING: Logger was not running!"
+
+  discard_log && echo "Restarted logger, discarded old log."
+
+elif [[ $command = 'stop' && "$#" -eq 1 ]]; then
+  check_is_logger_running || echo "WARNING: Logger was not running!"
+
+  stop_log false && echo "Stopped logger."
+else
+  mbash::print_usage
+fi

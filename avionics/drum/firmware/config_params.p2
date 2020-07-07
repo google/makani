@@ -1,0 +1,7 @@
+include "avionics/firmware/drivers/encoder_params.p2";
+
+param DrumConfigParams {
+  EncoderCalib gsg_azi;
+  EncoderCalib gsg_ele;
+  EncoderCalib tether_detwist;
+}

@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+bazel build //gs/monitor2:webmonitor

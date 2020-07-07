@@ -1,0 +1,13 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 AioHardware {
+  RevAa = 0,
+  RevAb = 1,
+  RevAc = 2,
+  RevAd = 3,
+  RevBa = 4,
+}
+
+specialize(SerialParams) AioSerialParams {
+  AioHardware hardware_revision;
+}

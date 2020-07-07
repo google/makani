@@ -1,0 +1,5 @@
+enum32 HscModel {
+  Number001Pdsa3 = 0,
+  Number015Pasa3 = 1,
+  Number006Mdsa3 = 2,
+}

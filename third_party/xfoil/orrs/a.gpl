@@ -1,0 +1,70 @@
+set terminal x11 
+set output 
+set noclip points
+set clip one
+set noclip two
+set border
+set boxwidth
+set dummy x,y
+set format x "%g"
+set format y "%g"
+set format z "%g"
+set nogrid
+set key
+set nolabel
+set noarrow
+set nologscale
+set offsets 0, 0, 0, 0
+set nopolar
+set angles radians
+set noparametric
+set view 60, 30, 1, 1
+set samples 100, 100
+set isosamples 10, 10
+set surface
+set nocontour
+set clabel
+set nohidden3d
+set cntrparam order 4
+set cntrparam linear
+set cntrparam levels auto 5
+set cntrparam points 5
+set size 1,1
+set data style points
+set function style lines
+set xzeroaxis
+set yzeroaxis
+set tics in
+set ticslevel 0.5
+set xtics
+set ytics
+set ztics
+set title "" 0,0
+set notime
+set rrange [-0 : 10]
+set trange [-5 : 5]
+set urange [-5 : 5]
+set vrange [-5 : 5]
+set xlabel "" 0,0
+set xrange [-20 : 20]
+set ylabel "" 0,0
+set yrange [-0.440399 : 0.440399]
+set zlabel "" 0,0
+set zrange [-10 : 10]
+set autoscale r
+set autoscale t
+set autoscale xy
+set autoscale z
+set zero 1e-08
+rsq(u,v,k) = (u+k*pi/St)**2 + v**2
+uxk(u,v,k) = (0.5/St * v/rsq(u,v,k))*(1.0 - exp(-1.69*Rsq(u,v,k)))
+uyk(u,v,k) = (0.5/St * (-u-k*pi/St)/rsq(u,v,k))*(1.0 - exp(-1.69*Rsq(u,v,k)))
+ux(u,v) = uxk(u,v,-6)+uxk(u,v,-5)+uxk(u,v,-4)+uxk(u,v,-3)+uxk(u,v,-2)+uxk(u,v,-1)+uxk(u,v,0)+uxk(u,v,1)+uxk(u,v,2)+uxk(u,v,3)+uxk(u,v,4)+uxk(u,v,5)+uxk(u,v,6)
+uy(u,v) = uyk(u,v,-6)+uyk(u,v,-5)+uyk(u,v,-4)+uyk(u,v,-3)+uyk(u,v,-2)+uyk(u,v,-1)+uyk(u,v,0)+uyk(u,v,1)+uyk(u,v,2)+uyk(u,v,3)+uyk(u,v,4)+uyk(u,v,5)+uyk(u,v,6)
+Rsq(u,v,k) = rsq(u,v,k)>50.0?50.0:rsq(u,v,k)
+uxx(u,v) = uxk(u,v,-1)+uxk(u,v,0)+uxk(u,v,1)
+uyy(u,v) = uyk(u,v,-1)+uyk(u,v,0)+uyk(u,v,1)
+L = 16.5
+Wmax = 4.45
+St = 0.19
+plot [u=-20:20] ux(u,20.5), ux(u,-20.5)

@@ -1,0 +1,280 @@
+D8.1 Model  in  WBWT
+
+#Mach
+ 0.15
+
+#IYsym   IZsym   Zsym
+ 0       0       0.0
+
+#Sref    Cref    Bref
+525.0    6.0     90.0
+
+#Xref    Yref    Zref
+38.0     0.0     0.0
+
+#--------------------------------------------------
+SURFACE 
+Wing 
+#Nchordwise  Cspace  Nspanwise  Sspace
+8            1.0     26         -1.5
+
+INDEX 
+1
+
+YDUPLICATE 
+0.0
+
+ANGLE
+0.0     ! low-incidence wing position
+!3.0     ! high-incidence wing position
+
+SCALE
+1.0   1.0   1.0 
+
+TRANSLATE
+34.0  0.0  -1.0
+
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0    5.4    0.0     9.0     2.0
+AFILE
+da00.dat
+CONTROL
+flap     1.0  0.75  0. 0. 0.  +1
+CONTROL
+slat     1.0  -.111  0. 0. 0.  +1
+CLAF
+1.05
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.947  11.0   0.291   7.951   2.0
+AFILE
+da02.dat
+CONTROL
+flap     1.0  0.75  0. 0. 0.  +1
+CONTROL
+slat     1.0  -.117  0. 0. 0.  +1
+CLAF
+1.05
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+3.070   24.0  0.945    5.599   1.5
+AFILE
+da03.dat
+CONTROL
+flap     1.0  0.75  0. 0. 0.  +1
+CONTROL
+slat     1.0  -.136  0. 0. 0.  +1
+CONTROL
+aileron -1.0  0.80  0. 0. 0.  -1
+CLAF
+1.04
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+5.030   36.0  1.548    3.428   0.8
+AFILE
+da04.dat
+CONTROL
+flap     1.0  0.75  0. 0. 0.  +1
+CONTROL
+slat     1.0  -.178  0. 0. 0.  +1
+CONTROL
+aileron -1.0  0.80  0. 0. 0.  -1
+CLAF
+1.03
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+6.50    45.0   2.0      1.8    0.5
+AFILE
+da05.dat
+CONTROL
+slat     1.0  -.278  0. 0. 0.  +1
+CONTROL
+aileron -1.0  0.80  0. 0. 0.  -1
+CLAF
+1.01
+DESIGN 
+a5
+
+#--------------------------------------------------
+SURFACE
+Stab
+#Nchordwise  Cspace  Nspanwise  Sspace
+6            1.0     14         -2.0
+
+INDEX
+1
+
+YDUPLICATE 
+0.0
+
+ANGLE
+0.0
+
+SCALE
+1.0  1.0  1.0
+
+TRANSLATE 
+65.0   0.0   8.0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0     0.0   0.0     4.0     0.  
+CONTROL
+elevator  1.0  0.0   0. 0. 0.  1
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0     5.0   0.0      4.0    0.  
+CONTROL
+elevator  1.0  0.0   0. 0. 0.  1
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 1.075  12.0   0.0     2.345   0. 
+CONTROL
+elevator  1.0  0.0   0. 0. 0.  1
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 1.69   16.0   0.0     1.40    0. 
+CONTROL
+elevator  1.0  0.0   0. 0. 0.  1
+
+#--------------------------------------------------
+SURFACE
+Fin
+#Nchordwise  Cspace   Nspanewise  Sspace
+9            1.0      11          0.75
+
+INDEX
+1
+
+YDUPLICATE 
+0.0
+
+ANGLE
+0.0
+
+SCALE
+1.0  1.0  1.0
+
+TRANSLATE
+0.0  0.0  0.0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+56.5    5.4   -1.0      8.0    0.    
+CONTROL
+rudder  1.0  0.77   0. 0. 0.  0.0 
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+60.0    5.3    1.5      5.0    0.  
+CONTROL
+rudder  1.0  0.65   0. 0. 0.  0.0 
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+65.0    5.0    8.0      2.4     0.  
+CONTROL
+rudder  1.0  0.65   0. 0. 0.  0.0 
+
+#--------------------------------------------------
+SURFACE
+Fuselage
+#Nchordwise  Cspace   Nspanwise  Sspace
+32           0.6
+
+INDEX
+1
+
+YDUPLICATE 
+0.0
+
+SCALE
+1.0   1.0  1.0
+
+TRANSLATE
+  0.0   0.0   -1.0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0    0.0    0.0     63.9    0.    1          0.
+AFILE
+d8f0c.dat
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.78   1.2    0.0     63.18   0.    1          0.
+AFILE
+d8f1c.dat
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 3.36   2.85   0.0     60.60   0.    1          0.
+AFILE
+d8f2c.dat
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 8.04   4.29   0.0     56.01   0.    1          0.
+AFILE
+d8f3c.dat
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+14.40   5.4    0.0     49.80   0.    1          0.
+
+#--------------------------------------------------
+SURFACE
+Tunnel Walls
+#Nchordwise  Cspace  Nspanwise  Sspace
+10           0.0
+
+NOALBE
+
+NOLOAD
+
+YDUPLICATE 
+0.0
+
+TRANSLATE 
+-60.0   0.0   0.0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0    0.0   -42.0    200.0    0.    2  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   15.0   -42.0    200.0    0.    5  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   43.0   -31.0    200.0    0.    5  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   60.0   -11.5    200.0    0.    5  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   60.0    11.5    200.0    0.    5  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   43.0    31.0    200.0    0.    5  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0   15.0    42.0    200.0    0.    2  0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+ 0.0    0.0    42.0    200.0    0.    0  0

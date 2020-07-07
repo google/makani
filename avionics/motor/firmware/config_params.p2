@@ -1,0 +1,34 @@
+enum32 MotorType {
+  Protean = 0,
+  Yasa = 1,
+}
+
+enum32 MotorPhaseSwap {
+  None = 0,
+  Ac = 1,
+}
+
+enum32 MotorCalibrator {
+  Disabled = 0x0,
+  Enabled = 0x5a5a5a5a,
+}
+
+enum32 MotorLoadType {
+  None = 0,
+  PropRev1NegativeX = 1,  // Rev 1 prop spinning in the negative x direction.
+  PropRev2PositiveX = 2,  // Rev 2 prop spinning in the positive x direction.
+  Dyno = 3,
+}
+
+enum32 MotorBusTopology {
+  Single = 0,
+  Stacked = 1,
+}
+
+param MotorConfigParams {
+  MotorType motor_type;
+  MotorPhaseSwap phase_swap;
+  MotorLoadType load_type;
+  MotorCalibrator calibrator_enable;
+  MotorBusTopology topology;
+}

@@ -1,0 +1,188 @@
+{
+  "exclude": {
+    "info": {
+      "min_tv_sec": true,
+      "min_tv_usec": true,
+      "gs_gps_time_coeff": true,
+      "gs_gps_time_bias": true,
+      "wing_gps_time_coeff": true,
+      "wing_gps_time_bias": true
+    },
+    "messages": {
+      "kAioNodeControllerA": {
+        "kMessageTypeControlDebug": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "message": {
+            "loop_usec": true,
+            "start_usec": true,
+            "finish_usec": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeControlTelemetry": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "message": {
+            "loop_usec": true,
+            "start_usec": true,
+            "finish_usec": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeControlSlowTelemetry": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "message": {
+            "build_info": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeControllerCommand": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeControllerSync": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeSmallControlTelemetry": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          },
+          "message": {
+            "loop_time": true
+          }
+        },
+        "kMessageTypeQ7SlowStatus": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "message": {
+            "build_info": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeSimCommand": true
+      },
+      "kAioNodeGsEstimator" : {
+        "kMessageTypeSimCommand": true,
+        "kMessageTypeGroundEstimate": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeGroundEstimateSim": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeGroundTelemetry": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        }
+      },
+      "kAioNodeSimulatedJoystick": true,
+      "kAioNodeSimulator": {
+        "kMessageTypeSimCommand": true,
+        "kMessageTypeSimSensor": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          }
+        },
+        "kMessageTypeSimTelemetry": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          },
+          "message": {
+            "aio_idle_usec": true,
+            "integration_usec": true
+          }
+        },
+        "kMessageTypeSimTetherDown": {
+          "aio_header": {
+            "timestamp": true
+          },
+          "capture_header": {
+            "tv_sec": true,
+            "tv_usec": true
+          },
+          "message": {
+            "messages": {
+              "control_telemetry": {
+                "loop_time": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "bad_packets": true,
+    "parameters": {
+      "build_info": true
+    }
+  },
+  "require": {
+    "messages": {
+      "kAioNodeControllerA": {
+        "kMessageTypeControlTelemetry": true,
+        "kMessageTypeControllerCommand": true,
+        "kMessageTypeControllerSync": true
+      },
+      "kAioNodeSimulator": {
+        "kMessageTypeSimTelemetry": true,
+        "kMessageTypeSimSensor": true
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+*.#*
+*.asv
+*.autosave
+*.bak
+*.class
+*.eps
+*.fig
+*.h5
+*.jar
+*.log
+*.mat
+*.obj
+*.out
+*.pdf
+*.png
+*.pyc
+*.swn
+*.swo
+*.swp
+*~
+\#*\#
+null
+TAGS
+tmp
+
+# Bazel output directories
+bazel-*
+q7-*
+tms570-*
+
+# Coverage data file
+.coveragesendgrid.env
+.vscode/settings.json
+
+# Compilation Database
+.clangd
+compile_commands.json

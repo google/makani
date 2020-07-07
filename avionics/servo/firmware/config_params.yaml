@@ -1,0 +1,97 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+base: &BASE
+  servo_min_limit: -0.78540  # -45 deg.
+  servo_max_limit: 0.78540  # 45 deg.
+  scuttle_angle: 0.0
+  current_limit: 14.0
+  current_velocity_limit: 8.0
+
+# These flap positions should cause a left roll in a high drag configuration.
+# Left ailerons full negative, right ailerons full positive, elevator full
+# negative, rudder full positive.
+inboard_aileron: &INBOARD_AILERON
+  << : *BASE
+  servo_min_limit: -1.69297  # -97 deg.
+  servo_max_limit: 0.80285  # 46 deg.
+
+midboard_aileron: &MIDBOARD_AILERON
+  << : *BASE
+  servo_min_limit: -1.41372  # -81 deg.
+  servo_max_limit: 0.17453  # 10 deg.
+
+outboard_aileron: &OUTBOARD_AILERON
+  << : *BASE
+  servo_min_limit: -1.41372  # -81 deg.
+  servo_max_limit: 0.17453  # 10 deg.
+
+aileron_a1: !ServoConfigParams
+  << : *OUTBOARD_AILERON
+  scuttle_angle: -1.41372  # -81 deg.
+
+aileron_a2: !ServoConfigParams
+  << : *MIDBOARD_AILERON
+  scuttle_angle: -1.41372  # -81 deg.
+
+aileron_a2_sn1: !ServoConfigParams
+  << : *MIDBOARD_AILERON
+  scuttle_angle: -0.38397  # -22 deg.
+  servo_min_limit: -0.38397  # -22 deg.
+  servo_max_limit: 0.05236  # 3 deg.
+
+aileron_a4: !ServoConfigParams
+  << : *INBOARD_AILERON
+  scuttle_angle: -1.69297  # -97 deg.
+
+aileron_a5: !ServoConfigParams
+  << : *INBOARD_AILERON
+  scuttle_angle: 0.80285  # 46 deg.
+
+aileron_a7: !ServoConfigParams
+  << : *MIDBOARD_AILERON
+  scuttle_angle: 0.17453  # 10 deg.
+
+aileron_a7_sn1: !ServoConfigParams
+  << : *MIDBOARD_AILERON
+  scuttle_angle: -0.38397  # -22 deg.
+  servo_min_limit: -0.38397  # -22 deg.
+  servo_max_limit: 0.05236  # 3 deg.
+
+aileron_a8: !ServoConfigParams
+  << : *OUTBOARD_AILERON
+  scuttle_angle: 0.17453  # 10 deg.
+
+# NOTE(b/37853602): The elevator mechanical max limit is +20 degrees, restricted
+# by gap seal. Here we back off by a few degrees to have some margin.
+# NOTE: The value of servo_min_limit has been changed from -26 deg to -90 deg
+# for Hover system ID testing. See http://g/makani-controls/yG9serXFrjc for
+# more information.
+elevator: !ServoConfigParams
+  << : *BASE
+  servo_min_limit: -1.57080  # -90 deg.
+  servo_max_limit: 0.27925  # 16 deg.
+  scuttle_angle: -0.45379  # -26 deg.
+
+rudder: !ServoConfigParams
+  << : *BASE
+  servo_min_limit: -1.36135  # -78 deg.
+  servo_max_limit: 1.36135  # 78 deg.
+  scuttle_angle: -1.36136  # -78 deg.
+
+ib_aileron: !ServoConfigParams
+  << : *BASE
+  servo_min_limit: -1.22173  # -70 deg.
+  servo_max_limit: 1.22173  # 70 deg.
+  scuttle_angle: 0.0

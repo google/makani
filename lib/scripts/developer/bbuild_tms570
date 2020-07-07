@@ -1,0 +1,20 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+readonly TARGETS="$(bazel query \
+  'attr(tags, arch:tms570, ...) except attr(tags, tms570_test, ...)'| tr '\n' ' ')"
+if [[ -z "${TARGETS}" ]]; then
+  echo 'Error: Found no targets for tag "arch:tms570".'
+  exit 1
+fi
+
+bazel build --config tms570 ${TARGETS} "$@"
+
+readonly UTILS="$(bazel query 'attr(tags, tms570_util, ...)'| tr '\n' ' ')"
+if [[ -z "${UTILS}" ]]; then
+  echo 'Error: Found no targets for tag "tms570_util".'
+  exit 1
+fi
+
+bazel build ${UTILS} "$@"

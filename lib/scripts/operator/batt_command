@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname $(readlink -f $0))/../../../bazel-bin/gs/batt_command" "$@"

@@ -1,0 +1,68 @@
+
+General
+-------
+AVL and its plot library should compile on any Unix system 
+with normal Fortran-77, C, and X-Windows support. 
+
+
+Build sequence
+--------------
+
+1) Build Xplot11 library in  ./plotlib  ...
+
+ % cd plotlib
+ % edit Makefile  (set compiler flags for your system)
+ % make           (creates libPlt.a)
+
+
+2) Build Eispack library in ./eispack  ...
+
+ % cd eispack
+ % edit Makefile  (set compiler flags for your system)
+ % make           (creates eispack.a)
+
+
+3) Build AVL in ./bin  ...
+
+ % cd bin
+ % edit Makefile  (set compiler flags for your system)
+ % make avl
+
+
+The executable will appear in the bin/ directory.
+
+
+Documentation
+-------------
+User Guide is in the  avl_doc.txt  file.  If impatient, you can just
+run AVL in the runs/ directory, which contains a few input files:
+
+ % cd runs
+ % ../bin/avl vanilla
+
+The files  session1.txt, session2.txt  contain keyboard input examples.
+
+
+Graphic Notes for X-windows 
+---------------------------
+The plot library for X-windows does not refresh the plot windows on expose 
+events (i.e. when the window is covered and then uncovered).  Proper operation
+assumes that the optional X backing store is enabled.  It is not always turned
+on in current (Linux, typically) X installations.  The backing store can be 
+enabled by adding a line to your X configuration file (typically found in 
+/etc/X11/xorg.conf).  The line should be added to the Device Section and looks
+like this:
+   Option "BackingStore" "True"
+
+This shows the Device section from my xorg.conf file with the backing store 
+enabled.  Note that you will have your own Identifier and Driver lines, 
+just add the Option line.
+
+Section "Device"
+    Identifier  "Miserable Old SVGA"
+    Driver      "miserable"
+    Option	"BackingStore"	"True"
+EndSection
+
+You probably need to restart the X server before this works (try just logging 
+out or rebooting).

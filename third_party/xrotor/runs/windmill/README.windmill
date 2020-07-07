@@ -1,0 +1,13 @@
+README for runs/windmill directory
+
+Hal Youngren 4/05
+
+This directory contains input files for XROTOR examples.
+
+Files are:
+
+t.prop      sample windmill input
+t.cases     cases file
+
+
+

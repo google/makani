@@ -1,0 +1,7 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+bazel build $(bazel query 'kind("cc_test rule", ...)') "$@"
+bazel build $(bazel query 'kind("py_test rule", ...)') "$@"
+bazel build --config tms570 $(bazel query 'attr(tags, tms570_test, ...)') "$@"

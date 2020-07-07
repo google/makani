@@ -1,0 +1,116 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+
+\begin{document}
+
+\section{Aerodynamicist for simulation}
+
+\subsection{What does Kenny really want?}
+
+To model the dynamics of the system, the simulator needs to know the
+aerodynamic force and moment on the wing.  To make the problem
+tractable, we only model {\it steady} aerodynamic forces and moments.
+However, the forces and moments on the wing are still a function of
+the airspeed, $v$, angle-of-attack, $\alpha$, sideslip, $\beta$,
+angular rate, $\vec{\omega}$, flap deflections, $\delta_i$, and motor
+thrusts, $T_i$:
+
+\begin{equation}
+\left(
+\begin{array}{c}
+\vec{f}_b \\
+\vec{m}_b
+\end{array}
+\right) = F(v, \alpha, \beta, \vec{\omega}, \delta_1, ... \delta_8, T_1, ..., T_8)
+\end{equation}
+
+In my dream scenario, the aerodynamics group would hand me this as a
+black box function that we could throw into the simulator.  An added
+constraint is that this function must evaluate in a few milliseconds
+for the simulator to run in real-time, a requirement for
+hardware-in-the-loop simulations and my sanity.
+
+\subsection{Let's CFD the crap out of this}
+
+Short of wind tunnel tests, Reynolds averaged Navier-Stokes CFD is the
+most accurate tool we have at our disposal.  Why not just run enough
+CFD cases to completely determine this function?  We fly at a wide
+range of airspeeds, angle's-of-attack, and essentially all the
+variables listed.  Assume we run CFD cases at five points for each of
+these variables, i.e. airspeed = [1, 2, 4, 8, 16] m/s.  To generate a
+full look-up table over all these variables would require $5^{22}$ CFD
+runs.  At approximately a day per CFD run, this would take us well
+past the heat death of the universe.
+
+This is why God created dimensionless numbers and derivatives. Instead
+of calculating the forces and moments at each airspeed, let's just use
+the fact that aerodynamic forces scale as $v^2$ to infer the forces
+and moments from those calculated at a single operating point.  Also,
+instead of calculating the forces and moments for each possible flap
+deflection and angular rate, let's assume that we're always flying
+near a nominal angular rate and nominal set of flap deflections.
+Finally, let's assume aerodynamics is completely linear (why not!).
+Now we just need to run CFD cases at a single angular rate and set of
+flap deflections, and also at small perturbations from these nominal
+points.  For a single ($\alpha$, $\beta$) operating point, this would
+require 12 runs (1 nominal, 3 angular rate perturbations, 8 flap
+perturbations), which is much better than the $5^{12}$ combinations.
+
+Perhaps you noticed that I left motor thrusts out of this analysis.
+Indeed, for most aircraft it is possible to treat the motor thrusts as
+a separate, non-interacting force-moment function.  Thus, you're
+really just generating a lookup table on ($\alpha$, $\beta$).
+Assuming 5 points for each of these, the total number of CFD runs
+would be $5 \times 5 \times 12 = 300$, which is a reasonable, though
+still pretty large, number.
+
+\subsection{We're not most aircraft}
+
+The method described above will work great for the crosswind database,
+and we should be pursuing this now!  However, it does not work for
+hover or the transition regime.  The major reason it fails is that the
+rotor wake interacts strongly with the elevator and rudder.  Moreover,
+how this rotor wake interacts with the elevator depends on the wind
+speed and thus the total force-moment will not be a simple function of
+$v^2$.  In one fell swoop, we've knocked out the ability to separate
+the rotor thrust-moment, the ability to use derivatives to
+characterize the elevator deflection, and the use dimensionless
+numbers to characterize the aerodynamic behavior.
+
+You could argue that we can still use elevator control derivatives if
+we lookup the elevator position that aligns with the local flow as a
+function of wind speed.  This is true, but I think handling elevator
+stall will be important enough that we should have {\it some} model of
+it in the simulator.  This could be an extra dimension in the database
+for the elevator position, or perhaps a clever way of separating out
+the effects of the elevator in CFD simulations.
+
+In one case, we're left with a lookup table on ($v$, $\alpha$,
+$\beta$, $\delta_e$), which brings our total run count up to $5 \times
+5 \times 5 \times 5 \times 11 = 6875$ (we use 11 instead of 12 because
+we don't need to calculate the elevator derivative.).  In the other
+case, we're still left with a significant CFD task and also some
+non-trivial hacks to separate out the effect of the elevator.
+
+\subsection{Conclusions}
+
+The main conclusion is that CFD alone, regardless or throughput, will
+not meet our modeling needs.  We need to combine hand calculations,
+lower-order modeling techniques, e.g. vortex lattice, rotor wake
+models, etc., and CFD together to generate a full aerodynamics model.
+
+A secondary conclusion is that we need an aerodynamicist who is very
+familiar with the details of the simulator and can contribute to its
+development.  This is the only way we could tackle possibilities like
+separating out the effect of the elevator mentioned above.  It's also
+really useful for understanding what the needs of the
+Controls/Simulation group are in terms of modeling fidelity, speed,
+and range of operating points.
+
+\end{document}

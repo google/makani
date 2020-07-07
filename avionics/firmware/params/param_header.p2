@@ -1,0 +1,16 @@
+enum32 ParamHeaderVersion {
+  // The intention here is that Current is always the current
+  // version.  When the version becomes 1, version that will be named
+  // Current and 0 will become Version0.
+  Current = 0,
+}
+
+header ParamHeader {
+  ParamHeaderVersion param_format_version;
+  int32 unused;
+  int32 data_length;  // Length of parameter data following header.
+  uint32 data_crc;  // Crc32 of the parameter data.
+  uint32 version_number;  // Crc32 of the parameter metadata.
+}
+
+// TODO: Define constant for version number.

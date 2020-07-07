@@ -1,0 +1,38 @@
+Hershey wing
+0.0                   !   Mach
+0     0     0.0       !   iYsym  iZsym  Zsym
+ 6.0  1.0   6.0       !   Sref   Cref   Bref   reference area, chord, span
+ 0.25 0.0   0.0       !   Xref   Yref   Zref   moment reference location (arb.)
+0.0                   !   CDp
+#
+#==============================================================
+#
+SURFACE
+Wing
+16 1.0   24  -2.0  ! Nchord   Cspace   Nspan  Sspace
+#
+YDUPLICATE
+0.0
+#
+# twist angle bias for whole surface
+ANGLE
+     0.00000    
+#
+SCALE
+  1.0   1.0   1.0
+#
+# x,y,z bias for whole surface
+TRANSLATE
+    0.  0.  0. 
+#
+#-----------------------------
+SECTION
+     0.0          0.0        0.0         1.00        0.000 
+NACA 
+4412
+#-----------------------------
+SECTION
+    0.0           3.0        0.          1.00        0.000  
+NACA 
+4412
+#-----------------------------

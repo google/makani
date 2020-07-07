@@ -1,0 +1,231 @@
+/*********************************************************************** 
+    Module:  Notes
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+    Report problems to:    guppy@maine.com
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+Xplot11  
+C     Version 4.46 11/28/01
+
+Released under GNU Library License 8/5/96
+
+
+Notes:
+  
+These routines can be compiled either single or double precision by simply
+setting a flag in the Makefile.  No source changes.
+
+Two makefiles are supplied, one single precision, one double precision. 
+Make a link to one to define the Makefile (eg. ln -s Makefile.SP Makefile)
+
+An option exists for the old Versatec compatibility routine SYMBOL (in 
+plt_old.f) to take an integer or byte argument containing either the string
+or an integer specifying a plot symbol.  The current arrangement uses 
+character string arguments and handles plot symbols with the SYMBL routine.
+This problem comes up with f77 compilers that do not support the older style
+cramming of literal characters into an integer argument.  These compilers 
+add additional length arguments to the argument list for literal character 
+strings that are flagged as errors by the compiler (this happens for BSD f77 
+compilers).  If you want old-style Versatec SYMBOL calls look at plt_old.f 
+and make the suggested source changes.  You do lose the ability to call 
+SYMBOL with character variables but you can always use the newer PLCHAR 
+to plot character strings.
+
+
+
+
+The only known bugs at this time are:
+
+On IBM AIX systems there appears to be a compiler bug with the xlf compiler
+that shows up when compiling the library double precision.  The polyline
+routines are affected, getting every other data point.  This was discovered
+in July 1996, compiler version unknown.  No fix, doesn't affect the single
+precision library or other routines in double precision.
+
+Some Xservers have shown problems with the grid routines, this showed up on 
+OSF 3.2 on the DEC Alpha with the 8 bit X server running on a Mach32 card.  
+The characteristic is that the masked grid lines show the wrong background 
+color.  This is a server error, complain to your vendor.
+
+
+Version 4.33   8/30/96
+
+Added logfile for complex plots, fixed xaxis, yaxis to allow non-annotated 
+but hash-marked axes.  Fixes to ps_linepattern to limit to 8 pattern entries.
+
+Note: to make a more versatile library it may be better to break the routines
+that make up the library into separate modules to permit linking with routines
+of the same name that are user supplied. This will probably be done later but,
+if you need to make a split library you can always use the makesplitlib shell 
+script provided here (crude but it works). 
+
+Additional notes 9/5/96
+
+Changes were made to the ps_subs.f and Xwin.c to improve the linepattern 
+routines, separating the fortran and C code a bit more with a fortran version
+of mskbits (bitpat) for the postscript side.  The Makefile.DP was changed
+to make the DP version of Xplot11 work with xlf90 on the RS6000.  This really 
+should go in the new version (4.34)...HHY
+
+Version 4.34   10/30/96
+
+Changes were made to the bitpat routine in ps_subs.f to replace the iand() and ishft() calls with and() and rshift() calls that are more universal with f77 compilers, in particular f2c which is used on Linux.  Note that if you have any trouble with these calls you might replace and(xxx,yyy) with iand(xxx,yyy) and rshift(xxx,n) with ishft(xxx,-n)...HHY
+
+
+Version 4.35   2/6/97
+
+Fixed logfile to work for plots that replot and then add plot items.  Now 
+the block size is written before each block of log data.  Makefiles revised.
+Linux makefile added that includes target for shared ELF library.  ...HHY
+
+
+Version 4.36   2/24/97
+
+Updated symbol definitions in sym directory and in the xxx.INC character
+font include files.
+
+
+Version 4.37   6/24/97
+
+Includes MD fix for XAXIS/YAXIS buglet  of 5/24/97 
+Includes HY fix for AXISADJ bug         of 4/97
+Includes MD fix for gw_curs calling bug of 6/28/97 
+
+HY & MD
+ 
+
+Version 4.38  3/8/98  HY
+
+Fixed bug for unfilled polylines that do not close and are "closed"
+automatically but incorrectly by the Sutherland-Hodgman clipper.  These
+unfilled polylines are now processed by the regular line clipper by plotting
+them as separate line segments. 
+
+Added double-buffering by defining pixmap and three new routines to set 
+graphics destination (screen or buffer) and display buffer contents to screen.
+
+Fixed bug in fortran passing of string colornames to C interface routines 
+(problem showed up for fortran's that did not terminate strings with nulls).
+
+Fixed buffering bug (initializing counter) for plot primitive overflow file.
+
+
+
+Version 4.39  5/3/98   HY
+
+Fixed bug in GETCOLOR index assignments (index hack, off by 1)
+
+Fixed C compiler warning on n = n++ in Xwin.c
+
+More cleanup of gwxcolorname2rgb in Xwin.c, added error message for color name
+truncation
+
+Put optional defines for UNDERSCORE to improve portability of fortran to C 
+interface in Xwin.c for all C routine names. 
+
+Added integer declarations for AND to plt_old.f for Absoft f77
+
+Added to documentation a bit...
+
+
+Version 4.39a 6/12/98
+
+Discovered bug in ancient LINE routine for lines plotted with symbols only.
+
+
+Version 4.41  7/5/98   HHY
+
+Problems with window resizing on Linux for XROTOR prompted changes to gw_subs.f
+and Xwin.c to ensure that a resized window (resized using the PLOTS call) 
+properly changes size before any plotting is done in it.  This is done by 
+repetitively calling the window status until the resized window actually 
+changes size. 
+
+
+Version 4.42  12/10/98  HHY
+
+Bug found in ps_subs.f for linepatterns with longer dot patterns.  Used 
+nsegmax rather than nseg for writing pattern to .ps file.  
+Revised Makefiles.
+
+
+Version 4.43  6/99  HHY
+
+Bug fixes.  Revised Makefiles.  No recollection of other changes...
+
+
+Version 4.44  10/19/00  HHY
+
+Bug fixes.  Problem found in plt_color.f for error return value check from
+ired in gw_cname2rgb(colorname,ired,igreen,iblue) causing bad color table 
+mapping for colors with red component=0.  
+Revised ps_setup.f and plt_base.f to clean up flags for hardcopy processing. 
+
+Added capability to specify nunit<0 for separate sequential "plotNNN.ps" files 
+for each plot. Changed name of plot file for specified unit number to 
+"plotunitNNN.ps" to keep distinct from separate plot files.  
+
+Revised Notes, Doc files.  Added Makefile.SP and Makefile.DP to main and 
+example directories
+
+Version 4.45  01/22/01  HHY
+
+Bug fixes.  Problem found in plt_base.f for handling end of postscript plot.
+            Changed gw_subs.f to put initial cursor warp to middle of window
+            into initialization code (fix from MD 02/26/01).
+            Fix to plt_util.f AXISADJ routine to correct ntics value.
+
+            New alternate Makefile.SPnew,Makefile.DPnew,config.make make
+            options that consolidate compiler settings into config.make file.
+
+
+Version 4.46  10/28/01  HHY
+
+Bug fixes.  Problem found in ps_subs.f where Postscript DSC conventions
+            were not followed on %%Page line in postscript output.
+ 
+            Fix added to properly close each postcript plot before starting
+            a new plot.
+
+            Revised Makefiles.
+            Revised Notes file.  
+
+
+Version 4.47  12 Nov 07  MD
+
+Bug fixes.  Fixed the Postscript output of solid-fill polygons.
+            Previously these sometimes showed up as unfilled squares.  
+            There's no change in on-screen graphics.
+
+Additions.  Added  SUBROUTINE VIEWR  to plt_3D.f .
+            This is just a version of  SUBROUTINE VIEW, with a different
+            passed-array indexing convention.
+
+
+Version 4.50  17 Dec 12  HY
+
+Bug fixes.  Fixed the bounding box print to give integers rather than floats.
+
+Additions.  Added immediate-mode cursor read capability in subroutines
+             GETCURSORXYC(x,y,ibtn)
+             GETCURSORXYABSC(x,y,ibtn)
+            Changes made to plt_base.f, gw_subs.f and Xwin2.c to support this
+            functionality.  Returns cursor position only when button is down
+            (ibtn=1), returns button flag ibtn=0 when mouse button is released

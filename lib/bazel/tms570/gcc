@@ -1,0 +1,5 @@
+#!/bin/bash --norc
+#
+# This wrapper script is needed to access arm-none-eabi-gcc via CROSSTOOL.
+
+exec third_party_toolchains/gcc_arm_none_eabi/bin/arm-none-eabi-gcc "$@"

@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+%\usepackage[numbered,framed]{matlab-prettifier}
+
+%% \lstset{
+%%   style              = Matlab-editor,
+%%   basicstyle         = \mlttfamily\scriptsize,
+%%   escapechar         = ",
+%%   mlshowsectionrules = true,
+%% }
+
+\newcommand\lst[1]{
+  \subsection{\texttt{\protect\detokenize{#1}}}
+  \lstinputlisting[language=C]{#1}
+%  \lstinputlisting[caption={\texttt{\protect\detokenize{#1}}}]{#1}
+}
+
+\begin{document}
+
+\tableofcontents
+%\lstlistoflistings
+\lst{filename}
+
+\end{document}

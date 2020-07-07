@@ -1,0 +1,36 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+%YAML 1.2
+
+# Embedded target tests.
+
+---
+- test:
+  - firmware_tms570: avionics/aio/firmware/aio_test_application.elf
+    board_name: aio
+    timeout: 30
+- test:
+  - firmware_tms570: avionics/fc/test/imu_test_application.elf
+    carrier_name: fc
+    hardware_options: imu
+    timeout: 30
+- test:
+  - firmware_tms570: avionics/loadcell/firmware/loadcell_test_application.elf
+    carrier_name: loadcell
+    timeout: 30
+- test:
+  - firmware_tms570: avionics/motor/firmware/motor_test_application.elf
+    board_name: motor
+    timeout: 30

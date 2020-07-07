@@ -1,0 +1,101 @@
+#!/bin/bash -e
+#
+# Starts and stops the control process on the flight computer.
+#
+# Usage: ./flight_controller start [a] [b] [c]
+#        ./flight_controller stop [a] [b] [c]
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/network_config.sh"
+
+function get_ip_list() {
+  if [[ "$#" -eq 0 ]]; then
+    echo "${M600_CONTROLLER_A}"
+  else
+    for CONTROLLER in "$@"
+      do
+        case "${CONTROLLER}" in
+          'a')
+            echo -n "${M600_CONTROLLER_A} "
+            ;;
+          'b')
+            echo -n "${M600_CONTROLLER_B} "
+            ;;
+          'c')
+            echo -n "${M600_CONTROLLER_C} "
+            ;;
+          *)
+            echo "" >&2
+            echo "Unrecognized controller label: '${CONTROLLER}'" >&2
+            echo "" >&2
+            exit 1
+            ;;
+        esac
+      done
+  fi
+}
+
+function stop_controller() {
+  if [[ "$#" -eq 0 ]]; then
+    local readonly IPS=$(get_ip_list a b c)
+  else
+    local readonly IPS=$(get_ip_list $@)
+  fi
+  for IP in ${IPS}
+    do
+      ssh -o ConnectTimeout=4 root@"${IP}" \
+        'killall control 2> /dev/null || true' &
+    done
+  wait
+}
+
+function check_controller_running() {
+  local IPS=$(get_ip_list $@)
+  for IP in ${IPS}
+    do
+      if ! ssh root@"${IP}" 'pidof control > /dev/null'; then
+        echo "Flight controller at ${IP} not running."
+        exit 1
+      fi
+    done
+}
+
+function start_controller() {
+  stop_controller $@
+  local readonly IPS=$(get_ip_list $@)
+  for IP in ${IPS}
+    do
+      local readonly LABEL=$(( $(echo ${IP} | cut -d. -f4) - 1))
+      ssh root@"${IP}" \
+        "nohup /apps/control --controller_label=${LABEL} \
+         > /dev/null &"
+  done
+}
+
+function require_confirmation_code() {
+  # Generate a 4 digit confirmation code.
+  readonly RANDOM_STRING="$(cat /dev/urandom | tr -dc '0-9' | fold -w 4 \
+    | head -n 1)"
+
+  read -p "$1 (Please type: [${RANDOM_STRING}]): " prompt
+
+  if [[ "${prompt}" != "${RANDOM_STRING}" ]]; then
+    echo 'Incorrect response.'
+    exit 1
+  fi
+}
+
+if [[ "$#" -eq 0 ]]; then
+  mbash::print_usage
+elif [[ "$1" = 'stop' ]]; then
+  shift
+  require_confirmation_code "Stop the controller?"
+  stop_controller $@
+elif [[ "$1" = 'start' ]]; then
+  shift
+  require_confirmation_code "Start the controller?"
+  start_controller $@
+  check_controller_running $@ || exit 0
+else
+  mbash::print_usage
+fi

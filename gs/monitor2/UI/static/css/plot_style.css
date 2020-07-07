@@ -1,0 +1,94 @@
+/**
+ * Copyright 2020 Makani Technologies LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+body {
+  font: 12px courier;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.0px;
+}
+
+.legend rect {
+  fill:white;
+  stroke:black;
+  opacity:0.0;
+}
+
+.legend-items {
+  font-size:10px;
+  font-family:sans-serif;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.overlay{
+    background-color:#EEE;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font-size:12px;
+  font-family:sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+.templink {
+  fill: none;
+  stroke: red;
+  stroke-width: 3px;
+}
+
+.ghostCircle.show{
+  display:block;
+}
+
+.ghostCircle, .activeDrag .ghostCircle{
+  display: none;
+}
+
+.d3_frame {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  width: 100%;
+  border: 1px solid;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}

@@ -1,0 +1,152 @@
+\documentstyle[12pt]{article}
+
+\pagestyle{plain}
+
+ \topmargin 0in  \headheight 0pt  \headsep 0pt  \raggedbottom
+ \oddsidemargin 0in 
+ \textheight 9.25in  \textwidth 6.0in 
+ \parskip 5pt plus 1pt minus 1pt
+ \def \baselinestretch {1.0}   % single spaced
+ \setlength {\unitlength} {1.0in}
+
+\begin{document}
+
+\def \ei    {{e^{i(\alpha x - \omega t)}}}
+\def \eiax  {{e^{- \alpha_i x}}}
+\def \eitax {{e^{-2\alpha_i x}}}
+
+\def \cwt {\cos (\,)}
+\def \swt {\sin (\,)}
+\def \cqwt {\cos^2 (\,)}
+\def \sqwt {\sin^2 (\,)}
+
+\def \thalf {{\textstyle \frac{1}{2}}}
+
+\def \d {\partial}
+
+\def \beqa {\begin{eqnarray*}}
+\def \eeqa {\end{eqnarray*}}
+
+\def \strut {\rule{0em}{2.0ex}}
+
+\beqa
+\alpha &=& \alpha_r + i \alpha_i  \\
+\omega &=& \omega_r
+\eeqa
+\beqa
+\cwt & \equiv & \cos( \alpha_r x - \omega_r t)  \\[0.25em]
+\swt & \equiv & \sin( \alpha_r x - \omega_r t)
+\eeqa
+\beqa
+u' \;=\; \Re \left[ (u_r + i u_i ) \, \ei \right] &=&
+  \left( u_r \cwt - u_i \swt \strut \right) \eiax \\[0.5em]
+v' \;=\; \Re \left[ (v_r + i v_i ) \, \ei \right] &=&
+  \left( v_r \cwt - v_i \swt \strut \right) \eiax \\[0.5em]
+p' \;=\; \Re \left[ (p_r + i p_i ) \, \ei \right] &=&
+  \left( p_r \cwt - p_i \swt \strut \right) \eiax
+\eeqa
+\beqa
+u'v' & = & \left( u_r v_r \cqwt \,+\, u_i v_i \sqwt \:-\:
+  (u_r v_i + u_i v_r) \swt \cwt \right) \eitax \\[0.5em]
+{u'}^2 & = & \left( u_r^2 \cqwt \,+\, u_i^2 \sqwt \:-\:
+  2 u_r u_i \swt \cwt \right) \eitax \\[0.5em]
+{v'}^2 & = & \left( v_r^2 \cqwt \,+\, v_i^2 \sqwt \:-\:
+  2 v_r v_i \swt \cwt \right) \eitax
+\eeqa
+\beqa
+\overline{ u'v' } &=& \thalf \left( u_r v_r + u_i v_i \strut \right)
+  \eitax \\[0.5em]
+\overline{{u'}^2} &=& \thalf \left( u_r^2 + u_i^2 \right)
+  \eitax \\[0.5em]
+\overline{{v'}^2} &=& \thalf \left( v_r^2 + v_i^2 \right)
+  \eitax
+\eeqa
+\beqa
+\frac{\d u'}{\d x}  &=&
+\Re \!\left[ (i \alpha_r - \alpha_i )
+        \left(u_r + i u_i \strut \right) \, \ei \right]
+\;=\; \left( -(\alpha_i u_r + \alpha_r u_i) \cwt
+        \:-\: (\alpha_r u_r - \alpha_i u_i) \swt \strut \right) \eiax \\[0.5em]
+%
+\frac{\d v'}{\d x}  &=&
+\Re \!\left[ (i \alpha_r - \alpha_i )
+        \left(v_r + i v_i \strut \right) \, \ei \right]
+\;=\; \left( -(\alpha_i v_r + \alpha_r v_i) \cwt
+        \:-\: (\alpha_r v_r - \alpha_i v_i) \swt \strut \right) \eiax \\[0.5em]
+%
+\frac{\d u'}{\d y}  &=&
+\Re \!\left[ \left(Du_r + i Du_i \strut \right) \, \ei \right]
+\;=\;  \left( Du_r \cwt - Du_i \swt \strut \right) \eiax \\[0.5em]
+\frac{\d v'}{\d y}  &=&
+\Re \!\left[ \left(Dv_r + i Dv_i \strut \right) \, \ei \right]
+\;=\;  \left( Dv_r \cwt - Dv_i \swt \strut \right) \eiax
+\eeqa
+\beqa
+\nabla^2 u' &=& -\frac{\d \omega'}{\d y}
+\;=\;  \left(-D\omega_r \cwt + D\omega_i \swt \strut \right) \eiax \\[0.5em]
+\nabla^2 v' &=& \;\; \frac{\d \omega'}{\d x}
+\;=\; \left( -(\alpha_i \omega_r + \alpha_r \omega_i) \cwt
+        \:-\: (\alpha_r \omega_r - \alpha_i \omega_i) \swt \strut \right) \eiax
+\eeqa
+\newpage
+
+\beqa
+Q &=& \int \thalf \left(\overline{{u'}^2 + {v'}^2} \right) \bar{u} \, dy \;=\;
+ \int {\textstyle \frac{1}{4}} 
+  \left( u_r^2 + u_i^2 + v_r^2 + v_i^2 \right) \bar{u} \, dy 
+          \;\; \eitax \\[0.75em]
+\frac{dQ}{dx} &=& \int \left( 
+  \overline{u' {\textstyle \frac{\d u'}{\d x}}} \:+\:
+  \overline{v' {\textstyle \frac{\d v'}{\d x}}}   \right) \bar{u} \, dy
+\;=\; \int \thalf \left[ 
+      - u_r ( \alpha_i u_r + \alpha_r u_i )
+  \:+\: u_i ( \alpha_r u_r - \alpha_i u_i ) \rule{0ex}{3ex} \right. \\
+& & \hspace{29.0ex} \left. \rule{0ex}{3ex}
+    -\: v_r ( \alpha_i v_r + \alpha_r v_i )
+  \:+\: v_i ( \alpha_r v_r - \alpha_i v_i ) \right] \bar{u} \, dy
+\;\; \eitax
+\eeqa
+\beqa
+\epsilon &=& \nu \left[
+      2 \overline{\textstyle \left( \frac{\d u'}{\d x} \right)^2 }
+\:+\: 2 \overline{\textstyle \left( \frac{\d v'}{\d y} \right)^2 }
+\:+\:   \overline{\textstyle \left( \frac{\d u'}{\d y}
+                                   +\frac{\d v'}{\d x} \right)^2 }  \right] \\
+%
+&=& \nu \left[ \rule{0ex}{3ex}
+      (\alpha_i u_r + \alpha_r u_i)^2
+\:+\: (\alpha_r u_r - \alpha_i u_i)^2
+\:+\: (Dv_r)^2 + (Dv_i)^2  \right. \\
+& & \hspace{3ex} \left. \rule{0ex}{3ex}
+\;+\; \thalf ( Du_r - \alpha_i v_r - \alpha_r v_i)^2
+\:+\: \thalf ( Du_i + \alpha_r v_r - \alpha_i v_i)^2  \right]
+\;\;\; \eitax
+\eeqa
+\beqa
+{\cal D}_x \;=\; \frac{\d}{\d x} \! \left\{ 
+ \overline{ u' \left[ p' + \thalf ( {u'}^2 + {v'}^2 ) \right] } 
+                     \right\} &=&
+\overline{ \textstyle \frac{\d u'}{\d x} 
+          \left[ p' + \thalf ( {u'}^2 + {v'}^2 ) \right] }  \:+\:
+\overline{ \textstyle  u' \left[ \frac{\d p'}{\d x}
+             + u' \frac{\d u'}{\d x} + v' \frac{\d v'}{\d x} \right] } \\
+&=&  \thalf \left[
+      - p_r ( \alpha_i u_r + \alpha_r u_i )
+  \:+\: p_i ( \alpha_r u_r - \alpha_i u_i ) \rule{0ex}{3ex} \right. \\
+& & \left. \hspace{2.5ex}
+      - u_r ( \alpha_i p_r + \alpha_r p_i )
+  \:+\: u_i ( \alpha_r p_r - \alpha_i p_i ) \rule{0ex}{3ex} \right]
+\;\; \eitax
+\eeqa
+\beqa
+\Pi_q \;=\; \nu \left( u' \nabla^2 u' \,+\, v' \nabla^2 v' \right) 
+&=& \thalf \, \nu \left[ -u_r D\omega_r - u_i D\omega_i
+ \:-\: v_r ( \alpha_i \omega_r + \alpha_r \omega_i )
+ \:+\: v_i ( \alpha_r \omega_r - \alpha_i \omega_i ) \rule{0ex}{3ex} \right]
+\eeqa
+
+\beqa
+\frac{dQ}{dx} &=& \int -\overline{u'v'} \, d\bar{u} 
+ \;-\; \int {\cal D}_x \, dy \;+\; \int \Pi_q \, dy
+\eeqa
+\end{document}

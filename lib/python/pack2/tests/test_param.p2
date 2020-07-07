@@ -1,0 +1,55 @@
+include "lib/python/pack2/tests/test_param_parent.p2";
+
+param TestConfigParams {
+  TestEnum enum_field;
+
+  uint8 uint8_field;
+  int8 int8_field;
+
+  uint16 uint16_field;
+  int16 int16_field;
+
+  ThrityTwoBitStruct struct32_field;
+
+  float32 float32_field;
+
+  string[17] string_field;
+
+  date date_field;
+}
+
+enum32 FooRevision {
+  kFooRevisionA = 0,
+  kFooRevisionB = 1,
+}
+
+param BaseConfigParams {
+  string[32] name;
+  int32 revision;
+}
+
+specialize(BaseConfigParams) FooConfigParams {
+  FooRevision revision;
+}
+
+// Test param for arrays.
+struct ArrayDatum {
+  string[31] name;
+  uint8 val;
+}
+
+param ArrayConfigParams {
+  ArrayDatum data[3];
+  uint8 udata[4];
+}
+
+struct DeepArrayDatum {
+  int32 p;
+  uint8 m[6];
+}
+
+param DeepArrayConfigParams {
+  int32 e;
+  uint32 x;
+  DeepArrayDatum s[10];
+}

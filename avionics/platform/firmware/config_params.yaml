@@ -1,0 +1,141 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+no_encoder: &NO_ENCODER
+  type: None
+  channel: 0
+  scale_factor: 0.0
+  zero_position: 0.0
+  min_encoder_value: 0
+  max_encoder_value: 0
+
+gsv2_01_a: !PlatformConfigParams
+  levelwind_shoulder:
+    type: Rha507Single
+    channel: 1
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position: -0.2805      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  perch_azi:
+    type: MagA550
+    channel: 0
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position: -0.4229      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  drum_pos:
+    type: MagA550
+    channel: 3
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  -2.0945     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  levelwind_wrist:
+    type: Rha507Single
+    channel: 4
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position: 0.2064       # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+gsv2_01_b: !PlatformConfigParams
+  levelwind_shoulder:
+    type: Rha507Single
+    channel: 1
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position: -2.2545      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  perch_azi:
+    type: MagA550
+    channel: 0
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position: -0.3273      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  drum_pos:
+    type: MagA550
+    channel: 3
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  -1.9026     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  levelwind_wrist:
+    type: Rha507Single
+    channel: 4
+    scale_factor: -7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position: 1.3838       # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+gsv2_02_a: !PlatformConfigParams
+  levelwind_shoulder:
+    type: Rha507Single
+    channel: 1
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position: -0.96723     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  perch_azi:
+    type: MagA550
+    channel: 0
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  0.60880     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  drum_pos:
+    type: MagA550
+    channel: 3
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  1.99341     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  levelwind_wrist:
+    type: Rha507Single
+    channel: 4
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position: -0.70056     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+gsv2_02_b: !PlatformConfigParams
+  levelwind_shoulder:
+    type: Rha507Single
+    channel: 1
+    scale_factor: 7.6699e-04    # 2 * pi / 8192.0 [rad/#].
+    zero_position:  0.60894     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  perch_azi:
+    type: MagA550
+    channel: 0
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  4.44835     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  drum_pos:
+    type: MagA550
+    channel: 3
+    scale_factor:  9.587380e-05 #  2 * math.pi / 2**16
+    zero_position:  2.9602      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 65536    # [counts]
+  levelwind_wrist:
+    type: Rha507Single
+    channel: 4
+    scale_factor: -7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position: 2.21478      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]

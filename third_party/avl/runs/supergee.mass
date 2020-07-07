@@ -1,0 +1,47 @@
+#-------------------------------------------------
+#  SuperGee 
+#
+#  Dimensional unit and parameter data.
+#  Mass & Inertia breakdown.
+#-------------------------------------------------
+
+#  Names and scalings for units to be used for trim and eigenmode calculations.
+#  The Lunit and Munit values scale the mass, xyz, and inertia table data below.
+#  Lunit value will also scale all lengths and areas in the AVL input file.
+Lunit = 0.0254 m
+Munit = 0.001  kg
+Tunit = 1.0    s
+
+#------------------------- 
+#  Gravity and density to be used as default values in trim setup (saves runtime typing).
+#  Must be in the unit names given above (m,kg,s).
+g   = 9.81
+rho = 1.225
+
+#-------------------------
+#  Mass & Inertia breakdown.
+#  x y z  is location of item's own CG.
+#  Ixx... are item's inertias about item's own CG.
+#
+#  x,y,z system here must be exactly the same one used in the .avl input file
+#     (same orientation, same origin location, same length units)
+#
+#  mass   x     y     z       Ixx   Iyy   Izz    Ixy  Ixz  Iyz
+#
+   58.0   3.34  12.0  1.05   4400   180   4580    ! right wing       
+   58.0   3.34 -12.0  1.05   4400   180   4580    ! left wing        
+   16.0  -5.2   0.0   0.0       0    80     80    ! fuselage pod
+   18.0  13.25  0.0   0.0       0   700    700    ! boom+rods
+   22.0  -7.4   0.0   0.0       0     0      0    ! battery
+    2.0  -2.5   0.0   0.0       0     0      0    ! jack
+    9.0  -3.8   0.0   0.0       0     0      0    ! RX
+    9.0  -5.1   0.0   0.0       0     0      0    ! rud servo
+    6.0  -5.9   0.0   0.0       0     0      0    ! ele servo
+    9.0   2.6   1.0   0.0       0     0      0    ! R wing servo
+    9.0   2.6  -1.0   0.0       0     0      0    ! L wing servo
+    2.0   1.0   0.0   0.5       0     0      0    ! wing connector
+    1.0   3.0   0.0   0.0       0     0      0    ! wing pins
+    6.0  29.0   0.0   1.0      70     2     72    ! stab
+    6.0  33.0   0.0   2.0      35    39      4    ! rudder
+    0.0  -8.3   0.0   0.0       0     0      0    ! nose wt.
+

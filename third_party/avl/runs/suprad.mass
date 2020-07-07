@@ -1,0 +1,81 @@
+#-------------------------------------------------
+#  Supra
+#
+#  Dimensional unit and parameter data.
+#  Mass & Inertia breakdown.
+#-------------------------------------------------
+
+#  Names and scalings for units to be used for trim and eigenmode calculations.
+#  The Lunit and Munit values will scale the mass, xyz, and inertia table data below.
+#  Lunit value will also scale all lengths and areas in the AVL input file.
+Lunit = 0.0254 m
+Munit = 0.001  kg
+Tunit = 1.0    s
+
+#------------------------- 
+#  Gravity and density to be used as default values in trim setup (saves runtime typing).
+#  Must be in the units given above.
+g   = 9.81
+rho = 1.225
+
+#-------------------------
+#  Mass & Inertia breakdown.
+#  x y z  is location of item's own CG.
+#  Ixx... are item's inertias about item's own CG.
+#
+#  x,y,z system here must be exactly the same one used in the AVL input file
+#     (same orientation, same origin location, same length units)
+#
+#  mass    x     y     z      Ixx    Iyy   Izz   [ Ixy  Ixz  Iyz ]
+#
+  12.0  -13.0    0.0   0.0       0      0      0        ! noseweight
+  6.25   34.0    0.0   0.0       0      0      0        ! tailweight
+  23.0   -9.5    0.0   0.0       0    200    200        ! nosecone
+  37.0   -8.5    0.0   0.0       0    400    400        ! servo tray
+  64.0    2.0    0.0   0.0       0    900    900        ! pod/pylon
+  25.0    3.0    0.0   0.0       0      0      0        ! wing mounting hardware
+  15.0    1.0    0.0   0.0       0      0      0        ! ballast tube
+  11.0    3.0    0.0   0.0       0      0      0        ! towhook
+  45.0   -6.5    0.0   0.0       0      0      0        ! tail servos
+  16.0   -9.0    0.0   0.0       0      0      0        ! RX Berg
+  90.0  -11.5    0.0   0.0       0      0      0        ! battery 2/3A
+  15.0   -5.0    0.0   0.0       0      0      0        ! fuse wiring
+   2.0   20.0    0.0   0.0       0    300    300        ! antenna
+  56.0   22.0    0.0   0.0       0  11000  11000        ! tailboom
+   3.8   16.0    0.0   0.0       0    900    900        ! stab pushrod
+   2.0   16.0    0.0   0.0       0    450    450        ! stab pushrod housing
+   6.7   19.0    0.0   0.0       0   1500   1500        ! rud. pushrod
+   1.4   19.0    0.0   0.0       0    400    400        ! rud. pushrod housing
+   3.5   39.0    0.0   0.0       0      0      0        ! V-mount
+  24.0   39.0    0.0   1.5     800      0    800        ! stab
+  18.0   45.0    0.0   4.5     200    200      0        ! rudder
+  21.0    4.7    5.0   2.0       0      0      0        ! RC servo
+  21.0    4.7   -5.0   2.0       0      0      0        ! LC servo
+  21.0    4.5   30.0   2.0       0      0      0        ! RT servo
+  21.0    4.5  -30.0   2.0       0      0      0        ! LT servo
+   5.1    6.3    6.0   2.0       0      0      0        ! RC RDS  
+   5.1    6.3   -6.0   2.0       0      0      0        ! LC RDS  
+   5.0    6.0   31.0   2.0       0      0      0        ! RT RDS  
+   5.0    6.0  -31.0   2.0       0      0      0        ! LT RDS  
+  10.0    3.9   15.0   2.0       0      0      0        ! R wing wiring
+  10.0    3.9  -15.0   2.0       0      0      0        ! L wing wiring
+  30.0    3.3   31.5   2.0       0      0      0        ! R joiner rod
+  30.0    3.3  -31.5   2.0       0      0      0        ! L joiner rod
+ 210.0    3.3    0.0   2.0   54000      0  54000        ! C spar
+ 146.0    3.8    0.0   2.0   45000   1200  46200        ! C foam
+ 100.0    4.8    0.0   2.0   27000    600  27000        ! C skin
+   3.0    7.0    0.0   2.0    7500      0   7500        ! C hinge
+  30.0    3.4   43.0   3.0    1500      0   1500        ! RM spar
+  45.0    3.7   43.0   3.0    1800    150   1800        ! RM foam
+  28.0    4.7   43.0   3.0    1200    100   1200        ! RM skin
+   1.0    6.5   43.0   3.0    2000      0   2000        ! RM hinge
+   3.0    3.5   59.0   5.0      40      0     40        ! RT spar
+   7.0    3.5   59.0   5.0      40      0     40        ! RT foam
+   5.0    4.7   60.0   5.0      40      0     40        ! RT skin
+  30.0    3.4  -43.0   3.0    1500      0   1500        ! LM spar
+  45.0    3.7  -43.0   3.0    1800    150   1800        ! LM foam
+  28.0    4.6  -43.0   3.0    1200    100   1200        ! LM skin
+   1.0    6.5  -43.0   3.0    2000      0   2000        ! LM hinge
+   3.0    3.5  -59.0   5.0      40      0     40        ! LT spar
+   7.0    3.5  -59.0   5.0      40      0     40        ! LT foam
+   5.0    4.6  -60.0   5.0      40      0     40        ! LT skin

@@ -1,0 +1,252 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+%YAML 1.2
+
+# Test Network Definition
+
+---
+
+aio_nodes:
+  - label_name: unknown
+    instances:
+      - name: unknown
+        ip: 254
+  - label_name: controller
+    instances: &CONTROLLERS
+      - name: controller_a
+        ip: 1
+      - name: controller_b
+        ip: 2
+      - name: controller_c
+        ip: 3
+  - label_name: flight_computer
+    instances: &FLIGHT_COMPUTERS
+      - name: fc_a
+        ip: 6
+      - &FC_B
+        name: fc_b
+        ip: 7
+      - &FC_C
+        name: fc_c
+        ip: 8
+  - label_name: host
+    instances: &HOST
+      - name: host
+        ip: 0
+  - label_name: motor
+    instances: &MOTORS
+      - name: motor_sbo
+        ip: 11
+      - name: motor_sbi
+        ip: 12
+      - name: motor_pbi
+        ip: 13
+      - name: motor_pbo
+        ip: 14
+  - label_name: recorder
+    instances: &RECORDERS
+      - &RECORDER_GS
+        name: recorder_gs
+        ip: 15
+      - &RECORDER_WING
+        name: recorder_wing
+        ip: 16
+unused_ips: [4, 5, 9, 10]
+next_ip: 17
+unknown_ip: 254
+
+q7s: &Q7S
+  [*CONTROLLERS]
+tms570s: &TMS570S
+  [*FLIGHT_COMPUTERS, *MOTORS]
+
+aio_messages:
+  - name: ControllerCommand
+    freq: 100
+    senders: [*HOST, *CONTROLLERS]
+    receivers: [*HOST, *MOTORS, *RECORDERS]
+  - name: FlightComputerSensor
+    freq: 10
+    senders: *FLIGHT_COMPUTERS
+    receivers: [*CONTROLLERS, *HOST, *RECORDERS]
+  - name: MotorStacking
+    freq: 1000
+    senders: *MOTORS
+    receivers: [*MOTORS, *RECORDERS]
+  - name: MotorStatus
+    freq: 100
+    senders: *MOTORS
+    receivers: [*CONTROLLERS, *RECORDERS]
+  - name: RecorderStatus
+    freq: 50
+    routes:
+      - senders: *RECORDERS
+        receivers: *HOST
+      - senders: *RECORDER_WING
+        receivers: *RECORDER_GS
+
+
+switch_configs:
+  - &CONFIG_CS_A
+    network_a: [[0, 27]]
+    network_b: []
+    unicast: [[0, 27]]
+    tms570: 24
+    mirror: 25
+    trunk:
+      ports: [18, 20, 22]
+  - &CONFIG_CS_B
+    network_a: []
+    network_b: [[0, 27]]
+    unicast: [18, 20, [22, 27]]
+    tms570: 24
+    mirror: 25
+    trunk:
+      ports: [18, 20, 22]
+  - &CONFIG_CS_GS_A
+    network_a: [[0, 27]]
+    network_b: []
+    unicast: [[0, 27]]
+    tms570: 24
+    mirror: 25
+    trunk:
+      ports: [18, 20, 22]
+  - &CONFIG_CS_GS_B
+    network_a: []
+    network_b: [[0, 27]]
+    unicast: [18, 20, [22, 27]]
+    tms570: 24
+    mirror: 25
+    trunk:
+      ports: [18, 20, 22]
+  - &CONFIG_AIO
+    network_a: [0, 2, 4, 5]
+    network_b: [1, 3, 4, 5]
+    unicast: [0, 2, 4, 5]
+    tms570: 5
+    mirror: 4
+  - &CONFIG_AIO_Q7
+    network_a: [0, 3, 4, 5]
+    network_b: [1, 3, 4, 5]
+    unicast: [0, 3, 4, 5]
+    tms570: 5
+    mirror: 3
+
+switches:
+  cs_a:
+    config: *CONFIG_CS_A
+    ports:
+      0: switches.fc_a.0
+      1: switches.fc_b.0
+      2: switches.fc_c.0
+      3: switches.recorder_wing.0
+      8: switches.motor_sbo.0
+      9: switches.motor_sbi.0
+      10: switches.motor_pbi.0
+      11: switches.motor_pbo.0
+      18: switches.cs_gs_a.18
+      22: switches.cs_gs_a.22
+      24: aio_nodes.cs_a
+  cs_b:
+    config: *CONFIG_CS_B
+    ports:
+      0: switches.fc_a.1
+      1: switches.fc_b.1
+      2: switches.fc_c.1
+      3: switches.recorder_wing.1
+      8: switches.motor_sbo.1
+      9: switches.motor_sbi.1
+      10: switches.motor_pbi.1
+      11: switches.motor_pbo.1
+      18: switches.cs_gs_b.18
+      22: switches.cs_gs_b.22
+      24: aio_nodes.cs_b
+  cs_gs_a:
+    config: *CONFIG_CS_GS_A
+    ports:
+      0: switches.host.0
+      3: switches.recorder_gs.0
+      18: switches.cs_a.18
+      22: switches.cs_a.22
+  cs_gs_b:
+    config: *CONFIG_CS_GS_B
+    ports:
+      0: switches.host.1
+      3: switches.recorder_gs.1
+      18: switches.cs_b.18
+      22: switches.cs_b.22
+  fc_a:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.0
+      1: switches.cs_b.0
+      4: aio_nodes.controller_a
+      5: aio_nodes.fc_a
+  fc_b:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.1
+      1: switches.cs_b.1
+      4: aio_nodes.controller_b
+      5: aio_nodes.fc_b
+  fc_c:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.2
+      1: switches.cs_b.2
+      4: aio_nodes.controller_c
+      5: aio_nodes.fc_c
+  host:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_gs_a.0
+      1: switches.cs_gs_b.0
+      5: aio_nodes.host
+  motor_sbo:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.8
+      1: switches.cs_b.8
+      5: aio_nodes.motor_sbo
+  motor_sbi:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.9
+      1: switches.cs_b.9
+      5: aio_nodes.motor_sbi
+  motor_pbi:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.10
+      1: switches.cs_b.10
+      5: aio_nodes.motor_pbi
+  motor_pbo:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.11
+      1: switches.cs_b.11
+      5: aio_nodes.motor_pbo
+  recorder_gs:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_gs_a.3
+      1: switches.cs_gs_b.3
+      4: aio_nodes.recorder_gs
+  recorder_wing:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.3
+      1: switches.cs_b.3
+      4: aio_nodes.recorder_wing

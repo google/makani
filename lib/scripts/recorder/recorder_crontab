@@ -1,0 +1,5 @@
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+
+*/15 * * * * /apps/lib/scripts/recorder/clean_recorder
+*/10 * * * * /apps/lib/scripts/recorder/dump_recorder_stats
+*/1  * * * * /apps/startup

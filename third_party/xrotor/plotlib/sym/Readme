@@ -1,0 +1,67 @@
+/*********************************************************************** 
+    Module:  Readme
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+    Report problems to:    guppy@maine.com 
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+
+This directory contains programs and routines for creating, 
+modifying, and using vector fonts.
+
+
+PROGRAM SYMGEN is an interactive program for creating or modifying 
+font description files XXXX.FNT, and is invoked with
+
+   % make symgen             (requires ../libPlt.a)
+   % symgen XXXX
+
+The header of symgen.f has a description of the format of
+a XXXX.FNT file, although this is of no concern to the user.
+SYMGEN can create an include file XXXX.INC which has the
+font encoding placed into Fortran DATA statements.  XXXX.INC
+is then compiled with a Versaplot SYMBOL-type routine which
+is used in applications. 
+
+Four sample databases, include files, and application routines 
+already exist.  The application routines are in ../plt_font.f:
+
+ CHAR.FNT  CHAR.INC   SUBR. PLCHAR   (Upper,lower case letters, WYSIWYG)
+ SLAN.FNT  SLAN.INC   SUBR. PLSLAN   (Upper,lower case slanted letters)
+ MATH.FNT  MATH.INC   SUBR. PLMATH   (Latex-like Greek symbols, exponents)
+ SYMB.FNT  SYMB.INC   SUBR. PLSYMB   (Versaplot plotting symbols)
+
+    also available:   SUBR. PLNUMB   (Whole floating-point numbers)
+
+One can generate analogous files and plot routines for any 
+custom font, e.g.
+
+ USER.FNT  USER.INC   SUBR. PLUSER
+
+
+PROGRAM TEST plots the complete CHAR, SLAN, MATH, and SYMB fonts,
+and also plots sample character strings for examination.
+
+   % make test
+   % test
+                             
+Mark Drela
+10 March 96
+
+

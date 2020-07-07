@@ -1,0 +1,7 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+readonly CROSSTOOL_OPTS="--crosstool_top=@bazel_tools//tools/cpp:default-toolchain"
+
+bazel run @com_github_bazelbuild_buildtools//buildifier ${CROSSTOOL_OPTS} -- "$@"

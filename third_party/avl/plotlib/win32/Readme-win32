@@ -1,0 +1,16 @@
+
+Make the plotlib under Windoze:
+
+  You need Visual C and either the Compaq Visual Fortran compiler or the Intel
+  Fortran compiler.  You should check the options in Makefile.NT to ensure that
+  they match your system.  The supplied files match the Intel Fortran compiler.
+
+  Compile and link with command in DOS window: 
+  C:\Xfoil\plotlib: cd win32
+  C:\Xfoil\plotlib\win32: nmake /f Makefile.NT
+
+  This places all the .obj files in the win32 directory and copies libPltxx.lib
+  to the parent plotlib directory.
+
+  Alternatively you could load all the files into a Visual Studio project and
+  create the library that way.

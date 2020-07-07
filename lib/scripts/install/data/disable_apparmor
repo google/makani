@@ -1,0 +1,3 @@
+#!/bin/bash
+
+apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump

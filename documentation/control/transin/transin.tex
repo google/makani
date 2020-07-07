@@ -1,0 +1,538 @@
+\documentclass{article}
+\usepackage{verbatim}
+\newcommand{\uwind}{u_{\textrm{wind}}}
+\newcommand{\vwind}{v_{\textrm{wind}}}
+\newcommand{\wwind}{w_{\textrm{wind}}}
+\newcommand{\thetam}{\theta_{\textrm{motor}}}
+\newcommand{\rcmd}{r_{\textrm{cmd}}}
+\newcommand{\drcmd}{{\dot r}_{\textrm{cmd}}}
+\newcommand{\ddrcmd}{{\ddot r}_{\textrm{cmd}}}
+\newcommand{\gammacmd}{\gamma_{\textrm{cmd}}}
+\newcommand{\acmd}{a_{\textrm{cmd}}}
+\newcommand{\ncmd}{n_{\textrm{cmd}}}
+
+\newcommand{\radius}{\ell}
+\newcommand{\dradius}{\dot \radius}
+\newcommand{\radiuscmd}{\radius_\textrm{cmd}}
+\newcommand{\dradiuscmd}{\dot \radius_\textrm{cmd}}
+\newcommand{\ddradius}{\ddot \radius}
+\newcommand{\ddradiuscmd}{\ddot \radius_\textrm{cmd}}
+\newcommand{\omegaradius}{\omega_\radius}
+\newcommand{\zetaradius}{\zeta_\radius}
+
+\newcommand{\xturnstart}{x_{\textrm{turn,start}}}
+\newcommand{\xturnstop}{x_{\textrm{turn,stop}}}
+\newcommand{\chiturn}{\chi_{g,\textrm{turn}}}
+\newcommand{\rturn}{l_{\textrm{turn}}}
+
+\newcommand{\cchi}{c_\chi}
+\newcommand{\cgamma}{c_\gamma}
+\newcommand{\ceta}{c_\eta}
+\newcommand{\cphi}{c_\phi}
+\newcommand{\ctheta}{c_\theta}
+\newcommand{\cpsi}{c_\psi}
+\newcommand{\calpha}{c_\alpha}
+\newcommand{\cbeta}{c_\beta}
+
+\newcommand{\thetamotor}{\theta_{\textrm{motor}}}
+
+
+\newcommand{\Fcmd}{F_\textrm{cmd}}
+\newcommand{\Fcmdnom}{F_\textrm{cmd,0}}
+\newcommand{\Fcmdmin}{F_\textrm{cmd,min}}
+\newcommand{\Fcmdmax}{F_\textrm{cmd,max}}
+\newcommand{\Ftether}{F_{\textrm{tether}}}
+\newcommand{\Ftetherx}{F^b_{\textrm{tether},x}}
+\newcommand{\Ftetherz}{F^b_{\textrm{tether},z}}
+\newcommand{\tensioncmd}{F_\textrm{tether,cmd}}
+\newcommand{\tensioncmdmin}{F_\textrm{tether,cmd,min}}
+
+\newcommand{\schi}{s_\chi}
+\newcommand{\sgamma}{s_\gamma}
+\newcommand{\seta}{s_\eta}
+\newcommand{\sphi}{s_\phi}
+\newcommand{\stheta}{s_\theta}
+\newcommand{\spsi}{s_\psi}
+\newcommand{\salpha}{s_\alpha}
+\newcommand{\sbeta}{s_\beta}
+
+\newcommand{\ycmd}{y_\textrm{cmd}}
+\newcommand{\dycmd}{\dot y_\textrm{cmd}}
+
+\newcommand{\alphacmd}{\alpha_\textrm{cmd}}
+
+\newcommand{\phicmd}{\phi_\textrm{cmd}}
+\newcommand{\phicmdmin}{\phi_\textrm{cmd,min}}
+\newcommand{\phicmdmax}{\phi_\textrm{cmd,max}}
+\newcommand{\thetacmd}{\theta_\textrm{cmd}}
+\newcommand{\psicmd}{\psi_\textrm{cmd}}
+\newcommand{\dpsicmd}{\dot \psi_\textrm{cmd}}
+
+\newcommand{\pcmd}{p_\textrm{cmd}}
+\newcommand{\qcmd}{q_\textrm{cmd}}
+\newcommand{\rcmd}{r_\textrm{cmd}}
+
+\newcommand{\Mmotor}{M_\textrm{motor}}
+\newcommand{\Nmotor}{N_\textrm{motor}}
+
+\newcommand{\mtether}{m_\textrm{tether}}
+
+\newcommand{\sat}{\textrm{sat}}
+
+\usepackage{amsmath}
+\usepackage{tikz}
+
+
+\usetikzlibrary{arrows}
+
+
+\tikzstyle{block} = [draw, fill=blue!20, rectangle,
+    minimum height=3em, minimum width=6em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = []
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\begin{document}
+
+\begin{table}
+\centering
+\caption{Notation}
+\begin{tabular}{|l|l|l|}
+\hline
+Symbol & Meaning & Units\\
+\hline
+$x,y,z$ & Components of kite position in trans-in coordinates & m \\
+$\uwind,\vwind, \wwind$ & Components of the wind vector in trans-in coordinates & m/s\\
+$p,q,r$ & Body resolved roll, pitch and yaw rate. & m/s \\
+$V_g$ & Inertial velocity vector & m/s \\
+$\gamma_g$ & Inertial climb angle & rad \\
+$\chi_g$ & Inertial course angle & rad \\
+$V$ & Airspeed & m/s \\
+$\gamma$ & Aerodynamic climb angle & rad \\
+$\chi$ & Aerodynamic course angle & rad \\
+$\radius$ & Radial position & m \\
+$\eta$ & Elevation angle & rad \\
+$\gamma_t$ & Tangent climb angle & rad \\
+$m$ & Kite mass & kg \\
+$\mtether$ & Tether mass & kg \\
+$\bar q$ & Dynamic pressure at the kite & Pa \\
+$\thetamotor$ & Pitch angle of thrust line to body x axis & rad \\
+$\phi$ & Roll angle & rad \\
+$\theta$ & Pitch angle & rad \\
+$\psi$ & Yaw angle & rad \\
+$\Ftether$ & Tether force vector & N \\
+\hline
+\end{tabular}
+\end{table}
+The functions $\sin, \cos,$ and $\tan$ of an angle $a$ are abbreviated:
+\[
+s_a = \sin(a), \quad c_a = \cos(a), \quad t_a = \tan(a).
+\]
+Rotation matrices around the primary axes are defined by:
+\begin{equation*}
+R_x(\phi) = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & \cphi & \sphi \\
+0 & -\sphi & \cphi
+\end{bmatrix}, \:
+R_y(\theta) = \begin{bmatrix}
+\ctheta & 0 & -\stheta \\
+0 & 1 & 0 \\
+\stheta & 0 & \ctheta
+\end{bmatrix}, \:
+R_z(\psi) = \begin{bmatrix}
+\cpsi & \spsi & 0 \\
+-\spsi & \cpsi & 0 \\
+0 & 0 & 1
+\end{bmatrix}.
+\end{equation*}
+The matrix which rotates a vector from a frame ($a$) to a frame ($b$)
+is denoted $R_a^b$.
+
+\section{Kinematics and Conventions}
+The trans-in frame is defined as having its origin at the
+ground-station ($g$-frame) origin.  The $z$ axis of the trans-in frame
+points down, and the $x$ axis points away from the kite at the point
+where trans-in begins.  The kite's attitude can be expressed as a
+rotation between the trans-in frame ($t$) and the body-frame ($b$).
+This can also be expressed in terms of Euler angles:
+\begin{eqnarray}
+R_t^b &=& R_x(\phi) R_y(\theta) R_z(\psi) \\
+&=& \begin{bmatrix}
+\ctheta \cpsi & \ctheta \spsi & -\stheta \\
+(-\cphi\spsi + \sphi \stheta \cpsi) & (\cphi\cpsi + \sphi\stheta\spsi) & \sphi \ctheta \\
+(\sphi\spsi + \cphi \stheta \cpsi) & (-\sphi\cpsi + \cphi \stheta \spsi) & \cphi\ctheta
+\end{bmatrix}.\notag
+\end{eqnarray}
+
+The kite's velocity can be written in terms of its velocity $V_g$, a
+geometric course angle $\chi_g$, and a geometric climb angle $\gamma_g$:
+\begin{eqnarray}
+\dot x &=& V_g \cos(\gamma_g) \cos(\chi_g), \\
+\dot y &=& V_g \cos(\gamma_g) \sin(\chi_g), \\
+\dot z &=& -V_g \sin(\gamma_g).
+\end{eqnarray}
+It can also be written in terms of the airspeed ($V$), aerodynamic
+course angle ($\chi$), aerodynamic climb angle ($\gamma$) and the wind
+components:
+\begin{eqnarray}
+\dot x &=& V \cgamma \cchi + \uwind, \\
+\dot y &=& V \cgamma \schi + \vwind, \\
+\dot z &=& -V \sgamma + \wwind.
+\end{eqnarray}
+The relative velocity can be written in terms of the airspeed,
+angle-of-attack ($\alpha$) and angle-of-sideslip ($\beta$):
+\begin{equation}
+\begin{bmatrix}
+\dot x - \uwind \\
+\dot y - \vwind \\
+\dot z - \wwind
+\end{bmatrix} = R_b^t \begin{bmatrix}
+V \calpha \cbeta \\
+V \sbeta \\
+V \salpha \cbeta\end{bmatrix}.
+\end{equation}
+
+The current trans-in controller implementation makes use of
+cylindrical coordinates in terms of a radial coordinate ($\radius$) and
+elevation angle ($\eta$):
+\begin{equation}
+x = - \radius \ceta, \qquad z = - \radius \seta.
+\end{equation}
+From this we have:
+\begin{eqnarray}
+\dradius &=& \frac{x \dot x + z \dot z}\radius =
+ -V\ceta\cchi\cgamma + V \seta \sgamma - \ceta \uwind - \seta \wwind \\
+&=& -V_g\ceta\cos(\chi_g)\cos(\gamma_g) + V_g \seta \sin(\gamma_g)\\
+\radius \dot \eta &=& \frac{ x \dot z - \dot x z}\radius =
+V\ceta\sgamma + V \seta\cgamma\cchi
+-\ceta\wwind + \seta\uwind.
+\end{eqnarray}
+
+\subsection{Frequent Approximations}
+This sections lists approximations that are used in the controller
+derivations below.
+\begin{description}
+\item[A1.] $\vwind \approx 0$.  This relies on the trans-in frame $x$
+  axis being pointed into the wind, and there being limited change in
+  wind direction.
+\item[A2.] $\wwind \approx 0$.  This assumption treats updrafts and
+  downdrafts as disturbances.
+\end{description}
+The following assumptions are made after the initial pitch-forward is
+complete.
+\begin{description}
+\item[A3.] $\alpha, \beta, \psi, \phi$ are all small angles.
+\item[A4.] $\theta \approx \gamma + \alpha$.  In outer loop
+  calculations this is sometimes simplified to $\theta \approx \gamma$.
+  This relies on the fact that:
+\begin{eqnarray}
+-\sgamma &=&
+-\stheta\calpha\cbeta + \sphi\ctheta\sbeta + \cphi\ctheta\cbeta\salpha \\
+&\approx& -\stheta\calpha + \ctheta\salpha = \sin(\alpha - \theta),
+\end{eqnarray}
+which approximates $\phi$ and $\beta$ as small angles.
+\item[A5.] $V\sbeta \approx \dot y - V\ctheta\spsi$, which follows
+  from (A1) and (A3):
+\begin{eqnarray}
+\frac{\dot y}V &=& \ctheta \calpha \cbeta \spsi +
+(\cphi\cpsi + \sphi\stheta\spsi)\sbeta + \\
+&& (-\sphi\cpsi + \cphi\stheta\spsi)\cbeta\salpha + \frac{\vwind}V\\
+&\approx& \ctheta \spsi + \sbeta.
+\end{eqnarray}
+\end{description}
+
+\subsection{Approximating Aerodynamic Climb Angle}
+The trans-in controller approximates the aerodynamic climb angle $\gamma$ via:
+\begin{equation}
+\hat \gamma = \sin^{-1}\left(-\frac{\dot z}{V}\right).
+\end{equation}
+This uses assumption (A2).  Here the airspeed is derived from the
+Pitot tube's dynamic pressure port and the vertical velocity is
+derived from inertial sensors fused with GPS.
+
+
+\section {Attitude Control}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{attitude_loop.png}
+\caption{Block diagram for the longitudinal outer loop.  Not shown:
+  integrator saturations, integrator holds, and pitch forward logic.}
+\end{figure}
+The attitude controller receives roll, pitch and yaw command
+($\phicmd$, $\thetacmd$, and $\psicmd$ resp.).  This is resolved into
+a commanded attitude:
+\begin{equation}
+R_t^c := R_x(\phicmd) R_y(\thetacmd) R_z(\psicmd),
+\end{equation}
+where $\thetacmd = \gamma + \alphacmd.$ This is used to calculate
+a rotation axis:
+\begin{equation}
+R^c_b = R_t^c R_b^t = \exp([-a_{bc} \times]).
+\end{equation}
+\subsection{Pitch Forward Manuver}
+The objective of the pitch-forward manuver attempts to orient the kite
+so as to break stall while controlling the pitch rate.  The target
+pitch angle is $\gamma$.  The desired change in pitch
+angle is calculated as $\Delta \theta_0 = \gamma - \theta$ at the
+moment that trans-in begins.The duration of the pitch-forward $T$ is
+set to:
+\begin{equation}
+T = \textrm{max}\left(
+\frac{-2 \Delta\theta_0}{q_{\textrm{max}}},
+\sqrt{\frac{-2 \pi \Delta\theta_0}{\dot q_{\textrm{max}}}}
+ \right)
+\end{equation}
+This duration enforces either a maximum commanded pitch rate (when
+$\Delta \theta_0$ is very negative) or a maximum pitch acceleration.
+If $\Delta \theta_0$ is greater than a threshold, $T$ is taken to be zero.
+
+A pitch and pitch rate trajectory are generated to be tracked:
+\begin{eqnarray}
+\thetacmd(t) &=& \theta_0 + \frac{\Delta\theta_0}{T} \left (
+t - \frac{T}{2\pi} \sin\left(\frac{2\pi}T t\right)
+\right), \\
+\qcmd(t) &=& \frac{\Delta\theta_0}{T} \left(1 - \cos\left(\frac{2 \pi}T t\right)\right).
+\end{eqnarray}
+Here $t = 0$ at the beginning of trans-in, $\theta_0$ is the initial
+pitch attitude estimate.  These commands are cross-faded to the outer
+loop commands $t$ range from $\frac{T}2$ to $T$.
+
+\subsection{Longitudinal Attitude Control}
+The longitudinal controller is defined by:
+\begin{eqnarray}
+\dot i_\alpha &=& \alphacmd - \alpha \\
+\Mmotor &=& K_{\Mmotor ay} (\hat y \cdot a_{bc}) + K_{\Mmotor q}(\qcmd - q) + K_{\Mmotor i_\alpha} i_\alpha,\\
+\delta_e &=& k_{\delta_e\alphacmd} \alphacmd + K_{\delta_e ay} (\hat y \cdot a_{bc}) + K_{\delta_e q}(\qcmd - q) + K_{\delta_e i_\alpha} i_\alpha.
+\end{eqnarray}
+The integrator is held at zero until the following
+conditions are met:
+\begin{enumerate}
+\item The pitch-forward is complete.
+\item The airspeed is above a minimum threshold.
+\item The angle-of-attack is below a threshold.
+\end{enumerate}
+The integrator is also saturated.
+\subsection{Lateral Attitude Control}
+The lateral controller is defined by:
+\begin{eqnarray}
+\dot i_{ax} &=& \hat x \cdot a_{bc}, \\
+\Nmotor &=& K_{\Nmotor a} (\hat z \cdot a_{bc}) + K_{\Nmotor r}(\rcmd - r), \\
+\delta_a &=& K_{\delta_a ax} (\hat x \cdot a_{bc})
++ K_{\delta_a az} (\hat z \cdot a_{bc})
++ K_{\delta_a p}(\pcmd - p)\\
+&&+ K_{\delta_a r}(\rcmd - r)
++ K_{\delta_a i_{ax}} i_{ax}\notag\\
+\delta_r &=& K_{\delta_r ax} (\hat x \cdot a_{bc})
++ K_{\delta_r az} (\hat z \cdot a_{bc})
++ K_{\delta_r p}(\pcmd - p)\\
+&&+ K_{\delta_r r}(\rcmd - r)
++ K_{\delta_r i_{ax}} i_{ax}.\notag
+\end{eqnarray}
+During the pitch-forward, $K_{\delta_a ax}, K_{\delta_a az},
+K_{\delta_r ax},$ and $K_{\delta_r az}$ are held at zero.  The
+integrator is held at zero until the following conditions are met:
+\begin{enumerate}
+\item The pitch-forward is complete.
+\item The airspeed is above a minimum threshold.
+\item The angle-of-attack is below a threshold.
+\end{enumerate}
+The integrator is also saturated.
+
+\section{Lateral Control}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{lateral_outer_loop.png}
+\caption{Block diagram for the lateral outer loop.  Not shown:
+  low airspeed logic and dependence of $\omega_y$ on $V$.}
+\end{figure}
+
+The lateral position and velocity errors are used to calculate a
+desired lateral acceleration:
+\begin{eqnarray}
+\acmd &=& \omega_y^2 (\ycmd - y) + 2 \zeta_y \omega_y (\dycmd - \dot y),
+\end{eqnarray}
+where $\omega_y = \min\left(V / \ell_y,
+\omega_{y,\textrm{min}}\right)$ and $\zeta_y$ specify a desired
+natural frequency and damping ratio for the position response.  The
+reference length $\ell_y$ captures the fact that greater turn
+authority is available when airspeed is higher and may be required if
+ground speed is also increased (e.g. in low wind flights). The expected
+lift is computed from the current aerodynamic climb angle assuming a
+steady-state climb:
+\begin{eqnarray}
+L_\textrm{expected} &\approx& W \cgamma,
+\end{eqnarray}
+where $W = (m + \mtether) g$, and this is used to compute the roll-angle command:
+\begin{eqnarray}
+\phicmd &=& \sat\left(\frac{m\acmd}{W \cgamma}, \phicmdmin, \phicmdmax\right).
+\end{eqnarray}
+
+In addition to the roll command, a feed-forward yaw command
+($\psicmd$) is applied:
+\begin{equation}
+\psicmd = \sin^{-1}\left(\frac{\dycmd}{V\cgamma}\right),
+\end{equation}
+based on approximations (A4) and (A5).
+
+For turn coordination, a feed-forward yaw-rate is applied:
+\begin{equation}
+\dpsicmd = \frac{g \cgamma}V \tan(\phicmd).
+\end{equation}
+This is based on Stevens and Lewis, Equation 3.6-7 making the
+approximation that $\gamma \approx \theta$.  Assuming zero roll and
+pitch rate, this command is mixed into body-rate commands (see Stevens and Lewis Eq 1.3-21):
+\begin{eqnarray}
+\pcmd &=& -\sin(\gamma) \dpsicmd \\
+\rcmd &=& \cos(\gamma) \dpsicmd,
+\end{eqnarray}
+again using the approximation $\theta \approx \gamma$.
+
+
+\section{Longitudinal Outer Loop}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{longitudinal_outer_loop.png}
+\caption{Block diagram for the longitudinal outer loop.  Not shown:
+  tension control and low airspeed logic.}
+\end{figure}
+
+The objectives of the controller, in order of priority are:
+\begin{enumerate}
+\item[(a)] Command angle-of-attack within limits.
+\item[(b)] Maintain airspeed above a minimum threshold.
+\item[(c)] Regulate the radial position $\radius$ to a command $\radiuscmd$.
+\item[(d)] Ensure sufficient tension is applied to cause the
+  transition to crosswind flight.
+\end{enumerate}
+
+The longitudinal outer loop is designed based on the kinematics of the
+kite and the point mass model of the kite dynamics:
+\begin{eqnarray}
+m V \dot \gamma &\approx& T(V) \sin(\alpha + \thetam) + \bar q A C_L - mgc_\gamma - \Ftetherz,\\
+m \dot V &\approx& T(V) \cos(\alpha + \thetam) - \bar q A C_D - mg \sgamma - \Ftetherx.
+\end{eqnarray}
+The force balance here is resolved in the wind frame and $R_b^w
+\approx I$ is used based on assumption (A3).
+
+
+
+\subsection{Radial Position and Aerodynamic Climb Angle Control}
+The lateral controller assumes that $\chi \approx 0$ and $\chi_g
+\approx 0$ so that:
+\begin{equation}
+\begin{bmatrix}
+m V \dot \gamma\\
+m\dot V
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos(\gamma_g - \gamma) & \sin(\gamma_g - \gamma) \\
+-\sin(\gamma_g - \gamma) & \cos(\gamma_g - \gamma)
+\end{bmatrix}
+\begin{bmatrix}
+m V_g \dot \gamma_g\\
+m\dot V_g
+\end{bmatrix}
+\end{equation}
+For radial control we assume that $\dot V \approx 0$.
+
+The trans-in controller attempts to enforce a smooth approach the
+tether sphere by commanding:
+\begin{eqnarray}
+\dradiuscmd &=& \frac{\omegaradius}{2\zetaradius}(\radiuscmd - \radius),\\
+\ddradius &=& 2 \zetaradius \omegaradius (\dradiuscmd - \dradius),
+\end{eqnarray}
+where $\omegaradius$ and $\zetaradius$ are the desired natural frequency and
+damping ratio of the response.
+
+
+The steady-state airspeed of the kite is determined primarily by the
+thrust level $T(V)$ and the aerodynamic climb angle ($\gamma$).  To
+maintain sufficient airspeed, the controller transforms the desired
+radial velocity into a desired aerodynamic climb angle, which is
+saturated.  Approximating $\chi \approx 0$ yields:
+\begin{eqnarray}
+\dradius &\approx& -V \ceta \cgamma + V \seta \sgamma  - \ceta \uwind - \seta \wwind\\
+&=& -V \sin(\gamma_t - \gamma) - \ceta \uwind - \seta \wwind,
+\end{eqnarray}
+where $\gamma_t = \frac{\pi}2 - \eta$ is the tangent climb angle.
+From this we take:
+\begin{eqnarray}
+\gammacmd &=& \gamma_t + \sin^{-1}\left(\frac{\dradiuscmd - \dradius}V 
+- \sin(\gamma_t - \gamma)\right).
+\end{eqnarray}
+This is then used to calculate a normal acceleration command:
+\begin{equation}
+\ncmd = 2 \zetaradius \omegaradius V (\gammacmd - \gamma) - (\ell \dradius)^2 / \radiuscmd / cos(\gamma_t - \gamma).
+\end{equation}
+Please see comments in \begin{tt}control/trans\_in/trans\_in\_longitudinal.c\end{tt}
+for more detailed analysis.
+
+
+\subsection{Tension Control}
+An additional tether tension command:
+\begin{equation}
+\tensioncmd = \tensioncmdmin
++ \max\left (0, \bar q - \frac{1}2 \rho V_{\textrm{min}}^2\right) AC_{L_{\textrm{max}}}
+\end{equation}
+is applied if the conditions:
+\begin{itemize}
+\item The radial position error, $\radiuscmd - \radius$, is sufficiently small.
+\item The elevation angle, $\eta$, exceeds a threshold.
+\end{itemize}
+both hold.  Otherwise, $\tensioncmd = \Ftetherz$.
+
+
+\subsection{Normal Force Control}
+The normal force control attempts to generate a force:
+\begin{equation}
+\Fcmd = m \ncmd + \tensioncmd - \Ftetherz
+\end{equation}
+along the negative wind z-axis (i.e. in the direction that lift acts).
+
+Given a normal acceleration command $\ncmd$ and tension command
+$\tensioncmd$, the acceleration control computes a desired
+angle-of-attack and flap command.  A point-mass model of the kite is
+used to compute the minimum and maximum normal forces that can be expected:
+\begin{flalign}
+\Fcmdnom =&\: \bar q A C_{L_0} - \Ftetherz - mg\cgamma + T(V) \sin(\thetamotor),\\
+\Fcmdmin =&\: \Fcmdnom + (\bar q A C_{L_\alpha} + T(V) \cos(\thetamotor)) \alpha_{\textrm{min}} + q A C_{L_{\delta_f}} \delta_{f,\textrm{max}},\\
+\Fcmdmax =&\: \Fcmdnom + (\bar q A C_{L_\alpha} + T(V) \cos(\thetamotor)) \alpha_{\textrm{max}}+ q A C_{L_{\delta_f}} \delta_{f,\textrm{max}}.
+\end{flalign}
+We then take:
+\begin{eqnarray}
+\alphacmd &=&
+\frac{\Fcmd - \Fcmdmin}{\Fcmdmax - \Fcmdmin} \alpha_{\textrm{cmd,max}}
++\frac{\Fcmdmax - \Fcmd}{\Fcmdmax - \Fcmdmin} \alpha_{\textrm{cmd,min}}, \\
+\delta_f &=&
+\frac{\Fcmd - \Fcmdmin}{\Fcmdmax - \Fcmdmin} \delta_{f,\textrm{max}}
++\frac{\Fcmdmax - \Fcmd}{\Fcmdmax - \Fcmdmin} \delta_{f,\textrm{min}},
+\end{eqnarray}
+with $\Fcmd$ saturated between $[\Fcmdmin, \Fcmdmax]$.
+
+A feed-forward pitch rate is calculated based on desiring $\dot \alpha
+\approx q - \dot \gamma \approx 0$.  This is computed as:
+\begin{equation}
+\qcmd = \frac{\Fcmdnom + (q A C_{L_\alpha} + T(V) \cos(\thetamotor)) \alphacmd + q A C_{L_{\delta_f}} \delta_f}{mV}.
+\end{equation}
+
+
+
+%% \section{Turn Control}
+%% {\bf TODO}
+%% The turn starts at $\xturnstart$ and ends at $\xturnstop$:
+%% \begin{equation}
+%% \xturnstop = \xturnstart + \rturn \sin(|\chiturn|).
+%% \end{equation}
+%% \begin{equation}
+%% \ycmd = \begin{cases}
+%% \tan(\chiturn)(x - \xturnstop) + \rturn d(1-\cos(\chiturn)) & x > \xturnstop
+%% & \xturnstop \geq x > \xturnstart\\
+%% 0 & x < \xturnstart
+%% \end{cases}
+%% \end{equation}
+
+
+\end{document}

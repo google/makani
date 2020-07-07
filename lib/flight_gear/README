@@ -1,0 +1,14 @@
+Set up FlightGear on Windows:
+
+1. Download and install FlightGear 3.4.0.
+2. Install Makani FlightGear files in "${MAKANI_HOME}/lib/flight_gear":
+   sudo cp -r w7 "${FLIGHT_GEAR_HOME}/Aircraft/"
+   sudo cp with_tether_scenario.xml "${FLIGHT_GEAR_HOME}/AI/"
+   sudo cp wing_and_tether_prot.xml "${FLIGHT_GEAR_HOME}/Protocol/"
+3. Connect to the AIO network, set the IPv4 address to 192.168.4.130.
+   Note this value corresponds to what's defined in lib/scripts/mbash.sh.
+   Subnet mask should be 255.255.0.0.
+4. Disable firewall.
+5. Run run_flight_gear.bat.
+6. Run the simulator with "run_sim -f" on another computer connected to
+   the same network.

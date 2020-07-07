@@ -1,0 +1,9 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 ShortStackHardware {
+  Rev01 = 0,
+}
+
+specialize(SerialParams) ShortStackSerialParams {
+  ShortStackHardware hardware_revision;
+}

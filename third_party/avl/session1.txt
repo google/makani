@@ -1,0 +1,96 @@
+
+    Typical AVL session keyboard inputs.
+
+    All commands can be in lowercase.
+
+    Blank lines below are for clarity.  They are NOT Returns!
+
+    Indentation in the command listing below indicates 
+    the menu level to help navigation.
+
+    A command in quotes, e.g "L", means that the letter
+    is typed when the cursor is in the plot window rather
+    than the text window.
+
+
+    Start AVL with an input-file argument, such as the Plane Vanilla case:
+
+      % cd runs
+      % ../bin/avl vanilla      (giving the .avl extension is optional)
+
+
+OPER       enter operating menu
+G          plot geometry and enter geometry-plot menu
+  K           enter keystroke menu
+  "L"         move viewpoint to left
+  "L"         move viewpoint to left
+  "L"         move viewpoint to left (can be held down for continuous motion)
+  "R"         move viewpoint to right
+  "D"         move viewpoint down
+  "D"         move viewpoint down    (can be held down for continuous motion)
+  "U"         move viewpoint up
+  "I"         ingress (increase perspective distortion)
+  "I"         ingress (repeat as necessary)
+  "I"          .
+  "I"          .
+  "O"         outgress (decrease perspective distortion)
+  "O"          .
+  "<space>"   exit keystroke menu
+  TR          show trailing wake vortices
+  TR          hide
+  <Return>    return to OPER menu
+
+A A 1      set angle of attack to 1 degree
+X          execute calculation
+T          show Trefftz Plane loading,CL plot, enter T.P.-plot menu
+  <Return>   return to OPER menu
+
+A C 0.6    set alpha to get CL = 0.6
+X          execute calculation
+
+C1         enter horizontal-flight trim setup menu
+  G 9.8      set gravitational acceleration
+  D 1.2      set air density
+  M 100.0    set mass
+  B 30.0     set 30 deg bank angle
+  <Return>   return to OPER menu
+
+X          execute calculation
+T          show Trefftz Plane plot
+             note nonzero moments Cl,Cm,Cn (not trimmed)
+  <Return>   Return to OPER menu
+
+D2 RM 0    drive aileron  to get zero rolling  moment (trim in roll )
+D3 PM 0    drive elevator to get zero pitching moment (trim in pitch)
+B  YM 0    drive sideslip to get zero yawing   moment (trim in yaw  )
+X          execute calculation
+T          show Trefftz Plane plot -- note zero moments (trimmed)
+             Note that there is a nonzero sideslip beta,
+             since rudder is not deflected into the turn.
+  <Return>   Return to OPER menu
+
+
+D4 YM 0    set rudder to get zero yawing moment  
+             (note error markers on redundant constraints)
+B B 0      set zero sideslip in lieu of yaw moment constraint
+X          execute
+T          show Trefftz Plane plot
+             Solution has aileron slightly outside of turn,
+             some rudder deflection into the turn, and zero sideslip.
+             This is a coordinated turn.  Considerable up-elevator
+             is also required to trim in the turning airflow.
+  H          Hardcopy current plot (optional)
+  <Return>   Return to OPER menu
+
+G          plot geometry and enter geometry-plot menu
+  LO         add surface loading distribution
+  O          enter options submenu
+    L 0.3    set surface loading scale factor to 0.3 (or whatever's necessary)
+    <Return> return to geometry-plot menu and replot
+  <Return>   return to OPER menu
+
+ST         calculate and display stability derivative matrix
+<Return>   write to screen rather than to file
+<Return>   Return to AVL menu
+
+QUIT       Quit command is necessary to properly terminate plot.ps file.

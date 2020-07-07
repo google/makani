@@ -1,0 +1,60 @@
+/*
+ * Copyright 2020 Makani Technologies LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef AVIONICS_COMMON_SAFETY_CODES_H_
+#define AVIONICS_COMMON_SAFETY_CODES_H_
+
+// The arming signals are arbitrary magic numbers, set here.  The purpose is to
+// reduce the possibility of accidentally generating a valid arm or disarm
+// message.
+
+#define BATT_CLEAR_ERRORS_SIGNAL 0xE1864522UL
+#define BATT_CONNECT_SIGNAL 0x897C5190UL
+#define BATT_DISCONNECT_A_SIGNAL 0xDEC924B1UL
+#define BATT_DISCONNECT_B_SIGNAL 0x384907AFUL
+#define DETWIST_ARMING_SIGNAL 0x779D3AFEUL
+#define DETWIST_DISARM_SIGNAL 0x2B0E987BUL
+#define FLIGHT_COMMAND_SIGNAL 0x755BE289UL
+#define FPV_DISABLE_SIGNAL 0xFAE12ABCUL
+#define FPV_ENABLE_SIGNAL 0x0923A92AUL
+#define GROUND_STATION_ARMING_SIGNAL 0x9e301b1b
+#define GROUND_STATION_DISARM_SIGNAL 0x133b1455
+#define MOTOR_ARMING_SIGNAL 0x59263141UL
+#define MOTOR_DISARMING_SIGNAL 0xA6D93141UL
+#define MVLV_CLEAR_ERRORS_SIGNAL 0x15333C9DUL
+#define MVLV_CONNECT_SIGNAL 0x10A669CDUL
+#define MVLV_DISABLE_SIGNAL 0x64A12396UL
+#define MVLV_DISCONNECT_SIGNAL 0xAB8F9244L
+#define MVLV_ENABLE_SIGNAL 0x86D1EDBAUL
+#define PITOT_COVER_SIGNAL 0x2581FA59UL
+#define PITOT_UNCOVER_SIGNAL 0x77895BABUL
+#define SCUTTLE_SAFETY_CODE 0xBBC69D4EUL
+#define SERVO_ARMING_SIGNAL 0x8A75BD91UL
+#define SERVO_DISARM_SIGNAL 0x5851DBACUL
+#define SHORT_STACK_FORCE_NO_TRIPS_SIGNAL 0x0F94C3F7UL
+#define SHORT_STACK_FORCE_TRIP_B0_SIGNAL 0x1B87BC61UL
+#define SHORT_STACK_FORCE_TRIP_B1_SIGNAL 0xD3819646UL
+#define SHORT_STACK_FORCE_TRIP_B2_SIGNAL 0x8E6CD9C3UL
+#define SHORT_STACK_FORCE_TRIP_B3_SIGNAL 0x38BBA600UL
+#define SHORT_STACK_RETURN_TO_DEFAULT_SIGNAL 0xD1CF2A17UL
+#define TETHER_RELEASE_ARMING_SIGNAL 0x88DAC1A0UL
+#define TETHER_RELEASE_DISARM_SIGNAL 0xB8B7F27EUL
+#define TETHER_RELEASE_INTERLOCK_SAFETY_CODE 0x83800B99UL
+#define TETHER_RELEASE_SAFETY_CODE 0x34412411UL
+#define WINCH_ARMING_SIGNAL 0x519C7A49UL
+#define WINCH_DISARM_SIGNAL 0x97B62B7CUL
+
+#endif  // AVIONICS_COMMON_SAFETY_CODES_H_

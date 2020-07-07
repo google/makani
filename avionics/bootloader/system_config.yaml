@@ -1,0 +1,224 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+%YAML 1.2
+
+# M600 System configurations.
+
+---
+default:
+  config:
+    cs_a: {config: a}
+    cs_b: {config: b}
+    cs_gs_a: {config: gs_a}
+    cs_gs_b: {config: gs_b}
+    gps_base_station: {config: novatel}
+    joystick_a: {config: a, calib: futaba_t7c}
+    light_port: {config: port}
+    light_stbd: {config: stbd}
+    light_tail_bottom: {config: tail}
+    light_tail_top: {config: tail}
+    servo_a1: {config: aileron_a1}
+    servo_a2: {config: aileron_a2}
+    servo_a4: {config: aileron_a4}
+    servo_a5: {config: aileron_a5}
+    servo_a7: {config: aileron_a7}
+    servo_a8: {config: aileron_a8}
+    servo_e1: {config: elevator}
+    servo_e2: {config: elevator}
+    servo_r1: {config: rudder}
+    servo_r2: {config: rudder}
+
+birdcage:
+  base: default
+  nodes: [cs_gs_a, cs_gs_b, joystick_a]
+  config:
+    cs_gs_b: {config: noradio_gs_b}
+
+command_center:
+  base: default
+  nodes: [joystick_a]
+
+ground_power:
+  nodes: [ground_power_tms570_a]
+
+iron_bird:
+  base: default
+  nodes:
+    [cs_a, cs_b, cs_gs_a, cs_gs_b, joystick_a, 'label:flight_computer',
+     'label:servo']
+  config:
+    cs_gs_a: {config: noradio_gs_a}
+    servo_a1: {config: ib_aileron, calib: a1_ib}
+    servo_a2: {config: ib_aileron, calib: a2_ib}
+    servo_a4: {config: ib_aileron, calib: a4_ib}
+    servo_a5: {config: ib_aileron, calib: a5_ib}
+    servo_a7: {config: ib_aileron, calib: a7_ib}
+    servo_a8: {config: ib_aileron, calib: a8_ib}
+    servo_e1: {calib: e1_ib}
+    servo_e2: {calib: e2_ib}
+    servo_r1: {calib: r1_ib}
+    servo_r2: {calib: r2_ib}
+
+gs02_base:
+  base: default
+  nodes:
+    [cs_gs_a, cs_gs_b, 'label:drum', 'label:platform', 'label:gps', plc_gs02,
+     joystick_a]
+  config:
+    cs_gs_b: {config: noradio_gs_b}
+
+gs02-01:
+  base: gs02_base
+  config:
+    drum_sensors_a: {config: gsv2_01_a}
+    drum_sensors_b: {config: gsv2_01_b}
+    platform_sensors_a: {config: gsv2_01_a}
+    platform_sensors_b: {config: gsv2_01_b}
+    plc_gs02: {config: gs02_01}
+
+gs02-02:
+  base: gs02_base
+  config:
+    drum_sensors_a: {config: gsv2_02_a}
+    drum_sensors_b: {config: gsv2_02_b}
+    platform_sensors_a: {config: gsv2_02_a}
+    platform_sensors_b: {config: gsv2_02_b}
+    plc_gs02: {config: gs02_02}
+
+ym600_base:
+  base: default
+  nodes:
+    [cs_a, cs_b, batt_b, 'label:flight_computer', 'label:light',
+     'label:loadcell_node', 'label:motor', recorder_tms570_wing, 'label:servo',
+     mvlv, short_stack]
+  config:
+    fc_a: {config: novatel_HSC001PDSA3}
+    fc_b: {config: novatel_HSC001PDSA3}
+    fc_c: {config: nogps_fpv_HSC006MDSA3}
+
+ym600-01:
+  base: ym600_base
+  serial: kWingSerial01
+  exclude_nodes: [light_port, light_stbd, light_tail_bottom, light_tail_top,
+                  mvlv, short_stack]
+  config:
+    loadcell_port_a: {calib: port_sn1}
+    loadcell_port_b: {calib: port_sn1}
+    loadcell_starboard_a: {calib: starboard_sn1}
+    loadcell_starboard_b: {calib: starboard_sn1}
+    servo_a1: {calib: a1_sn1}
+    servo_a2: {config: aileron_a2_sn1, calib: a2_sn1}
+    servo_a4: {calib: a4_sn1}
+    servo_a5: {calib: a5_sn1}
+    servo_a7: {config: aileron_a7_sn1, calib: a7_sn1}
+    servo_a8: {calib: a8_sn1}
+    servo_e1: {calib: e1_sn1}
+    servo_e2: {calib: e2_sn1}
+    servo_r1: {calib: r1_sn1}
+    servo_r2: {calib: r2_sn1}
+
+ym600-04:
+  base: ym600_base
+  serial: kWingSerial04Hover
+  config:
+    loadcell_port_a: {calib: port_sn4}
+    loadcell_port_b: {calib: port_sn4}
+    loadcell_starboard_a: {calib: starboard_sn4}
+    loadcell_starboard_b: {calib: starboard_sn4}
+    servo_a1: {calib: a1_sn4}
+    servo_a2: {calib: a2_sn4}
+    servo_a4: {calib: a4_sn4}
+    servo_a5: {calib: a5_sn4}
+    servo_a7: {calib: a7_sn4}
+    servo_a8: {calib: a8_sn4}
+    servo_e1: {calib: e1_sn4}
+    servo_e2: {calib: e2_sn4}
+    servo_r1: {calib: r1_sn4}
+    servo_r2: {calib: r2_sn4}
+
+ym600-04-final:
+  base: ym600-04
+  serial: kWingSerial04Crosswind
+
+ym600-05:
+  base: ym600_base
+  serial: kWingSerial05Hover
+  exclude_nodes: [short_stack]
+  config:
+    fc_c: {config: nogps_pitot_HSC006MDSA3}
+    loadcell_port_a: {calib: port_sn5}
+    loadcell_port_b: {calib: port_sn5}
+    loadcell_starboard_a: {calib: starboard_sn5}
+    loadcell_starboard_b: {calib: starboard_sn5}
+    servo_a1: {calib: a1_sn5}
+    servo_a2: {calib: a2_sn5}
+    servo_a4: {calib: a4_sn5}
+    servo_a5: {calib: a5_sn5}
+    servo_a7: {calib: a7_sn5}
+    servo_a8: {calib: a8_sn5}
+    servo_e1: {calib: e1_sn5}
+    servo_e2: {calib: e2_sn5}
+    servo_r1: {calib: r1_sn5}
+    servo_r2: {calib: r2_sn5}
+
+ym600-05-final:
+  base: ym600-05
+  serial: kWingSerial05Crosswind
+
+ym600-06:
+  base: ym600_base
+  serial: kWingSerial06Hover
+  config:
+    loadcell_port_a: {calib: port_sn6}
+    loadcell_port_b: {calib: port_sn6}
+    loadcell_starboard_a: {calib: starboard_sn6}
+    loadcell_starboard_b: {calib: starboard_sn6}
+    servo_a1: {calib: a1_sn6}
+    servo_a2: {calib: a2_sn6}
+    servo_a4: {calib: a4_sn6}
+    servo_a5: {calib: a5_sn6}
+    servo_a7: {calib: a7_sn6}
+    servo_a8: {calib: a8_sn6}
+    servo_e1: {calib: e1_sn6}
+    servo_e2: {calib: e2_sn6}
+    servo_r1: {calib: r1_sn6}
+    servo_r2: {calib: r2_sn6}
+
+ym600-06-final:
+  base: ym600-06
+  serial: kWingSerial06Crosswind
+
+ym600-07:
+  base: ym600_base
+  serial: kWingSerial07Hover
+  config:
+    loadcell_port_a: {calib: port_sn7}
+    loadcell_port_b: {calib: port_sn7}
+    loadcell_starboard_a: {calib: starboard_sn7}
+    loadcell_starboard_b: {calib: starboard_sn7}
+    servo_a1: {calib: a1_sn7}
+    servo_a2: {calib: a2_sn7}
+    servo_a4: {calib: a4_sn7}
+    servo_a5: {calib: a5_sn7}
+    servo_a7: {calib: a7_sn7}
+    servo_a8: {calib: a8_sn7}
+    servo_e1: {calib: e1_sn7}
+    servo_e2: {calib: e2_sn7}
+    servo_r1: {calib: r1_sn7}
+    servo_r2: {calib: r2_sn7}
+
+ym600-07-final:
+  base: ym600-07
+  serial: kWingSerial07Crosswind

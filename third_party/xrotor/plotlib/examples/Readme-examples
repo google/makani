@@ -1,0 +1,95 @@
+/*********************************************************************** 
+    Module:  Readme-examples
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This program is free software; you can redistribute it and/or modify 
+    it under the terms of the GNU General Public License as published by 
+    the Free Software Foundation; either version 2 of the License, or 
+    (at your option) any later version. 
+ 
+    This program is distributed in the hope that it will be useful, 
+    but WITHOUT ANY WARRANTY; without even the implied warranty of 
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+    GNU General Public License for more details. 
+ 
+    You should have received a copy of the GNU General Public License 
+    along with this program; if not, write to the Free Software 
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. 
+
+    Report problems to:    guppy@maine.com 
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+Make the test programs under Unix by:
+
+change options in ../config.make to match your environment
+  % make 
+
+Make the test programs under Windoze:
+
+You need Visual C and either the Compaq Visual Fortran compiler or the Intel
+Fortran compiler.  
+compile and link with command in DOS window: 
+
+C:\Xfoil\plotlib\examples: nmake /f Makefile.NT
+
+
+
+
+Sample and test programs
+-------------------------
+
+volts.f      - demo program that draws a simple, labeled plot with axes.
+
+volts_old.f  - demo program that draws a simple, labeled plot with axes.
+               (uses old "Versatec" plot calls)
+
+squares.f    - draws a sine wave in colored boxes, has colored labels
+
+squaresdoublebuff.f - demo of double buffering, draws a sine wave in colored 
+                      boxes that cycle across the sine wave w/o flickering
+
+gridtest.f   - tests the grid routines (obvious, aren't we...)
+
+symbols.f 
+symbolsall.f - display and test the vector fonts 
+
+cmap2.f 
+cmap3.f      - used for interactive viewing of RGB color components:
+
+zoomtest.f   - test of zooming
+
+contest.f    - test of contouring primitives for color, filled contours
+
+defmap.f     - displays the default colormap produced by CALL COLORMAPDEFAULT
+
+spectrum.f   - displays the "Spectrum" produced by
+               CALL COLORSPECTRUMHUES(ncols, RYGCBM_string)
+               in pie and bar form.  
+
+               Typical values for RYGCBM_string might be
+                'RYG'
+                'GYR'
+                'MCY'
+                'BMRY'
+                'BCGYR',  etc.
+
+               Choosing strongly non-contiguous sequences like 'RCB' is OK, 
+               but will make a horrid-looking Spectrum.
+
+sym/test.f   - display current vector fonts
+
+
+
+
+
+
+
+
+
+
+
+
+
+

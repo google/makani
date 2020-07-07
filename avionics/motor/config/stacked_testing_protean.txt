@@ -1,0 +1,24 @@
+# Motor controller parameters for stacked Protean testing.
+
+# Open up limits to allow full power operation.
+set_param all phase_current_limit 270
+set_param all bus_current_limit 200
+
+# Bus current command limits for the full stack of motors (i.e. tether current).
+set_param all ibus_upper_limit 195
+set_param all ibus_lower_limit 0
+
+# Quadrature current command limits.
+set_param all iq_upper_limit 210
+set_param all iq_lower_limit -210
+
+# Explicitly enable the stacking controller and set gains for Protean motors.
+set_param all stacking_enable 1
+set_param all voltage_control_gain 30.0
+
+# Allow motors to turn off if they throw a warning.
+set_param all shutdown_on_warning_enable 1
+
+# Increase the motor status message rate to 100 Hz.
+set_param all motor_status_message_period 0.01
+

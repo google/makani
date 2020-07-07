@@ -1,0 +1,32 @@
+Swept Hershey-Bar Wing
+#Mach
+ 0.0    
+#IYsym   IZsym   Zsym
+ 1       0       0.0
+#Sref    Cref    Bref
+0.2      0.1     2.0
+#Xref    Yref    Zref
+0.5      0.0     0.0
+#
+SURFACE 
+WING 
+#Nchordwise  Cspace    Nspanwise   Sspace
+12           1.0       24          1.0
+#
+
+SCALE
+1.0  1.0  1.0
+
+TRANSLATE
+-0.025  0.0  0.0
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc 
+0.000   0.000  0.000   0.1      0.  
+
+SECTION
+#Xle    Yle    Zle     Chord   Ainc 
+1.000   1.000  0.000   0.1      0.  
+
+
+

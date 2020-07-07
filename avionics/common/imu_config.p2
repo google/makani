@@ -1,0 +1,3 @@
+struct ImuConfig {
+  float32 fir_coefs[80];
+}

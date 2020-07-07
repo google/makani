@@ -1,0 +1,32 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+readonly GROUND_POWER_MONITOR='avionics/ground_power/q7:ground_power_monitor'
+
+readonly TARGETS="$(bazel query "attr(tags, arch:q7,
+                                      ... except ${GROUND_POWER_MONITOR})" | tr '\n' ' ')"
+
+if [[ -z "${TARGETS}" ]]; then
+  echo 'Found no targets for tag "arch:q7".'
+  exit 1
+fi
+
+bazel build --config q7 ${TARGETS} "$@"
+
+# inverter_mon's build causes an unsuppressable warning:
+#    Using 'getaddrinfo' in statically linked applications requires at runtime
+#    the shared libraries from the glibc version used for linking
+# This warning is not of a standard category and does not interact with -Werror.
+#
+# Currently, our build will not produce dynamically-linked binaries that work on
+# the Q7, so we resort to questionable tactics to hide it instead. We capture
+# the output of this build step and display it only if the build fails. Note
+# that -Werror will still cause the build to fail if the compiler raises warnings
+# other than the one described above.
+set +e
+output="$(bazel build --config q7 ${GROUND_POWER_MONITOR} "$@" 2>&1)"
+if [[ $? -ne 0 ]]; then
+  echo "${output}"
+  exit 1
+fi

@@ -1,0 +1,6 @@
+param MotorCalibParams {
+  float32 angle_offset;
+  float32 cos_offset;
+  float32 sin_offset;
+  float32 sin_scale;
+}

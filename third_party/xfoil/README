@@ -1,0 +1,63 @@
+
+General
+-------
+XFOIL and its plot library should compile on any Unix system 
+with normal Fortran-77, C, and X-Windows support.  So far,
+XFOIL has been tested on the following systems:
+
+  DEC-5000
+  Alpha
+  SGI
+* Sun
+* RS/6000
+* HP-9000
+* Pentium/Linux 
+
+
+The systems marked with "*" have peculiar features which require slight 
+modifications to the Makefiles in the plotlib/ and bin/ directories.  
+Examine these Makefiles before building the plot library and XFOIL.
+
+
+Build sequence
+--------------
+
+1) Build Orr-Sommerfeld database in ./orrs
+
+ % cd orrs
+
+Follow directions in orrs/README
+
+
+2) Build the plot library in  ./plotlib  ...
+
+ % cd plotlib
+ % edit Makefile        (set compiler flags for your machine)
+ % make libPlt.a
+
+
+3) Build the programs in  ./bin  ...
+
+ % cd bin
+ % edit Makefile        (set compiler flags for your machine)
+ % make xfoil
+ % make pplot
+ % make pxplot
+
+
+Documentation
+-------------
+User Guide is in the  xfoil.doc  file.  If impatient, you can just
+run XFOIL in the runs/ directory, which contains a few input files:
+
+ % cd runs
+ % ../bin/xfoil
+
+The file  session.txt  contains keyboard inputs for a typical interactive 
+session.  If one is lost when running XFOIL, typing a "?" at any command 
+prompt, e.g.  
+
+ .GDES  c>  ?  
+
+will always produce a keyboard command menu.
+

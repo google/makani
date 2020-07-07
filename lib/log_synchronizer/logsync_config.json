@@ -1,0 +1,87 @@
+{
+  "remote_basedir": "gs://m600_testing_logs/",
+  "local_basedir": "$MAKANI_HOME/logs",
+  "collections": [
+    {
+      "name": "tagged_cc",
+      "local_path": "",
+      "remote_path": "",
+      "sources": [
+        {"src_pattern": "\\d+-\\d+[^/]*/\\d+-\\d+\\D+.*\\.h5$"}
+      ]
+    }, {
+      "name": "cc",
+      "local_path": "",
+      "remote_path": "logs",
+      "sources": [
+        {"src_pattern": "\\d+-\\d+[^/]*/\\d+-\\d+\\.h5$"},
+        {"src_pattern": "\\d+-\\d+[^/]*/.+\\.pcap.gz$"},
+        {"src_pattern": "\\d+-\\d+[^/]*/git.diff$",
+         "dest_name": "$source_dir-git.diff"},
+        {"src_pattern": "\\d+-\\d+[^/]*/log_desc.json$",
+         "dest_name": "$source_dir-log_desc.json"},
+        {"src_pattern": "\\d+-\\d+[^/]*/tcpdump.log$",
+         "dest_name": "$source_dir-tcpdump.log"},
+        {"src_pattern": "\\d+-\\d+[^/]*/format.*.h5$",
+         "dest_name": "$source_dir-format.h5"},
+        {"src_dir_pattern": "^\\d+-\\d+[^/]*/headers$",
+         "dest_name": "$source_dir-headers"}
+      ]
+    }, {
+      "name": "tagged_wing",
+      "local_path": "wing_recorder_logs",
+      "remote_path": "wing_recorder_logs",
+      "sources": [
+        {"src_pattern": ".*\\d+-\\d+\\D+.*\\.h5$(?<!\\d{8}-\\d{6}_wing\\.h5)"}
+      ]
+    }, {
+      "name": "wing",
+      "local_path": "wing_recorder_logs",
+      "remote_path": "wing_recorder_logs/logs",
+      "sources": [
+        {"src_pattern": ".*\\d+-\\d+(?:_wing)?\\.h5"},
+        {"src_pattern": ".*.+\\.pcap.gz$"},
+        {"src_pattern": ".*git.diff$",
+         "dest_name": "$source_dir-git.diff"},
+        {"src_pattern": ".*-report\\.txt$"},
+        {"src_pattern": ".*log_desc.json$",
+         "dest_name": "$source_dir-log_desc.json"},
+        {"src_pattern": ".*tcpdump.log$",
+         "dest_name": "$source_dir-tcpdump.log"},
+        {"src_pattern": ".*format.*.h5$",
+         "dest_name": "$source_dir-format.h5"},
+        {"src_dir_pattern": ".*headers$",
+         "dest_name": "$source_dir-headers"}
+      ]
+    }, {
+      "name": "tagged_platform",
+      "local_path": "platform_recorder_logs",
+      "remote_path": "platform_recorder_logs",
+      "sources": [
+        {"src_pattern": ".*\\d+-\\d+\\D+.*\\.h5$(?<!\\d{8}-\\d{6}_platform\\.h5)"}
+      ]
+    }, {
+      "name": "platform",
+      "local_path": "platform_recorder_logs",
+      "remote_path": "platform_recorder_logs/logs",
+      "sources": [
+        {"src_pattern": ".*\\d+-\\d+(?:_platform)?\\.h5"},
+        {"src_pattern": ".*.+\\.pcap.gz$"},
+        {"src_pattern": ".*git.diff$",
+         "dest_name": "$source_dir-git.diff"},
+        {"src_pattern": ".*-report\\.txt$"},
+        {"src_pattern": ".*log_desc.json$",
+         "dest_name": "$source_dir-log_desc.json"},
+        {"src_pattern": ".*tcpdump.log$",
+         "dest_name": "$source_dir-tcpdump.log"},
+        {"src_pattern": ".*format.*.h5$",
+         "dest_name": "$source_dir-format.h5"},
+        {"src_dir_pattern": ".*headers$",
+         "dest_name": "$source_dir-headers"}
+      ]
+    }
+  ],
+  "systems": ["GS02-01", "GS02-02", "iron_bird",
+              "M600A", "YM600-04", "YM600-05", "YM600-06",
+              "M600A-R", "YM600-04-R", "YM600-05-R", "YM600-06-R"]
+}

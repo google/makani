@@ -1,0 +1,58 @@
+\makeatletter
+\dspdeclareoperator{dspvoidshapeadder}{
+  % Coordinate offset for the plus
+  \pgfutil@tempdima=\radius
+  \pgfutil@tempdima=0.55\pgfutil@tempdima
+  \pgfusepathqstroke
+}
+\tikzset{
+  vdspadder/.style={
+    shape=dspvoidshapeadder,
+    line cap=rect,
+    line join=rect,
+    line width=\dspblocklinewidth,
+    minimum size=\dspoperatordiameter,
+    label={185:$+$},
+    label={265:$-$}
+  },
+  vadspadder/.style={
+    shape=dspvoidshapeadder,
+    line cap=rect,
+    line join=rect,
+    line width=\dspblocklinewidth,
+    minimum size=\dspoperatordiameter,
+    label=below right:$-$,
+    label=above right:$+$
+  },
+  vkdspadder/.style={
+    shape=dspvoidshapeadder,
+    line cap=rect,
+    line join=rect,
+    line width=\dspblocklinewidth,
+    minimum size=\dspoperatordiameter,
+    label=below right:$-$,
+    label=below left:$+$
+  },
+  vjdspadder/.style={
+    shape=dspvoidshapeadder,
+    line cap=rect,
+    line join=rect,
+    line width=\dspblocklinewidth,
+    minimum size=\dspoperatordiameter,
+    label=above right:$+$,
+    label=below right:$-$
+  },
+  edspadder/.style={
+    shape=dspvoidshapeadder,
+    line cap=rect,
+    line join=rect,
+    line width=\dspblocklinewidth,
+    minimum size=\dspoperatordiameter
+  }
+}
+\makeatother
+
+
+\tikzset{dspblock/.style={inner xsep = 5pt, inner ysep = 5pt}}
+\tikzset{dspblock2/.style={inner xsep = 5pt, inner ysep = 10pt}}
+\tikzset{dspblock3/.style={inner xsep = 5pt, inner ysep = 20pt}}

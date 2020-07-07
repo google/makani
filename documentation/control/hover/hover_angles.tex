@@ -1,0 +1,148 @@
+\documentclass{article} %[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{pgfplots}
+\usetikzlibrary{
+  arrows,
+  calc,
+  decorations.markings,
+  decorations.pathreplacing,
+  dsp,
+  fit,
+  positioning
+}
+\input{../util/control.tex}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\begin{document}
+
+\section{Describing function analysis of rate limit nonlinearity}
+
+There are two modes for the rate limit nonlinearity: one where the
+signal is only rate limited for a portion of the period and another
+where the signal is rate limited for the entire duration.  For
+simplicity, we focus on the latter case.  Reference \cite{pratt2000}
+has a good analysis of this case, and reference \cite{ponce2003} has a
+more complete analysis of both cases.
+
+The describing function for a rate-limit, when it is completely
+rate-limiting the input signal is:
+\begin{eqnarray}
+\gamma &=& \sin^{-1} \left( \frac{\pi}{2} \frac{R}{M \omega} \right) \\
+N(M, \omega) &=& \frac{4 R}{\pi M \omega} (\sin \gamma + i \cos \gamma)
+\end{eqnarray}
+
+This may be reduced to a function of one variable $x = M \omega / R$:
+\begin{eqnarray}
+N(x) &=& \frac{2}{x^2} +
+i \frac{4}{\pi x} \cos \sin^{-1} \left( \frac{\pi}{2 x} \right) \\
+&=& \frac{2}{x^2} \left(1 + i \sqrt{\left(\frac{2 x}{\pi}\right)^2 - 1} \right)
+\end{eqnarray}
+
+\begin{equation}
+-1/N(x) = -\frac{\pi^2}{8}
+\left( 1 - i \sqrt{\left(\frac{2 x}{\pi}\right)^2 - 1} \right)
+\end{equation}
+
+\begin{equation}
+C(s) = k_p + k_d s + k_i / s
+\end{equation}
+
+\begin{equation}
+G_{\mathrm{motor}}(s) = \frac{\omega_m}{s + \omega_m}
+\end{equation}
+
+\begin{equation}
+G_{\mathrm{yaw}}(s) = \frac{1}{I_{zz} s^2}
+\end{equation}
+
+\begin{equation}
+L(s) = C(s) G_{\mathrm{motor}}(s) G_{\mathrm{yaw}}(s)
+\end{equation}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cc}
+\hline
+\hline
+Variable & Value \\
+\hline
+$k_p$ & $2.58 \times 10^5$ \\
+$k_i$ & $2.04 \times 10^4$ \\
+$k_d$ & $1.31 \times 10^5$ \\
+$I_{zz}$ & $3 \times 10^4$ \\
+$\omega_m$ & $2 \pi \cdot 6$ \\
+\hline
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=1.3,
+    xlabel=Re,
+    xmin=-5,
+    xmax=5,
+    ylabel=Im,
+    ymin=-5,
+    ymax=5,
+    grid=both
+  ]
+  \def\a{(2 / (x * x))};
+  \def\b{(2 / (x * x) * sqrt((2 * x / 3.14)^2 - 1))};
+  \def\m{(\a * \a + \b * \b)};
+  \def\kp{2.58e5};
+  \def\ki{2.04e4};
+  \def\kd{1.31e5};
+  \def\Izz{3e4};
+  \def\omegam{(2 * 3.14 * 6)};
+  \def\Ga{(-\kd * \omegam * x^2 + \ki * \omegam)};
+  \def\Gb{(\kp * \omegam * x)};
+  \def\Gc{(\Izz * x^4)};
+  \def\Gd{(-\Izz * \omegam * x^3)};
+  \def\Gm{(\Gc * \Gc + \Gd * \Gd)};
+  \addplot [smooth, color=blue, mark=none, domain=0:10]
+           ({-\a / \m}, {\b / \m});
+  \addplot [smooth, color=green, mark=none, domain=-15:-1]
+            ({(\Ga * \Gc + \Gb * \Gd) / \Gm}, {(\Gb * \Gc - \Ga * \Gd) / \Gm});
+  \addplot [smooth, color=green, mark=none, domain=1:15]
+            ({(\Ga * \Gc + \Gb * \Gd) / \Gm}, {(\Gb * \Gc - \Ga * \Gd) / \Gm});
+\end{axis}
+\end{tikzpicture}
+\caption{$L(j \omega) = -1 / N(M \omega / R)$ Intersection occurs at $x = 2.44$ and
+  $\omega = -2.77$ rad/s.}
+\label{fig:rlocus}
+\end{center}
+\end{figure}
+
+
+\begin{thebibliography}{1}
+\bibitem{pratt2000} Pratt, Roger. ``Flight Control Systems: Practical Issues in
+  Design and Implementation.'' {\it IET}. 2000.\
+\bibitem{ponce2003} Ponce, E. and Roman, M. ``The describing function
+  method accuracy in first order plants with rate-limited feedback.''
+  {\it Proceedings of the European Control Conference}. 2003.
+\end{thebibliography}
+
+\end{document}

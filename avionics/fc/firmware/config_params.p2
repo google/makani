@@ -1,0 +1,29 @@
+include "avionics/common/gps_receiver.p2";
+include "avionics/common/imu_config.p2";
+include "avionics/firmware/drivers/hsc_model.p2";
+
+struct HscPitotCalib {
+  HscModel model;
+  float32 scale;
+  float32 bias;
+}
+
+struct PitotCalib {
+  HscPitotCalib speed;
+  HscPitotCalib altitude;
+  HscPitotCalib pitch;
+  HscPitotCalib yaw;
+}
+
+enum32 FpvPitotConfig {
+  None = 0,
+  FpvCamera = 1,
+  PitotCover = 2,
+}
+
+param FcConfigParams {
+  GpsReceiverType gps_receiver;
+  PitotCalib pitot;
+  ImuConfig imu;
+  FpvPitotConfig fpv_pitot_config;
+}

@@ -1,0 +1,7 @@
+param ServoConfigParams {
+  float32 servo_min_limit;  // [rad]
+  float32 servo_max_limit;  // [rad]
+  float32 scuttle_angle;  // [rad]
+  float32 current_limit;  // [A]
+  float32 current_velocity_limit;  // [A * rad/sec]
+}

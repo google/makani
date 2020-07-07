@@ -1,0 +1,19 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 BattHardware {
+  SmallCell15V1 = 0,
+  BigCell18V1 = 1,
+  SmallCell15Aa = 2,
+  BigCell18Aa = 3,
+  SmallCell15Ab = 4,
+  BigCell18Ab = 5,
+  SmallCell17Ab = 6,
+  SmallCell15Ac = 7,
+  BigCell18Ac = 8,
+  SmallCell17Ac = 9,
+  SmallCell17Ad = 10,
+}
+
+specialize(SerialParams) BattSerialParams {
+  BattHardware hardware_revision;
+}

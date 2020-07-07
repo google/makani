@@ -1,0 +1,55 @@
+#!/bin/bash -e
+#
+# Starts and stops the estimator process on the ground estimator computer.
+#
+# Usage: ./ground_estimator start
+#        ./ground_estimator stop
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/network_config.sh"
+
+function stop_estimator() {
+  ssh -o ConnectTimeout=4 root@"$1" \
+        'killall estimator 2> /dev/null || true' &
+  wait
+}
+
+function check_estimator_running() {
+  if ! ssh root@"$1" 'pidof estimator > /dev/null'; then
+    echo "Ground estimator at $1 not running."
+    exit 1
+  fi
+}
+
+function start_estimator() {
+  stop_estimator $@
+  ssh root@"$1" \
+    "nohup /apps/estimator > /dev/null &"
+}
+
+function require_confirmation_code() {
+  # Generate a 4 digit confirmation code.
+  readonly RANDOM_STRING="$(cat /dev/urandom | tr -dc '0-9' | fold -w 4 \
+    | head -n 1)"
+
+  read -p "$1 (Please type: [${RANDOM_STRING}]): " prompt
+
+  if [[ "${prompt}" != "${RANDOM_STRING}" ]]; then
+    echo 'Incorrect response.'
+    exit 1
+  fi
+}
+
+if [[ "$#" -eq 0 ]]; then
+  mbash::print_usage
+elif [[ "$1" = 'stop' ]]; then
+  shift
+  require_confirmation_code "Stop the estimator?"
+  stop_estimator ${M600_GROUND_ESTIMATOR_Q7}
+elif [[ "$1" = 'start' ]]; then
+  shift
+  start_estimator ${M600_GROUND_ESTIMATOR_Q7}
+  check_estimator_running ${M600_GROUND_ESTIMATOR_Q7} || exit 0
+else
+  mbash::print_usage
+fi

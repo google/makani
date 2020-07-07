@@ -1,0 +1,109 @@
+\documentclass[11pt]{amsart}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{fp}  % Prevents issues with arithmetic overflow.
+\usepackage{pgfplots}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage[section]{placeins}  % Prevents figure placement outside of section.
+\usetikzlibrary{arrows, fixedpointarithmetic}
+
+\newcommand{\shaft}{\mathrm{shaft}}
+
+\definecolor{matlab1}{rgb}{0, 0.4470, 0.7410}
+\definecolor{matlab2}{rgb}{0.8500, 0.3250, 0.0980}
+\definecolor{matlab3}{rgb}{0.9290, 0.6940, 0.1250}
+\definecolor{matlab4}{rgb}{0.4940, 0.1840, 0.5560}
+\definecolor{matlab5}{rgb}{0.4660, 0.6740, 0.1880}
+\definecolor{matlab6}{rgb}{0.3010, 0.7450, 0.9330}
+\definecolor{matlab7}{rgb}{0.6350, 0.0780, 0.1840}
+
+\title{MEKF}
+\author{Makani Technologies LLC}
+\date{October 2016\; (DRAFT)}
+
+\begin{document}
+\maketitle
+
+\section{States}
+
+\begin{equation}
+  C_g^b \approx \hat C_g^b (I + [\psi_{gb}^g]_{\times})
+\end{equation}
+
+\begin{equation}
+  \vec{b} \approx \hat{b} + \delta \vec{b}
+\end{equation}
+
+\section{Propagate}
+
+\begin{equation}
+  \delta \vec{\theta} = (\vec{\omega} - \vec{b}) \cdot \Delta t
+\end{equation}
+
+\begin{equation}
+  \delta q = q(\delta \vec{\theta})
+\end{equation}
+
+\begin{equation}
+  {q_g^b}_{k|k-1} = {q_g^b}_{k-1|k-1} \star \delta q
+\end{equation}
+
+
+\begin{equation}
+  \delta \vec{x} = [\delta \vec{\theta}, \delta \vec{b}]^T
+\end{equation}
+
+\begin{equation}
+  \mathbf{F} = \begin{bmatrix}
+    \mathbf{C}(\delta q) & \Delta t \cdot \mathbf{I} \\
+    \mathbf{0}           & \mathbf{I} \\
+  \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+  \mathbf{\hat{x}}_{k+1|k} = \mathbf{F} \mathbf{\hat{x}}_{k|k} +
+                             \mathbf{B} \mathbf{w}_{k}
+\end{equation}
+
+\begin{equation}
+  \mathbf{P} = \mathbf{U} \mathbf{D} \mathbf{U}^T
+\end{equation}
+
+\begin{equation}
+  \mathbf{F}_k = \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \bigg|_{\mathbf{\hat{x}}_{k-1|k-1}}
+\end{equation}
+
+\begin{eqnarray}
+  P_{k+1|k} &=& F_k P_{k|k} F_k^T + Q_k \\
+            &=& F_k U_{k|k} D_{k|k} U_{k|k}^T F_k^T + B Q_k B^T \\
+            &=& W_{k|k} D_{k|k} W_{k|k}^T
+\end{eqnarray}
+
+
+\begin{equation}
+  \mathbf{D}_w = \begin{bmatrix}
+    \mathbf{D}_{k|k} & \mathbf{0} \\
+    \mathbf{0}       & \mathbf{D}_q \\
+  \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+  \mathbf{W} = [\mathbf{F} \mathbf{U}, \mathbf{B}]
+\end{equation}
+
+
+\section{Correct}
+
+\begin{equation}
+  h(\mathbf{x}) \equiv C_g^b \vec{v}_g
+                \approx \hat{C}_g^b (\mathbf{I} + \delta \vec{\theta}_{\times}) \vec{v}_g
+\end{equation}
+
+\begin{equation}
+  \frac{\partial h}{\partial \delta \vec{\theta}} = -[\hat{C}_g^b \vec{v}_g]_{\times}
+\end{equation}
+
+\end{document}

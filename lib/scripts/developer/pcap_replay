@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname $(readlink -f $0))/../../../bazel-bin/lib/pcap_replay/pcap_replay" "$@"

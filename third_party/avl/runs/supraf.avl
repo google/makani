@@ -1,0 +1,21 @@
+Supra 3.4m F3J
+0.0                      Mach
+0     0     0.0          iYsym  iZsym  Zsym
+#
+1034.0 7.60  133.86     Sref   Cref   Bref    reference area, chord, span
+3.750  0.0   1.5        Xref   Yref   Zref    moment reference location
+0.015                   CDo
+#
+#
+#
+#=============================================
+BODY
+Fuse pod
+28   2.0
+#
+TRANSLATE
+0.0  0.0  -1.75
+#
+BFIL
+fuseSupra.dat
+

@@ -1,0 +1,14 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 MotorHardware {
+  GinA1 = 0,  // Previously Rev118Aa.
+  GinA2 = 1,  // Previously Rev140Aa.
+  GinA3 = 2,  // Previously Rev140Ba.
+  GinA4Clk16 = 3,  // Electrically identical to GinA3.
+  GinA4Clk8 = 4,  // Same as GinA4Clk16, but with an 8Mhz oscillator.
+  OzoneA1 = 5,  // New Ozone controller.
+}
+
+specialize(SerialParams) MotorSerialParams {
+  MotorHardware hardware_revision;
+}

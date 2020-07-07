@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname $(readlink -f $0))/../../../bazel-bin/lib/hdf5_to_pcap/hdf5_to_pcap" "$@"

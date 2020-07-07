@@ -1,0 +1,588 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usetikzlibrary{dsp,fit,positioning}
+
+\input{../util/airfoils.tex}
+\input{../util/wing.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/control.tex}
+\input{crosswind_vector_field.tex}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\begin{document}
+
+\section{Overview}
+
+Crosswind is the power generating mode of flight, where the wing is
+flying with attached flow in a direction that is predominately
+orthogonal (or across) the wind.
+
+Crosswind flight is divided into two flight modes: normal crosswind
+and preparing for transition-out.  The normal crosswind mode is geared
+towards generating power, while the preparing for transition-out mode
+is geared towards slowing the wing down for a successful
+transition-out.
+
+% State diagram showing transitions
+
+The crosswind controller is divided into a sequenece of successively
+closed loops with the outer loops controlling power generation through
+path placement and mean speed command
+
+A schematic of the loops and conversions is show in Fig .
+
+
+\begin{equation}
+\end{equation}
+
+\section{Power loop}
+
+The optimal airspeed for power generation is:
+
+\begin{equation}
+  v_{\kite} = \frac{2}{3} \frac{C_L}{C_{D_{\kite}}} v_{\wind,\perp}
+\end{equation}
+
+There are obviously significant variations in airspeed induced by 
+
+
+\begin{eqnarray}
+  v_{\kite} &\propto& \frac{C_L}{C_D} v_{\wind, \perp} \\
+  t &\propto& (v_{\wind, \perp})^2 \\
+  P &\propto& (v_{\wind, \perp})^3 \\
+\end{eqnarray}
+
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \begin{scope}[rotate=30, scale=0.15]
+      \draw (10, -4) node[right] {$\vec{x}_g^{\mathrm{path}}$};
+      \DrawCoordinateSystem{shift={(5, -4)}, scale=5}
+                           {$x_{\mathrm{fp}}$}{$y_{\mathrm{fp}}$}{$z_{\mathrm{fp}}$}
+      \draw [<-, line width=2 pt] (3, 8) arc (150:500:3 and 25);
+      \DrawWingSide
+    \end{scope}
+    \draw (-10, -5) -- (0, 0);
+    \DrawCoordinateSystem{shift={(-10, -5)}}{$x_g$}{$y_g$}{$z_g$}
+
+    \draw[->, line width=1pt] (-5, 0) -- (-3, 0) node[above] {$v_{\wind}$};
+    \draw[->] (-5, 0) node[below left] {$v_{\wind, \parallel}$} --
+              ($(-5, 0)!0.95!(-4.5, -0.866)$);
+    \draw[->] (-4.5, -0.866) node[below right] {$v_{\wind, \perp}$} --
+              ($(-4.5, -0.866)!0.9!(-3, 0)$);
+  \end{tikzpicture}
+\end{figure}
+
+
+
+$\vec{x}_g^{\mathrm{path}}
+
+\section{Path loop}
+
+\begin{tikzpicture}[scale=3]
+  \DrawCrosswindVectorField
+  \DrawCoordinateSystemDot{scale=0.3}
+                          {$y_{\mathrm{fp}}$}{$x_{\mathrm{fp}}$}{$z_{\mathrm{fp}}$}
+
+  \draw [thick, color=black, ->] (-0.707 - 0.1, 0.707) --
+                                 (-0.707 + 0.0, 0.707 + 0.3);
+
+  \foreach \R in {0.6, 0.8, ..., 1.4} {
+    \draw [color=blue] (-0.707 - 0.1, 0.707)
+                   arc (165:90:1)
+                   arc (90:{90 - 45/\R}:{\R});
+  }
+  \draw [color=blue] (-0.707 - 0.1, 0.707)
+                 arc (165:90:1)
+                 arc (90:70:1.4) node [above=0.5cm, right] {$t_2$}
+                 arc (70:58:1.4);
+  \draw [thick, color=black] (-0.707 - 0.1, 0.707)
+                         arc (165:127:1) node [above=0.5cm, left] {$t_1$}
+                         arc (127:90:1);
+\end{tikzpicture}
+
+
+
+
+
+\begin{landscape}
+
+\begin{tikzpicture}[scale=0.6, every node/.style={scale=0.6}]
+  \matrix[row sep = 0.5cm, column sep = 1.5cm] {
+    \node[dspfilter, dspblock2] (power_manual) {SetPowerManually}; &
+    \node[dspfilter, dspblock] (path) {SetPath}; &
+    \node[dspfilter, dspblock2] (predictor) {RunPredictor}; &
+    \node[dspfilter, dspblock3] (angles) {SetAngles}; &
+    \node[dspfilter, dspblock3] (alpha) {ControlAlpha}; \\
+
+    &
+    \node[dspfilter, dspblock] (mean_airspeed) {SetMeanAirspeed}; &
+    &
+    \node[dspfilter, dspblock3] (rates) {SetRates}; &
+    \node[dspfilter, dspblock2] (beta) {ControlBeta}; \\
+
+    &
+    &
+    &
+    &
+    \node[dspfilter, dspblock2] (teth_roll) {ControlTethRoll}; \\
+
+    &
+    &
+    &
+    \node[dspfilter, dspblock2] (set_airspeed) {SetAirspeed}; &
+    \node[dspfilter, dspblock2] (airspeed) {ControlAirspeed}; \\
+  };
+
+  \draw[dspconn] ($(power_manual.0)+(0,0.35)$) node[above right]
+       {$\mathtt{ele\_tuner}$} -| ++(3,0) |- (path.180);
+  \draw[dspconn] ($(power_manual.0)-(0,0.35)$) node[above right]
+       {$\mathtt{airspeed\_tuner}$} -| ++(1,0) |- (mean_airspeed.180);
+
+  \draw[dspconn] (path.0) node[above right]
+       {$\vec{X}_g^{\mathrm{path\,center}}$} -- (predictor);
+
+  \draw[dspconn] ($(predictor.0)+(0,0.35)$) node[above right]
+       {$\kappa_{\mathrm{aero}}$} -| ++(1.6,0) |- (angles.180);
+  \draw[dspconn] ($(predictor.0)+(0,-0.35)$) node[above right]
+       {$\kappa_{\mathrm{geom}}$} -| ++(1.4,0) |- (rates.180);
+
+  \draw[dspconn] ($(angles.0)+(0,0.7)$) node[above right]
+       {$\alpha_{\mathrm{cmd}}$} -| ++(1.8,0) |- (alpha.170);
+  \draw[dspconn] (angles.0) node[above right]
+       {$\beta_{\mathrm{cmd}}$} -| ++(1.6,0) |- (beta.170);
+  \draw[dspconn] ($(angles.0)-(0,0.7)$) node[above right]
+       {${\phi_T}_{\mathrm{cmd}}$} -| ++(1.4,0) |- (teth_roll.170);
+
+  \draw[dspconn] ($(rates.0)+(0,0.7)$) node[above right]
+       {$p_{\mathrm{cmd}}$} -| ++(2.4,0) |- ($(alpha.180)-(0,0.35)$);
+  \draw[dspconn] (rates.0) node[above right]
+       {$q_{\mathrm{cmd}}$} -| ++(2.4,0) |- ($(beta.180)-(0,0.35)$);
+  \draw[dspconn] ($(rates.0)-(0,0.7)$) node[above right]
+       {$r_{\mathrm{cmd}}$} -| ++(2.4,0) |- ($(teth_roll.180)-(0,0.35)$);
+
+
+  \draw[dspconn] (mean_airspeed.0) node[above right]
+       {${\bar{v}_{\mathrm{app}}}$} -| ++(1,0) |- (set_airspeed);
+  \draw[dspconn] (set_airspeed.0) node[above right]
+       {${{v}_{\mathrm{app}}}$} -| ++(1,0) |- (airspeed);
+
+
+  % Output commands.
+  % Alpha.
+  \draw[dspconn] ($(alpha.0)+(0,0.7)$) node[above right] {$\delta_e$} -- ++(2,0) {};
+  \draw[dspconn] (alpha.0) node[above right] {$\delta_f$} -- ++(2,0) {};
+  \draw[dspconn] ($(alpha.0)-(0,0.7)$) node[above right] {$\tau_y$} -- ++(2,0) {};
+
+  % Beta.
+  \draw[dspconn] ($(beta.0)+(0,0.35)$) node[above right] {$\delta_r$} -- ++(2,0) {};
+  \draw[dspconn] ($(beta.0)-(0,0.35)$) node[above right] {$\tau_z$} -- ++(2,0) {};
+
+  % Tether roll.
+  \draw[dspconn] ($(teth_roll.0)+(0,0.35)$) node[above right] {$\delta_a$} -- ++(2,0) {};
+  \draw[dspconn] ($(teth_roll.0)-(0,0.35)$) node[above right] {$\tau_x$} -- ++(2,0) {};
+
+  % Airspeed.
+  \draw[dspconn] ($(airspeed.0)+(0,0.35)$) node[above right] {$T$} -- ++(2,0) {};
+  \draw[dspconn] ($(airspeed.0)-(0,0.35)$) node[above right] {$\delta_{\mathrm{spoil}}$} -- ++(2,0) {};
+
+  \node[draw, inner xsep = 20pt, inner ysep = 20pt, dashed,
+    fit = (alpha) (beta) (teth_roll) (airspeed),
+    label = above: {Inner loops}] (inner_loops) {};
+
+  \node[draw, inner xsep = 20pt, inner ysep = 20pt, dashed,
+    fit = (angles) (rates) (inner_loops),
+    label = above: {State loop}] (state_loop) {};
+
+  \node[draw, inner xsep = 20pt, inner ysep = 20pt, dashed,
+    fit = (predictor) (state_loop),
+    label = above: {Trajectory loop}] (trajectory_loop) {};
+
+  \node[draw, inner xsep = 20pt, inner ysep = 20pt, dashed,
+    fit = (path) (mean_airspeed) (trajectory_loop),
+    label = above: {Path loop}] (path_loop) {};
+
+  \node[draw, inner xsep = 20pt, inner ysep = 20pt, dashed,
+    fit = (path_loop) (power_manual),
+    label = above: {Power loop}] (power_loop) {};
+
+\end{tikzpicture}
+\end{landscape}
+
+%% \begin{tikzpicture}
+%%   \matrix[row sep = 0.5cm, column sep = 1cm] {
+%%     & & &
+%%     \node[dspnodeopen, above left] (m05) {$p_{\mathrm{ff}}$}; \\
+%%     & & &
+%%     \node[dspsquare] (m15) {$k_d$}; \\
+%%     \node[dspnodeopen, left] (m20) {$\alpha_{\mathrm{cmd}}$}; &
+%%     \node[vdspadder] (m21) {}; &
+%%     \node[dspfilter, text width = 2cm] (m22) {$k_p + k_i / s$}; &
+%%     \node[dspadder] (m23) {}; &
+%%     \node[dspfilter, text width = 2cm] (m24) {Pitch plant}; &
+%%     \node[dspnodeopen] (m25) {}; \\
+%%     & & &
+%%     \node[dspfilter] (m31) {Pitot}; \\
+%%   };
+
+%%   \draw[dspconn] (m05) -- (m15);
+%%   \draw[dspconn] (m15) -- (m23);
+%%   \draw[dspconn] (m20) -- (m21);
+%%   \draw[dspconn] (m21) -- node[above] {$\alpha_{\mathrm{err}}$} (m22);
+%%   \draw[dspconn] (m22) -- (m23);
+%%   \draw[dspconn] (m23) -- node[above] {$\delta_a$} (m24);
+%%   \draw[dspconn] (m24) -- node[above] {$\theta$} (m25) |- (m31);
+%%   \draw[dspconn] (m25) -- ++(1, 0);
+%%   \draw[dspconn] (m31) -| (m21);
+
+%%   \node[draw, inner xsep = 10pt, inner ysep = 20pt, dashed,
+%%     fit = (m05) (m21) (m31) (m25),
+%%     label = above: {$\alpha$ loop}] {};
+%% \end{tikzpicture}
+
+
+
+\section{Simple models}
+
+
+%% \subsection{Roll model}
+
+%% \begin{equation}
+%% I_{xx} \ddot{\phi} = \bar{q} A b \left(
+%% \frac{b}{2 v} C_{l_p} \dot{\phi} -
+%% (C_L z_b / b) \phi + C_{l_{\delta_a}} \delta_a \right)
+%% \end{equation}
+
+
+%% \begin{equation}
+%% \frac{\Phi(s)}{\Delta_a(s)} =
+%% \frac{C_{l_{\delta_a}}}{(I_{xx} / \bar{q} A b) s^2 - \frac{b}{2 v} C_{l_p} s + C_L z_b/b}
+%% \end{equation}
+
+
+%% \subsection{Pitch model}
+
+
+%% \begin{equation}
+%% \alpha \approx \theta + \dot{z} / v
+%% \end{equation}
+
+%% \begin{eqnarray}
+%% m_{\mathrm{eff}} \ddot{z} &=& -k_{\mathrm{eff}} z -
+%% \bar{q} C_{L_{\alpha}} A (\theta + \dot{z} / v) +
+%% \bar{q} C_{Z_q} A \left(\frac{c}{2 v}\right) \dot{\theta} +
+%% \bar{q} C_{Z_{\delta_e}} A \delta_e \\
+%% I_{yy} \ddot{\theta} &=& -k_{\mathrm{eff}} l_b z +
+%% \bar{q} C_{m_{\alpha}} A c (\theta + \dot{z} / v) +
+%% \bar{q} C_{m_q} A \left(\frac{c}{2 v}\right) \dot{\theta} +
+%% \bar{q} C_{m_{\delta_e}} A c \delta_e
+%% \end{eqnarray}
+
+
+%% \begin{equation}
+%% I_{yy} \ddot{\theta} = \bar{q} A c \left(
+%% \frac{c}{2 v} C_{m_q} \dot{\theta} + (C_{m_{\alpha}} + C_{L_{\alpha}} (-x_b)/c) \theta +
+%% C_{m_{\delta_e}} \delta_e \right)
+%% \end{equation}
+
+%% \begin{equation}
+%% \frac{I_{yy}}{\rho A (c/2)^3} \ddot{\hat{\theta}} =
+%% C_{m_q} \dot{\hat{\theta}} + (C_{m_{\alpha}} + C_{L_{\alpha}} (-x_b)/c) \theta +
+%% C_{m_{\delta_e}} \delta_e
+%% \end{equation}
+
+
+%% \begin{equation}
+%% \frac{\Theta(s)}{\Delta_e(s)} =
+%% \frac{C_{m_{\delta_e}}}{(I_{yy} / \bar{q} A c) s^2 - \frac{c}{2 v} C_{m_q} s - C_{m_{\alpha}}
+%% + C_{L_{\alpha}} (-x_b) / c}
+%% \end{equation}
+
+%% \begin{equation}
+%% \frac{\Theta(s')}{\Delta_e(s')} =
+%% \frac{C_{m_{\delta_e}}}{(8 I_{yy} / \rho A c^3) s'^2 - C_{m_q} s' - C_{m_{\alpha}}
+%% + C_{L_{\alpha}} (-x_b) / c}
+%% \end{equation}
+
+%% $C_{m_{\delta_e}} = -0.044$
+%% $C_{m_q} \approx -31$
+%% $C_{m_{\alpha}} \approx $
+%% $\iota_{yy} = 888$
+
+
+
+
+%% \subsection{Yaw model}
+
+%% \begin{equation}
+%% I_{zz} \ddot{\psi} = \bar{q} A b \left(
+%% C_{n_r} \dot{\psi} - (C_{n_{\beta}} + C_{Y_{\beta}} (-x'_b) / b) \psi +
+%% C_{n_{\delta_r}} \delta_r \right)
+%% \end{equation}
+%% Note that $\beta$ has the opposite sign convention as $\psi$.  Also
+%% $x'_b$ denotes the $x$ position of the bridle point rather than the
+%% bridle pivot.
+
+%% \begin{equation}
+%% \frac{\Psi(s)}{\Delta_r(s)} =
+%% \frac{C_{n_{\delta_r}}}{(I_{zz} / \bar{q} A b) s^2 - C_{n_r} s + C_{n_{\beta}}
+%% + C_{Y_{\beta}} (-x'_b) / b}
+%% \end{equation}
+
+
+
+\subsection{Speed model}
+
+\begin{equation}
+m_{\mathrm{eff}} \dot{v} =
+\frac{1}{2} \rho v^2 C_L A \sin \theta -
+\frac{1}{2} \rho v^2 C_D A \cos \theta +
+T \cos \theta
+\end{equation}
+
+\begin{eqnarray}
+  \sin \theta &=& \frac{v_w}{\sqrt{v_w^2 + v^2}} \\
+  \cos \theta &=& \frac{v}{\sqrt{v_w^2 + v^2}} \\
+\end{eqnarray}
+
+\begin{eqnarray}
+\sin (\theta_0 + \delta \theta) &=&
+\frac{v_w}{\sqrt{v_w^2 + (v_0 + \delta v)^2}} \\
+&\approx& \sin \theta_0 \left(1 - \frac{v_0 \delta v}{v_0^2 + v_w^2} \right)
+\end{eqnarray}
+
+\begin{equation}
+\delta \theta = \frac{v_w}{v_0^2 + v_w^2} \delta v
+\end{equation}
+
+\begin{eqnarray}
+m_{\mathrm{eff}} \delta \dot{v} &=&
+\frac{1}{2} \rho (v_0 + \delta v)^2 C_L A \sin (\theta_0 + \delta \theta) \\
+&-& \frac{1}{2} \rho (v_0 + \delta v)^2 C_D A \cos (\theta_0 + \delta \theta) \\
+&+& T \cos (\theta_0 + \delta \theta)
+\end{eqnarray}
+
+\begin{eqnarray}
+m_{\mathrm{eff}} \delta \dot{v} &=&
+\frac{1}{2} \rho (v_0^2 + 2 v_0 \delta v) C_L A
+(\sin \theta_0 + \delta \theta \cos \theta_0) \\
+&-& \left(\frac{1}{2} \rho (v_0^2 + 2 v_0 \delta v) C_D A - T \right)
+(\cos \theta_0 - \delta \theta \sin \theta_0)
+\end{eqnarray}
+
+\begin{eqnarray}
+m_{\mathrm{eff}} \delta \dot{v} &=&
+\frac{1}{2} \rho v_0^2 C_L A \cos \theta_0 \delta \theta -
+\frac{1}{2} \rho v_0^2 C_D A \sin \theta_0 \delta \theta +
+T (\cos \theta_0 - \delta \theta \sin \theta_0)
+\end{eqnarray}
+
+Assuming $\theta_0$ and $C_D$ are small and linearizing about $T = 0$:
+\begin{equation}
+m_{\mathrm{eff}} \delta \dot{v} =
+-\frac{1}{2} \rho C_L A \cos \theta_0 v_w \delta v +
+T \cos \theta_0
+\end{equation}
+
+
+
+\subsection{Longitudinal dynamics}
+
+\begin{eqnarray}
+\gamma &=& \tan^{-1}((\dot{z}_t + v_{\wind}) / \dot{x}_t) \\
+&\approx& \frac{\dot{z}_t + v_{\wind}}{\dot{x}_t} \\
+&\approx& \frac{v_{\wind}}{v_{\kite}} + \frac{1}{v_{\kite}} \delta \dot{z}_t -
+\frac{v_{\wind}}{v_{\kite}^2} \delta \dot{x}_t
+\end{eqnarray}
+
+\begin{eqnarray}
+\alpha &=& \tan^{-1}((\dot{z}_t + v_{\wind}) / \dot{x}_t) + \theta \\
+&\approx& \frac{\dot{z}_t + v_{\wind}}{\dot{x}_t} + \theta \\
+&\approx& \frac{v_{\wind}}{v_{\kite}} + \frac{1}{v_{\kite}} \delta \dot{z}_t -
+\frac{v_{\wind}}{v_{\kite}^2} \delta \dot{x}_t + \theta
+\end{eqnarray}
+
+\begin{eqnarray}
+\qbar &=& \frac{1}{2} \rho \left( \dot{x}_t^2 + v_{\wind}^2 \right) \\
+&=& \frac{1}{2} \rho \left( (v_{\kite} + \delta \dot{x}_t)^2 + v_{\wind}^2 \right) \\
+&\approx& \frac{1}{2} \rho \left( v_{\kite}^2 + v_{\wind}^2 \right) +
+\rho v_{\kite} \delta \dot{x}_t
+\end{eqnarray}
+
+\begin{eqnarray}
+C_L &=& C_{L_0} + C_{L_{\alpha}} \alpha + C_{L_{\hat{q}}} \hat{q} +
+C_{L_{\delta_e}} \delta_e \\
+C_D &=& C_{D_0} \\
+C_m &=& C_{m_0} + C_{m_{\alpha}} \alpha + C_{m_{\hat{q}}} \hat{q} +
+C_{m_{\delta_e}} \delta_e
+\end{eqnarray}
+
+\begin{eqnarray}
+C_L &=& C_{L_0}' + C_{L_{\alpha}} \left( \frac{1}{v_{\kite}} \delta \dot{z}_t -
+\frac{v_{\wind}}{v_{\kite}^2} \delta \dot{x}_t + \delta \theta \right) +
+C_{L_{\hat{q}}} \hat{q} +
+C_{L_{\delta_e}} \delta_e \\
+C_D &=& C_{D_0} \\
+C_m &=& C_{m_0}' + C_{m_{\alpha}} \left( \frac{1}{v_{\kite}} \delta \dot{z}_t -
+\frac{v_{\wind}}{v_{\kite}^2} \delta \dot{x}_t + \delta \theta \right) +
+C_{m_{\hat{q}}} \hat{q} +
+C_{m_{\delta_e}} \delta_e
+\end{eqnarray}
+
+\begin{equation}
+\left(
+\begin{array}{c}
+b_x_t \\
+b_z_t
+\end{array}
+\right)
+=
+\left(
+\begin{array}{cc}
+\cos \theta & -\sin \theta \\
+\sin \theta & \cos \theta
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+b_x \\
+b_z
+\end{array}
+\right)
+\end{equation}
+
+The full non-linear equations, with the effective mass and spring
+approximations, are
+\begin{eqnarray}
+m_{\eff} \ddot{x}_t &=& \qbar A C_L \sin \gamma -
+\qbar A C_D \cos \gamma + T \cos \theta \\
+m_{\eff} \ddot{z}_t &=& -\qbar A C_L \cos \gamma -
+\qbar A C_D \sin \gamma - k_{\eff} (z_t + b_z_t) - T \sin \theta \\
+I_{yy} \ddot{\theta} &=& \qbar A \cbar C_m + k_{\eff} (z_t + b_z_t) b_x_t
+\end{eqnarray}
+
+Linearizing these equations about a nominal kite speed, $v_{\kite}$,
+and angle-of-attack we find the following linearized model:
+
+\begin{eqnarray}
+m_{\eff} \delta \ddot{x}_t &=&
+\left(\qbar_0 + \rho v_{\kite} \delta \dot{x}_t \right) A \\
+&&\times \left( C_{L_0}' + C_{L_{\alpha}}
+\left( \frac{\delta \dot{z}_t}{v_{\kite}} -
+\frac{v_{\wind}}{v_{\kite}} \frac{\delta \dot{x}_t}{v_{\kite}} +
+\delta \theta \right) + C_{L_{\hat{q}}} \hat{q} + C_{L_{\delta_e}} \delta_e \right) \\
+&&\times \left( \frac{v_{\wind}}{v_{\kite}} + \frac{\delta \dot{z}_t}{v_{\kite}} -
+\frac{v_{\wind}}{v_{\kite}} \frac{\delta \dot{x}_t}{v_{\kite}} \right) \\
+&&- \left(\qbar_0 + \rho v_{\kite} \delta \dot{x}_t \right) A C_D + \delta T
+\end{eqnarray}
+
+Removing all second-order terms:
+\begin{eqnarray}
+\frac{m_{\eff}}{\qbar_0 A} \delta \ddot{x}_t &=&
+\left(\frac{\rho v_{\wind} v_{\kite}}{\qbar_0} C_{L_0}' -
+\frac{\rho v_{\kite}^2}{\qbar_0} C_D -
+C_{L_{\alpha}} \frac{v_{\wind}^2}{v_{\kite}^2} -
+C_{L_0}' \frac{v_{\wind}}{v_{\kite}}\right) \frac{\delta \dot{x}_t}{v_{\kite}} \\
+&+& \left(C_{L_{\alpha}} \frac{v_{\wind}}{v_{\kite}} + C_{L_0}' \right)
+\frac{\delta \dot{z}_t}{v_{\kite}} \\
+&+& \frac{v_{\wind}}{v_{\kite}} \left(
+C_{L_{\alpha}} \delta \theta + C_{L_{\hat{q}}} \hat{q} + C_{L_{\delta_e}} \delta_e) \\
+&+& \delta T /(\qbar_0 A)
+\end{eqnarray}
+
+Linearizing about the steady-state speed: $v_{\kite} = (C_{L_0}'/C_D) v_{\wind}$
+and removing terms terms that are second-order in $v_{\wind}/v_{\kite}$:
+\begin{eqnarray}
+\frac{m_{\eff}}{\qbar_0 A} \delta \ddot{x}_t &=&
+-C_D \frac{\delta \dot{x}_t}{v_{\kite}} +
+\left(C_D C_{L_{\alpha}}/C_{L_0}' + C_{L_0}' \right)
+\frac{\delta \dot{z}_t}{v_{\kite}} \\
+&+& C_D \left( C_{L_{\alpha}} \delta \theta + C_{L_{\hat{q}}} \hat{q} +
+C_{L_{\delta_e}} \delta_e \right) / C_{L_0}' + \delta T /(\qbar_0 A)
+\end{eqnarray}
+
+Repeating the same process:
+\begin{eqnarray}
+m_{\eff} \delta \ddot{z}_t &=&
+-\left(\qbar_0 + \rho v_{\kite} \delta \dot{x}_t \right) A \\
+&\times& \left( C_{L_0}' + C_{L_{\alpha}}
+\left( \frac{\delta \dot{z}_t}{v_{\kite}} -
+\frac{v_{\wind}}{v_{\kite}} \frac{\delta \dot{x}_t}{v_{\kite}} +
+\delta \theta \right) + C_{L_{\hat{q}}} \hat{q} + C_{L_{\delta_e}} \delta_e \right) \\
+&+& -\left(\qbar_0 + \rho v_{\kite} \delta \dot{x}_t \right) A C_D
+\left( \frac{v_{\wind}}{v_{\kite}} + \frac{\delta \dot{z}_t}{v_{\kite}} -
+\frac{v_{\wind}}{v_{\kite}} \frac{\delta \dot{x}_t}{v_{\kite}} \right) \\
+&-& k_{\eff} (\delta z_t + b_x \delta \theta) - \delta T \theta_0
+\end{eqnarray}
+
+Removing all second-order terms:
+
+\begin{eqnarray}
+\frac{m_{\eff}}{\qbar_0 A} \delta \ddot{z}_t &=&
+-\left(\frac{\rho v_{\kite}^2}{\qbar_0} C_{L_0}' -
+C_{L_{\alpha}} \frac{v_{\wind}}{v_{\kite}} +
+\frac{\rho v_{\kite}^2}{\qbar_0} C_D \frac{v_{\wind}}{v_{\kite}} -
+C_D \frac{v_{\wind}}{v_{\kite}}\right)
+\frac{\delta \dot{x}_t}{v_{\kite}} \\
+&-& \left(C_{L_{\alpha}} + C_D \right) \frac{\delta \dot{z}_t}{v_{\kite}} \\
+&-& \frac{k_{\eff}}{\qbar_0 A} \delta z_t - C_{L_{\alpha}} \delta \theta -
+C_{L_{\hat{q}}} \hat{q} - C_{L_{\delta_e}} \delta_e
+\end{eqnarray}
+
+Repeating for the pitch dynamics:
+\begin{eqnarray}
+I_{yy} \delta \ddot{\theta} &=&
+\left(\qbar_0 + \rho v_{\kite} \delta \dot{x}_t \right) A \cbar \\
+&\times& \left( C_{m_0}' + C_{m_{\alpha}} \left( \frac{1}{v_{\kite}} \delta \dot{z}_t -
+\frac{v_{\wind}}{v_{\kite}^2} \delta \dot{x}_t + \delta \theta \right) +
+C_{m_{\hat{q}}} \hat{q} +
+C_{m_{\delta_e}} \delta_e \right) \\
+&+& k_{\eff} (z_0 + \delta z_t + b_x \delta \theta + b_z) (b_x - b_z \delta \theta)
+\end{eqnarray}
+
+Removing all second-order terms:
+\begin{eqnarray}
+\frac{I_{yy}}{\qbar_0 A \cbar} \delta \ddot{\theta} &=&
+\left( \frac{\rho v_{\kite}^2}{\qbar_0} C_{m_0}' -
+C_{m_{\alpha}} \frac{v_{\wind}}{v_{\kite}} \right) \frac{\delta \dot{x}_t}{v_{\kite}} \\
+&+& C_{m_{\alpha}} \frac{\delta \dot{z}_t}{v_{\kite}} +
+\frac{k_{\eff} b_x}{\qbar_0 A \cbar} \delta z_t \\
+&+& \left(C_{m_{\alpha}} +
+\frac{k_{\eff} (-z_t_0 b_z + b_x^2 - b_z^2)}{\qbar_0 A \cbar}\right) \delta \theta \\
+&+& C_{m_{\hat{q}}} \hat{q} + C_{m_{\delta_e}} \delta_e
+\end{eqnarray}
+
+\subsection{Lateral dynamics}
+
+Assume $w << 1$.
+
+\begin{eqnarray}
+\mathbf{x} &=& \left[y, \phi, \psi, \dot{y}, \dot{\phi}, \dot{\psi} \right]^T \\
+\mathbf{u} &=& \left[\delta_a, \delta_r, \tau_y, \tau_z \right]^T
+\end{eqnarray}
+
+\begin{eqnarray}
+m (\dot{v} + r u) = \qbar A C_Y + t_y_b \\
+
+\end{eqnarray}
+
+\end{document}

@@ -1,0 +1,18 @@
+#!/bin/bash -e
+#
+# Outputs descriptors of workspace status as "<key> <value>" lines.
+#
+# Only certain keys are supported. This feature is not especially
+# well-documented.
+#
+# This implementation is taken from tools/buildstamp/get_workspace_status.
+
+echo "BUILD_SCM_REVISION $(git rev-parse HEAD)"
+
+# Check whether there are any uncommited changes.
+if git diff-index --quiet HEAD --; then
+    tree_status="Clean"
+else
+    tree_status="Modified"
+fi
+echo "BUILD_SCM_STATUS ${tree_status}"

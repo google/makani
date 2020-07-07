@@ -1,0 +1,14 @@
+README for runs/windmill directory
+
+Hal Youngren 4/05
+
+This directory contains old format input files as examples. 
+
+Files are:
+
+wmill.prop      sample windmill input (old format)
+wmill.cases     cases file
+
+
+
+

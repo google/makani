@@ -1,0 +1,43 @@
+
+ ---------------------------------------------
+ Run case  1:   -unnamed-                              
+
+ alpha        ->  CL          =  0.390510    
+ beta         ->  beta        =   0.00000    
+ pb/2V        ->  pb/2V       =   0.00000    
+ qc/2V        ->  qc/2V       =   0.00000    
+ rb/2V        ->  rb/2V       =   0.00000    
+ aileron      ->  Cl roll mom =   0.00000    
+ elevator     ->  Cm pitchmom =   0.00000    
+ rudder       ->  Cn yaw  mom =   0.00000    
+ 
+ alpha     = -0.145500     deg                             
+ beta      =   0.00000     deg                             
+ pb/2V     =   0.00000                                     
+ qc/2V     =   0.00000                                     
+ rb/2V     = -0.282696E-35                                 
+ CL        =  0.390510                                     
+ CDo       =  0.835000E-02                                 
+ bank      =   0.00000     deg                             
+ elevation =   0.00000     deg                             
+ heading   =   0.00000     deg                             
+ Mach      =   0.00000                                     
+ velocity  =   64.5396     ft/s                            
+ density   =  0.584600E-03 slug/ft^3                       
+ grav.acc. =   32.1800     ft/s^2                          
+ turn_rad. =   0.00000     ft                              
+ load_fac. =   1.00000                                     
+ X_cg      =  0.246300E-01                                 
+ Y_cg      =   0.00000                                     
+ Z_cg      =  0.223900                                     
+ mass      =  0.177300     slug                            
+ Ixx       =   1.35000     slug-ft^2                       
+ Iyy       =  0.750900     slug-ft^2                       
+ Izz       =   2.09500     slug-ft^2                       
+ Ixy       =   0.00000     slug-ft^2                       
+ Iyz       =   0.00000     slug-ft^2                       
+ Izx       =   0.00000     slug-ft^2                       
+ visc CL_a =   0.00000                                     
+ visc CL_u =   0.00000                                     
+ visc CM_a =   0.00000                                     
+ visc CM_u =   0.00000                                     

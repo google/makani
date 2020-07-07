@@ -1,0 +1,317 @@
+#!/usr/bin/python
+"""Upload telemetry logs to Cloud Storage."""
+
+import copy
+import logging
+import os
+import subprocess
+import sys
+
+import gflags
+import h5py
+import makani
+import psutil
+
+gflags.DEFINE_bool(
+    'sync_commandcenter_logs', True,
+    'True if command center logs should be synced.', short_name='c')
+
+gflags.DEFINE_bool(
+    'sync_wing_logs', True,
+    'True if wing recorder logs should be synced.', short_name='w')
+
+gflags.DEFINE_bool(
+    'sync_platform_logs', True,
+    'True if platform recorder logs should be synced.', short_name='p')
+
+gflags.DEFINE_bool(
+    'verbose', True,
+    'True if detailed information should be printed.', short_name='v')
+
+gflags.DEFINE_bool(
+    'help', False, 'Print help message.', short_name='h')
+
+FLAGS = gflags.FLAGS
+
+# Run at normal priority.
+_PROCESS_PRIORITY = None
+
+
+def _RunCommand(command_arglist, redirect=True, priority=None):
+  """Runs the executable in the foreground with the provided args.
+
+  Args:
+    command_arglist: The list of commandline arguments to run.
+    redirect: If True, return the stdout and stderr as output strings.
+    priority: The priority for the program to run.
+
+  Returns:
+    (<returncode>[, <str>, <str>]): Completed process, and stdout, stderr
+        if redirected.
+  """
+  pipe = subprocess.PIPE if redirect else None
+  popen = psutil.Popen(command_arglist, stdout=pipe, stderr=pipe)
+
+  if priority is not None:
+    popen.nice(priority)
+
+  stdout, stderr = popen.communicate()
+
+  if redirect:
+    return popen.returncode, stdout, stderr
+  else:
+    return popen.returncode
+
+
+def _RenamePcap(file_name, file_names):
+  """Rename a pcap file to one that does not exist in `file_names`."""
+  base_name, ext = os.path.splitext(file_name)
+  assert ext == '.pcap'
+  n = 0
+  while file_name + '.gz' in file_names or file_name in file_names:
+    file_name = base_name + '_' + str(n) + '.pcap'
+    n += 1
+  return file_name
+
+
+def _PcapSweep(directory):
+  """Post-process all pcap files in a directory."""
+
+  default_validate_script = os.path.join(
+      makani.HOME, 'bazel-bin/lib/datatools/validate_pcap')
+  default_pcap_to_hdf5 = os.path.join(
+      makani.HOME, 'bazel-bin/lib/pcap_to_hdf5/pcap_to_hdf5')
+
+  # Book-keeping variables about what files have failed or been processed.
+  failed_postprocess = set()
+  failed_validation = set()
+  validated_files = set()
+  converted_files = set()
+  # The file that causes the entire process to abort.
+  aborting_file = None
+
+  for root, _, file_names in os.walk(directory):
+    if not file_names:
+      continue
+    new_file_names = set(copy.copy(file_names))
+    validate_script = None
+    pcap_to_hdf5 = None
+    for file_name in file_names:
+      # Find and rename pcap file if its gzip file already exists.
+      if file_name.endswith('.pcap'):
+        if file_name + '.gz' in file_names:
+          renamed_file = _RenamePcap(file_name, new_file_names)
+          os.rename(os.path.join(root, file_name),
+                    os.path.join(root, renamed_file))
+          new_file_names.remove(file_name)
+          new_file_names.add(renamed_file)
+      elif file_name.endswith('.pcap.gz'):
+        new_file_names.add(file_name)
+      elif file_name == 'validate_pcap':
+        validate_script = os.path.join(root, file_name)
+      elif file_name == 'pcap_to_hdf5':
+        pcap_to_hdf5 = os.path.join(root, file_name)
+
+    if validate_script is None:
+      validate_script = default_validate_script
+
+    if pcap_to_hdf5 is None:
+      pcap_to_hdf5 = default_pcap_to_hdf5
+
+    for file_name in new_file_names:
+      if not _ProcessOneFile(
+          root, file_name, pcap_to_hdf5, validate_script, failed_postprocess,
+          failed_validation, validated_files, converted_files):
+        aborting_file = os.path.join(root, file_name)
+        break
+
+  return (aborting_file, failed_postprocess, failed_validation,
+          converted_files, validated_files)
+
+
+def _IsValidH5Log(file_path):
+  """Return True if `file_path` points to a valid Makani log file."""
+  if not os.path.exists(file_path):
+    return False
+  else:
+    try:
+      with h5py.File(file_path, 'r') as fp:
+        return 'messages' in fp
+    except IOError:
+      return False
+
+
+def _ProcessOneFile(
+    root, file_name, pcap_to_hdf5, validate_script, failed_postprocess,
+    failed_validation, validated_files, converted_files):
+  """Post process one potential pcap file."""
+
+  full_file_path = os.path.join(root, file_name)
+  # Find or unzip into pcap files.
+  if file_name.endswith('.pcap.gz'):
+    expected_h5 = os.path.join(root, file_name[:-8] + '.h5')
+    if _IsValidH5Log(expected_h5):
+      return True
+    elif os.path.exists(expected_h5):
+      # Remove the corrupted h5 and regenerate it.
+      os.remove(expected_h5)
+    logging.info('gunzip ' + full_file_path)
+    returncode = _RunCommand(
+        ['gunzip', full_file_path], False, _PROCESS_PRIORITY)
+    if returncode:
+      logging.fatal('Failed to gunzip %s, aborting...', full_file_path)
+      return False
+    full_pcap_path = full_file_path[:-3]
+  elif file_name.endswith('.pcap'):
+    expected_h5 = os.path.join(
+        root, os.path.splitext(file_name)[0] + '.h5')
+    if _IsValidH5Log(expected_h5):
+      logging.info('gzip ' + full_file_path)
+      returncode = _RunCommand(
+          ['gzip', full_file_path], False, _PROCESS_PRIORITY)
+      return not returncode
+    elif os.path.exists(expected_h5):
+      # Remove the corrupted h5 and regenerate it.
+      os.remove(expected_h5)
+    full_pcap_path = full_file_path
+  else:
+    # Nothing to do.
+    return True
+
+  validate_report_path = ('%s-report.txt' %
+                          os.path.splitext(full_pcap_path)[0])
+  if not os.path.exists(validate_report_path):
+    _RunCommand(['chmod', '+x', validate_script], True, _PROCESS_PRIORITY)
+    returncode, validate_stdout, _ = _RunCommand(
+        [validate_script, full_pcap_path], True, _PROCESS_PRIORITY)
+    if returncode:
+      failed_validation.add(full_pcap_path)
+    else:
+      validated_files.add(full_pcap_path)
+
+    with open(validate_report_path, 'w') as report_file:
+      report_file.write(validate_stdout)
+
+  # Convert to H5 and then zip the pcap file.
+  log_process_script = os.path.join(
+      makani.HOME, 'lib/scripts/operator/log_process.sh')
+  logging.info(log_process_script + ' ' + full_pcap_path)
+  _RunCommand(['chmod', '+x', pcap_to_hdf5], True, _PROCESS_PRIORITY)
+  returncode = _RunCommand(
+      [log_process_script, full_pcap_path, '', pcap_to_hdf5], False,
+      _PROCESS_PRIORITY)
+  if returncode:
+    failed_postprocess.add(full_pcap_path)
+    logging.fatal('Failed to log_process %s, aborting...', full_pcap_path)
+    return False
+  converted_files.add(full_pcap_path)
+
+  return True
+
+
+def _ShowStatus(aborting_file, failed_postprocess, failed_validation,
+                converted_files, validated_files):
+  """Report status of the local processing stage."""
+
+  if aborting_file:
+    logging.info('Aborted when processing file "%s".', aborting_file)
+
+  if failed_postprocess:
+    logging.info(
+        'Pcap files that failed processing (likely no HDF5 gets produced):\n' +
+        '\n'.join(sorted(failed_postprocess)))
+  if failed_validation:
+    logging.info(
+        'Pcap files that failed validation (likely HDF5 is corrupted):\n' +
+        '\n'.join(sorted(failed_validation)))
+  if converted_files:
+    logging.info('Pcap files that are converted to HDF5:\n' +
+                 '\n'.join(sorted(converted_files)))
+  if validated_files:
+    logging.info('Pcap files that are validated:\n' +
+                 '\n'.join(sorted(validated_files)))
+
+
+def _RunLogSync(systems, collections=None):
+  """Run the log synchronizer."""
+  returncode = _RunCommand([
+      os.path.join(makani.HOME, 'lib/log_synchronizer/synchronizer.py'),
+      # TODO: Use '--nopreserve_local', '--clean_uploaded' instead.
+      '--preserve_local', '--noclean_uploaded',
+      '--max_cpu_percent=90', '--max_mem_percent=90',
+      '--exclusive_binaries=sim,recorder,vis',
+      '--systems=%s' % ','.join(systems),
+      ('--collections=%s' % ','.join(collections)) if collections else ''],
+                           False)
+  if returncode != 0:
+    raise Exception('Abort due to uploading failure.')
+
+
+def main(argv):
+  def PrintUsage(argv, error=None):
+    if error:
+      print '\nError: %s\n' % error
+    print 'Usage: %s logfile.h5\n%s' % (argv[0], FLAGS)
+
+  try:
+    FLAGS(argv)
+  except gflags.FlagsError, e:
+    PrintUsage(argv, e)
+    sys.exit(1)
+
+  if FLAGS.help:
+    PrintUsage(argv)
+    sys.exit(1)
+
+  if FLAGS.verbose:
+    logging.basicConfig(level=logging.INFO)
+  else:
+    logging.basicConfig(level=logging.WARNING)
+
+  systems = None
+  try:
+    with open('/etc/makani/logsync_systems', 'r') as f:
+      systems = f.read().split()
+  except IOError:
+    pass
+  if not systems:
+    raise ValueError('This computer is not configured to sync logs.  '
+                     'System list needed in /etc/makani/logsync_systems.')
+
+  if FLAGS.sync_commandcenter_logs:
+    _RunLogSync(systems, ['tagged_cc', 'cc'])
+
+  pcap_directories = []
+  if FLAGS.sync_wing_logs:
+    for system in systems:
+      pcap_directories.append(os.path.join(
+          makani.HOME, 'logs/%s/wing_recorder_logs' % system))
+  if FLAGS.sync_platform_logs:
+    for system in systems:
+      pcap_directories.append(os.path.join(
+          makani.HOME, 'logs/%s/platform_recorder_logs' % system))
+
+  if pcap_directories:
+    status = {}
+
+    for directory in pcap_directories:
+      if not (os.path.exists(directory) and os.path.isdir(directory)):
+        logging.debug('"%s" is not a valid directory.', directory)
+        continue
+      else:
+        logging.info('Processing flight recorder pcap files in "%s"', directory)
+      status[directory] = _PcapSweep(directory)
+
+    if FLAGS.sync_wing_logs:
+      _RunLogSync(systems, ['tagged_wing', 'wing'])
+
+    if FLAGS.sync_platform_logs:
+      _RunLogSync(systems, ['tagged_platform', 'platform'])
+
+    for directory in status:
+      logging.info('************** ' + directory + ' *****************')
+      _ShowStatus(*status[directory])
+
+
+if __name__ == '__main__':
+  main(sys.argv)

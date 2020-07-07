@@ -1,0 +1,13 @@
+ftnchek -common=1 -novice=4 -arguments=all -notruncation \
+-include=../plotlib \
+-include=../osrc \
+xfoil.f xpanel.f xoper.f xtcam.f xgdes.f xqdes.f xmdes.f \
+xsolve.f xbl.f xblsys.f xpol.f xplots.f pntops.f xgeom.f \
+xutils.f modify.f blplot.f polplt.f aread.f naca.f spline.f \
+plutil.f iopol.f gui.f sort.f dplot.f profil.f userio.f \
+frplot.f ntcalc.f \
+../osrc/osmap.f \
+../plotlib/plt_base.f \
+../plotlib/plt_font.f \
+../plotlib/plt_color.f \
+../plotlib/plt_util.f

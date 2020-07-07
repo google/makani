@@ -1,0 +1,121 @@
+#!/bin/bash -e
+#
+# Sets up or brings down the control station network configuration.
+#
+# Disables network-manager when started and re-enables it when stopped.
+#
+# Usage: ./aio_network start
+#        ./aio_network start [interface] [IP address]
+#        ./aio_network start --outlaw
+#        ./aio_network stop
+
+# Prints the top comment of the file ignoring the first two lines,
+# which are reserved for the shebang line.
+function print_usage() {
+  local head_num
+  head_num="$(grep -n "^$" $0 | cut -f1 -d: | head -n 1)"
+  head -n "${head_num}" $0 | tail -n +3 | sed 's/^# \?//g'
+}
+
+function ip_to_mac() {
+  echo "02:00:00:00:00:$(printf '%02X' ${1##*.})"
+}
+
+function start_outlaw_aio_network() {
+  # Check for and bring-up predefined "AIO" connection.
+  re='\sAIO\s'
+  if [[ "$(nmcli -f NAME con show)" =~ $re ]]; then
+    nmcli con up id AIO
+  else
+    echo '"AIO" ethernet profile not found.' 1>&2
+    echo 'Setup profile using following settings.' 1>&2
+    echo 'Connection Name: AIO' 1>&2
+    echo 'Ethernet - Device MAC address: <eth0 MAC>' 1>&2
+    echo 'Ethernet - Cloned MAC address: 02:00:00:00:00:xx' 1>&2
+    echo 'IPv4 - Method: Manual' 1>&2
+    echo 'IPv4 - Address: 192.168.1.0' 1>&2
+    echo 'IPv4 - Netmask: 255.255.0.0' 1>&2
+    echo 'IPv4 - Gateway: 0.0.0.0' 1>&2
+    echo 'IPv4 - Routes - Address: 239.0.0.0' 1>&2
+    echo 'IPv4 - Routes - Netmask: 255.0.0.0' 1>&2
+    echo 'IPv4 - Routes - Use Network For Own Resources: True' 1>&2
+    exit 1
+  fi
+}
+
+function start_aio_network() {
+  if [[ -n "$2" ]]; then
+    local readonly INTERFACE="$1"
+    local readonly HOST_IP="$2"
+  else
+    local readonly CONFIG_FILE="/etc/makani/aio_network.conf"
+
+    if [[ -f "${CONFIG_FILE}" ]]; then
+      source "${CONFIG_FILE}"
+    fi
+
+    if [[ -n "$1" ]]; then
+      local readonly INTERFACE="$1"
+    elif [[ -z "${AIO_NETWORK_INTERFACE}" ]]; then
+      echo 'This is not an ops machine.  An interface must be specified:' 1>&2
+      echo '  aio_network start <interface> <ip_address>' 1>&2
+      exit 1
+    else
+      local readonly INTERFACE="${AIO_NETWORK_INTERFACE}"
+    fi
+
+    if [[ -z "${AIO_NETWORK_IP}" ]]; then
+      echo 'This is not an ops machine.  An IP address must be specified:' 1>&2
+      echo '  aio_network start <interface> <ip_address>' 1>&2
+      exit 1
+    fi
+
+    local readonly HOST_IP="${AIO_NETWORK_IP}"
+  fi
+
+  # Disable firewall.
+  if [[ -x "$(command -v ufw)" ]]; then
+      ufw disable
+  fi
+
+  # Stop network-manager, which has problems with spoofed MAC addresses.
+  service network-manager stop || true
+
+  # Spoof MAC address to be consistent with AIO MAC address scheme.
+  # Setup interface to talk multicast to other AIO nodes.
+  ifconfig "${INTERFACE}" down
+  ifconfig "${INTERFACE}" hw ether "$(ip_to_mac ${HOST_IP})"
+  ifconfig "${INTERFACE}" "${HOST_IP}" netmask 255.255.0.0
+  route add -net 239.0.0.0 netmask 255.0.0.0 dev "${INTERFACE}"
+  ifconfig "${INTERFACE}" up
+}
+
+function stop_aio_network() {
+  # Check that network-manager is not running.
+  if [[ ! -x "$(service network-manager status)" ]]; then
+    # Hand control back to the network manager.
+    service network-manager start
+  else
+    # Check that AIO connection is active.
+    re='\sAIO\s'
+    if [[ "$(nmcli -f NAME con show --active)" =~ $re ]]; then
+      # Disconnect AIO.
+      nmcli con down id AIO
+    fi
+  fi
+}
+
+if [[ "$#" -eq 0 ]]; then
+  print_usage
+elif [[ "$1" = 'start' && "$2" = '--outlaw' ]]; then
+  start_outlaw_aio_network
+  echo 'Configured AIO network in outlaw mode.' 1>&2
+elif [[ "$1" = 'start' && "$#" -lt 4 ]]; then
+  start_aio_network ${@:2}
+  echo 'Configured AIO network.  Internet access is disabled.' 1>&2
+elif [[ "$1" = 'stop' ]]; then
+  stop_aio_network
+  echo 'Disabled AIO network.  Internet access restored.' 1>&2
+else
+  print_usage
+fi

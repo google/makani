@@ -1,0 +1,77 @@
+Submarine
+0.0                      Mach
+0      0      0.0        iYsym  iZsym  Zsym
+0.25   5.0    5.0        Sref   Cref   Bref
+2.5    0.0    0.0        Xref   Yref   Zref
+0.15                     CDo
+#
+#=============================================
+BODY
+Hull
+24  1.0
+#
+TRANSLATE
+0. 0. 0.
+SCALE 
+5.0  5.0  5.0
+#
+BFIL
+sub.dat
+
+#=============================================
+SURFACE
+Horizontal tail
+5   1.0    5  -2.0
+YDUPLICATE
+     0.0
+ANGLE
+    0.0
+SCALE
+ 1.0  1.0  1.0
+TRANSLATE
+ 4.8  0.0  0.0
+#---------------------------
+SECTION
+#   Xle   Yle   Zle    Chord      Angle   Nspan
+     0.0   0.0   0.0    0.2         0.000   7  -1.5
+
+#Cname   Cgain  Xhinge  HingeVec       SgnDup
+CONTROL
+elevator  1.0   0.5     0.0 1.0 0.0    1.0
+#---------------------------
+SECTION
+     0.05  0.3   0.0    0.15        0.000   1   0
+
+CONTROL
+elevator  1.0   0.5     0.0 1.0 0.0    1.0
+#
+#=============================================
+SURFACE
+Vertical tail
+5   1.0   10   1.0
+ANGLE
+    0.0
+SCALE
+ 1.0  1.0  1.0
+TRANSLATE
+ 4.8  0.0  0.0
+#---------------------------
+SECTION
+     0.05  0.0  -0.3    0.15        0.000   1   0
+
+CONTROL
+rudder  1.0   0.5     0.0 0.0 1.0    1.0
+#
+#---------------------------
+SECTION
+     0.0   0.0   0.0    0.2         0.000   7  -1.5
+
+CONTROL
+rudder  1.0   0.5     0.0 0.0 1.0    1.0
+#---------------------------
+SECTION
+     0.05  0.0   0.3    0.15        0.000   1   0
+
+CONTROL
+rudder  1.0   0.5     0.0 0.0 1.0    1.0
+#

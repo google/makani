@@ -1,0 +1,7 @@
+ftnchek -common=1 -novice=2 -argument=1 -notruncation \
+-include=../plotlib \
+pplot.f polplt.f sort.f iopol.f userio.f \
+../plotlib/plt_base.f \
+../plotlib/plt_font.f \
+../plotlib/plt_color.f \
+../plotlib/plt_util.f

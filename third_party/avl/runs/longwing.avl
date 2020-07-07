@@ -1,0 +1,58 @@
+Very high aspect ratio wing
+#Mach
+ 0.0    
+#IYsym   IZsym   Zsym
+ 0       0       0.0
+#Sref    Cref    Bref
+100.0    1.0     100.0
+#Xref    Yref    Zref
+0.25     0.0     0.0
+#
+#
+#====================================================================
+SURFACE 
+Wing 
+#Nchordwise  Cspace   Nspanwise   Sspace
+8            1.0      40          -2.0
+#
+YDUPLICATE
+0.0
+#
+ANGLE
+0.0
+#-------------------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+0.      0.     0.      1.0     0.0   0          0
+
+NACA
+4520
+
+#Cname   Cgain  Xhinge  HingeVec     SgnDup
+CONTROL
+flap     1.0   0.75    0.0 0.0 0.0   1.0
+
+CONTROL
+aileron  -1.0   0.75    0.0 0.0 0.0  -1.0
+
+CLAF
+1.15
+
+#-------------------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+0.0     50.0   0.0     1.0     0.0   0          0
+
+NACA
+4500
+
+#Cname   Cgain  Xhinge  HingeVec     SgnDup
+CONTROL
+flap     1.0   0.75    0.0 0.0 0.0   1.0
+
+CONTROL
+aileron  -1.0   0.75    0.0 0.0 0.0  -1.0
+
+CLAF
+1.15
+#

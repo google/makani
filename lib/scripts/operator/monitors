@@ -1,0 +1,58 @@
+#!/bin/bash -e
+#
+# Starts and stops the monitors.
+#
+# Usage: ./monitors start [layout_one] [layout_two] ...
+#        ./monitors stop
+#
+# If no layout is specified it opens up defaults and kills any
+# currently running monitors.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+
+readonly DEFAULT_MONITORS='flight gs motors network servos status'
+
+cd "${MAKANI_HOME}/lib/scripts/operator"
+
+function stop_monitors() {
+  mbash::kill_makani_proc_by_name gs/aio_snapshot/aio_snapshot
+  mbash::kill_makani_proc_by_name gs/monitor/monitor
+}
+
+# Start the snapshotting tool.
+function start_aio_snapshot() {
+  cd "${MAKANI_HOME}"
+
+  if [[ -n "$(pgrep aio_snapshot)" ]]; then
+    echo "INFO: aio_snapshot is already running."
+  else
+    ("${BUILD_DIR}/gs/aio_snapshot/aio_snapshot" &)
+  fi
+}
+
+# Takes a list of monitor layouts to start as arguments.
+function start_monitors() {
+  cd "${MAKANI_HOME}"
+
+  for layout in $@; do
+    ("${BUILD_DIR}/gs/monitor/monitor" "${layout}" &)
+  done
+}
+
+if [[ "$#" -eq 0 ]]; then
+  mbash::print_usage
+elif [[ "$1" = 'stop' ]]; then
+  stop_monitors
+elif [[ "$1" = 'start' ]]; then
+  if [[ "$#" -eq 1 ]]; then
+    # Stop the monitors and snapshotting tool if they're running.
+    stop_monitors
+    start_aio_snapshot
+    start_monitors ${DEFAULT_MONITORS}
+  else
+    start_aio_snapshot
+    start_monitors ${@:2}
+  fi
+else
+  mbash::print_usage
+fi

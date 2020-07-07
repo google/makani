@@ -1,0 +1,25 @@
+README for runs directory
+
+Hal Youngren 4/05
+
+This directory contains input files as XROTOR examples. These are all 
+in the new XROTOR input format.
+
+Files are:
+
+ecruzer.prop     model prop example 
+ecruzer.nacelle  nacelle (body) input file
+ecruzer.vslip    slipstream file (input or output)
+ecruzer.cases    cases file (read from OPER)
+ecruzer.EI       sample structure data (read from BEND)
+
+F1D.prop         model aircraft prop input 
+
+hydro.prop       air prop input file
+
+4bld.prop        input file for a 10"dia model prop
+
+pwrvar1.dat      sample power/rpm input file (read from OPER)
+
+
+

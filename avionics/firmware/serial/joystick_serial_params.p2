@@ -1,0 +1,9 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 JoystickHardware {
+  RevAa = 1,
+}
+
+specialize(SerialParams) JoystickSerialParams {
+  JoystickHardware hardware_revision;
+}

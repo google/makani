@@ -1,0 +1,5 @@
+enum32 GpsReceiverType {
+  None = 0,
+  NovAtel = 1,
+  Septentrio = 2,
+}

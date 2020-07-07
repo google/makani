@@ -1,0 +1,7 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+lib/scripts/developer/bbuild_q7 "$@" && \
+  lib/scripts/developer/bbuild_tms570 "$@" && \
+  lib/scripts/developer/bbuild_x86 "$@"

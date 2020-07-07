@@ -1,0 +1,240 @@
+*========================================================================*
+Notes for XROTOR 6.7
+HHY 6/22/98
+
+This version started as the MIT version 6.6 and was modified to fix some 
+of the compile problems.  A new Makefile was added that gives options for most
+workstations (including Linux with several fortran compilers).
+
+Work was also done to fix the interactive options for cursor input 
+(for CL spec, Chord spec, Blade angle spec).  Hot keys (z,u,q) were added 
+to these interactive plots to allow the user to zoom, unzoom and abort 
+cursor input.  
+
+There were also several problems with the plot library for window switching
+from Landscape to Portrait.  This version of plotlib has a fix that appears
+to work in the DEC Alpha and on Linux (others probably work, not tested).
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 6.80
+HHY 3/13/99
+
+This version started as a modified MIT version 6.7 and a number of changes were
+made to:
+
+ New aero model for sections based on limiter function for CL
+
+ New option for discrete vortex wake integration of induced velocity
+
+ Blades can optionally have constant non-zero rake angle in x,y plane (this
+ requires the user to use the discrete vortex wake option)
+
+ Structure analysis now can include correct forces for raked blades
+
+ Options for setting # of radial stations and display increment from user
+ dialog
+
+This should be considered a developmental version of XROTOR...
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 6.9
+HHY 3/13/99
+
+This version completed a number of enhancements to the basic code
+
+ New aero model
+  Radial stations on the prop can now have assigned aerodynamic properties.
+  This uses the concept of "aero sections" between which the aero properties 
+  will be linearly interpolated.  
+
+ New convergence and relaxation parameters to facilitate convergence of 
+  Newton system.  
+
+ New helicopter output quantities for cases with very low advance ratio where
+  XROTOR can be used for hover analysis.
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.0
+HHY 7/00
+
+This version completed a number of enhancements to the basic code
+
+ Enhancements of aero model
+  Mcrit and compressibility effects can now be included with any aero section.
+  The compressibility effects increase drag at Mach numbers above Mcrit.  The 
+  CLmax and CLmin are also reduced by Mach number to correspond approximately
+  to what is observed on real airfoils.
+
+ Newer convergence and relaxation parameters to facilitate convergence of 
+  Newton system.  
+
+ New helicopter output quantities for cases with very low advance ratio where
+  XROTOR can be used for hover analysis.
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.10
+HHY 3/2/01
+
+This version completed a number of enhancements to the basic code
+
+ Mcrit and compressibility effects readjusted to improve CD(M-Mcrit) 
+  correlation.
+
+ Plotting labels and titles added to many plots
+
+ Fixes to the induced velocity plots to correct a scaling bug
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.20
+HHY 5/20/02
+
+This version has several bug fixes and adds the germ of a new data plotting 
+capability.  
+
+ Fixes to the code remedy bugs in xoper.f relating to the "equivalent" prop
+  which produced incorrect forces for all cases but only noticeably incorrect
+  answers for ducted propellers. Don't panic, most old cases are largely 
+  unaffected!  
+
+  Also fixes include the addition of several benign but missing calls to 
+   calculate body induced velocities.  
+
+ A new set of plotting routines was added to plot blade data (like CL,CD,GAM) 
+   as a function of radial station.  The presently augments the existing 
+   "integrated" but very busy and terse plot output.  This option can be 
+   selected through the PLOT submenu in OPER, option 10.  This capability 
+   will be improved in a subsequent version of XROTOR.
+
+ Documentation (in xrotor.doc) was updated to better describe the new AERO
+   model and the discrete vortex wake model.  Not perfect, but improved...
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.30
+HHY 7/08/02
+
+This version has large revisions to the "equivalent" prop formulation.
+The largest impact for these changes will be on ducted rotors where the 
+previous formulations (including the 7.2 revision) did not properly treat 
+duct effects.  
+
+ Most of the fixes for 7.3 were to xoper.f with changes also to xrotor.f, 
+  xdesi.f and xrotpl.f.  These changes concern the "equivalent" prop 
+  formulation, particularly for ducted rotors.   Although the changes were
+  more general and pervasive than just for duct effects open props should
+  not show significant changes in thrust or performance.  
+
+ Changes were made to the initialization code in SUBROUTINE APINIT that 
+  should make XROTOR generally more robust.  The GAM circulation
+  distribution is now filtered (smoothed) in APINIT and APITER when the
+  Newton update is drastically underrelaxed.  This is done to eliminate wild 
+  "spikes" in the circulation that upset the solution iterations.  This 
+  filtering has no effect on the converged solution.
+
+ A new axial rotor view plot option was added to visualize the whole prop. 
+  This is probably most helpful for ducted rotors but is useful on normal
+  props as well.
+
+ Documentation (in xrotor.doc) was not updated ato better describe the new AERO
+   model and the discrete vortex wake model.  Not perfect, but improved...
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.42
+HHY 1/28/03
+
+This version has revisions to xdesi.f and xmodi.f to treat duct cases properly
+and to properly initialize before the design option is entered.  Previously
+options in the DESI menu and the OPTI option in the MODI menu did not properly
+initialize the circulation before the design iteration was performed.  Some 
+of these problems were accentuated for near "static flow" conditions (hovering
+rotor or ducted rotor).
+
+The plotting of slipstream velocities was misleading and has been revised.  The
+old induced velocity plots corresponded to the velocity induced at the rotor
+plane by the vortex wake.  The slipstream swirl (downstream of the prop) is 2X 
+the swirl at the rotor plane.  New plot options were added to display the 
+induced velocities at the rotor plane or downstream (near the prop) in the
+slipstream.  The velocities in the slipstream now include swirl derived from
+the induced and viscous power (torque) to properly reflect blade drag losses 
+mixing into the slipstream.  Note that the induced velocities at the rotor disk
+are assumed to be vortex induced only, no viscous contribution from blade drag.
+The blade data plot option (plot 12 in the PLOT menu) now can display induced
+velocity on the rotor plane as well as slipstream velocities and angle. The 
+plot options were rearranged to allow for the new capabilities.
+
+The plotting options were overhauled and made more consistent between OPER,
+DESI and MODI.  Now all plots are available from all three menus.
+
+Documentation (in xrotor.doc) was revised slightly.
+   Still not perfect, but improving...
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.5x
+HHY 4/1/03
+
+Comparison of forces from axial momentum integration with blade forces showed
+that the axial induced velocity was not being set properly from the wake
+advance ratio equation (in xoper.f in APITER) for ducted rotor cases.  These
+cases showed that the averaged axial velocity should be set using thrust from
+the equivalent prop (TWAK) rather than blade thrust (TINV).  Correcting
+this bug uncovered that some of the previous fixes to calculate equivalent prop
+forces (versions 7.2 and 7.3) were mis-applied - the real problem was masked 
+by the incorrect average axial velocity.
+
+Note that the thrust calculated from axial induced velocity now matches blade 
+thrust forces for ducted rotors.  A check of free-tip propellers shows that 
+there are mismatches between momentum forces and blade forces for highly loaded
+props like the ex.prop testcase.  This does not appear to be an issue for more
+lightly loaded propellers. 
+
+Changes in this version also include a slight rework of the management of wake 
+velocity calculation options (GRADED, POTENTIAL or VORTEX methods).  
+
+The plotting of user-supplied slipstream velocities has been updated to improve
+clarity.
+
+Still a work in progress...
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.52
+HHY 11/7/03
+
+This version fixes a bug in the DESI mode for design. The thrust had not been
+calculated for the rotor+duct but only for the rotor alone.  
+
+The design condition for ducted rotors has been changed from the constant
+induced efficiency condition used for propellers (MIL design condition) to
+a constant radial circulation condition (free-vortex rotor) which is more 
+appropriate for ducted rotors.
+
+The plotting of the overall rotor disk now places the blade element chordlines
+on a circle rather than on planes normal to the stacking line.
+
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.53
+HHY 2/4/04
+
+This version corrects a bug for ducted rotors where the freestream velocity
+is set for the "equivalent" prop.  Previous versions set this velocity 
+component to 1.0 regardless of the duct area ratio.  This produced errors in 
+forces for ducted rotors (with area ratio different from 1.0) for cases with
+axial velocity specified (VEL>0.0).
+
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.54
+HHY 4/27/05
+
+Buglet in xaero.f corrected (declare STALLF).  
+Bug fix (perhaps not important?) in xaero.f in _W linearization.
+Bug fix in xrotpl.f for scaling in VELPLT.
+
+*========================================================================*
+*========================================================================*
+Notes for XROTOR 7.55
+MD 2 Nov 09
+
+Added graphics enable/disable flag to PLOP submenu at top level.
+
+*========================================================================*
+

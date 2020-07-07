@@ -1,0 +1,18 @@
+#!/bin/bash -eu
+
+cd "${MAKANI_HOME}"
+
+# Build any binary target with the "arch:x86" tag or with no "arch:" tag at
+# all.
+#
+# The tag "arch:nox86" should always be excluded to support
+# blacklisting. Currently, this is handled implicitly by only matching on
+# "arch:" when followed by "x86".
+readonly TARGETS="$(bazel query 'attr(tags,"^(.*arch:x86|(?!.*arch:)).*$",
+                                 kind(".*binary.* rule", ...))' | tr '\n' ' ')"
+
+if [[ -z "${TARGETS}" ]]; then
+  echo 'Error: Found no targets for tag "arch:x86" or with no "arch:" tag.'
+  exit 1
+fi
+bazel build ${TARGETS} "$@"

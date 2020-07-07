@@ -1,0 +1,45 @@
+Simple Wing
+#Mach
+ 0.0    
+#IYsym   IZsym   Zsym
+ 0       0       0.0
+#Sref    Cref    Bref
+30.0     2.0     15.0
+#Xref    Yref    Zref
+0.50     0.0     0.0
+#
+#
+#====================================================================
+SURFACE 
+Wing 
+#Nchordwise  Cspace   Nspanwise   Sspace
+8            1.0       12         1.0
+#
+YDUPLICATE
+0.0
+#
+ANGLE
+2.0
+#-------------------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+0.      0.     0.      2.2     0.0   0          0
+
+#Cname   Cgain  Xhinge  HingeVec     SgnDup
+CONTROL
+flap     1.0   0.75    0.0 0.0 0.0   1.0
+
+CONTROL
+aileron  -1.0   0.75    0.0 0.0 0.0  -1.0
+#-------------------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  Nspanwise  Sspace
+0.4     7.5    0.75    1.8     0.0   0          0
+
+#Cname   Cgain  Xhinge  HingeVec     SgnDup
+CONTROL
+flap     1.0   0.75    0.0 0.0 0.0   1.0
+
+CONTROL
+aileron  -1.0   0.75    0.0 0.0 0.0  -1.0
+#

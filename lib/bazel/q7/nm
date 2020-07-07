@@ -1,0 +1,6 @@
+#!/bin/bash --norc
+#
+# This wrapper script is needed to access arm-linux-gnueabi tools via CROSSTOOL.
+
+source lib/bazel/q7/set_env
+exec third_party_toolchains/arm_linux_gnueabi/usr/bin/arm-linux-gnueabi-nm "$@"

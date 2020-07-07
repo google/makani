@@ -1,0 +1,99 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Motor Configuration Templates.
+
+common: &COMMON_PROTEAN !MotorConfigParams
+  motor_type: Protean
+  phase_swap: Ac
+  load_type: None
+  calibrator_enable: Disabled
+  topology: Single
+
+common: &COMMON_YASA !MotorConfigParams
+  motor_type: Yasa
+  phase_swap: None
+  load_type: None
+  calibrator_enable: Disabled
+  topology: Single
+
+# Calibration Configs.
+
+calibrate_protean_swap_ac: !MotorConfigParams
+  TEMPLATE: *COMMON_PROTEAN
+  calibrator_enable: Enabled
+
+calibrate_protean_swap_none: !MotorConfigParams
+  TEMPLATE: *COMMON_PROTEAN
+  phase_swap: None
+  calibrator_enable: Enabled
+
+calibrate_yasa_swap_ac: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  phase_swap: Ac
+  calibrator_enable: Enabled
+
+calibrate_yasa_swap_none: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  calibrator_enable: Enabled
+
+# Protean Configs.
+
+protean_swap_ac_prop_rev1_negative_single: !MotorConfigParams
+  TEMPLATE: *COMMON_PROTEAN
+  load_type: PropRev1NegativeX
+
+protean_swap_ac_prop_rev1_negative_stacked: !MotorConfigParams
+  TEMPLATE: *COMMON_PROTEAN
+  load_type: PropRev1NegativeX
+  topology: Stacked
+
+# Yasa Configs.
+
+yasa_swap_ac_dyno_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  phase_swap: Ac
+  load_type: Dyno
+
+yasa_swap_ac_prop_rev1_negative_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  phase_swap: Ac
+  load_type: PropRev1NegativeX
+
+yasa_swap_ac_prop_rev2_positive_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  phase_swap: Ac
+  load_type: PropRev2PositiveX
+
+yasa_swap_none_dyno_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  load_type: Dyno
+
+yasa_swap_none_prop_rev1_negative_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  load_type: PropRev1NegativeX
+
+yasa_swap_none_prop_rev1_negative_stacked: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  load_type: PropRev1NegativeX
+  topology: Stacked
+
+yasa_swap_none_prop_rev2_positive_single: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  load_type: PropRev2PositiveX
+
+yasa_swap_none_prop_rev2_positive_stacked: !MotorConfigParams
+  TEMPLATE: *COMMON_YASA
+  load_type: PropRev2PositiveX
+  topology: Stacked

@@ -1,0 +1,797 @@
+\documentclass{article} %[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{pgfplots}
+\usetikzlibrary{
+  arrows,
+  calc,
+  decorations.markings,
+  decorations.pathreplacing,
+  dsp,
+  fit,
+  positioning
+}
+\input{../util/control.tex}
+
+\pgfplotsset{grid style={dashed,gray!25}}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\title{Linear analysis of the path controller}
+\date{DRAFT\\Dec 25, 2015}
+
+\begin{document}
+\maketitle
+
+\section{Description of the path controller}
+
+The path controller flies the kite along a set, usually circular,
+path.  Its main inputs are the current position and velocity of the
+kite and its main output is a curvature command, which the inner loop
+of the crosswind controller attempts to meet.
+
+The path controller uses a simple kinematic model of the kite's flight
+path, which assumes that the kite, starting from its current position
+and velocity, follows its current curvature for a period $t_1$ and
+then follows a new commanded curvature for a period $t_2$ (see
+Fig. \ref{fig:vector_field}).  The separation of the path into current
+and commanded curvatures is motivated by the fact that the kite cannot
+instantly change its curvature.  Multiple potential commanded
+curvatures are projected forward and the one that minimizes a specific
+cost function is chosen.
+
+The cost function is the negative of the dot product of the predicted
+velocity with a vector defined by the predicted position and a vector
+field of ideal velocities.  These ideal velocities are tangent to the
+path on the path, while away from the path they steer the kite back
+toward the path assuming some minimum turning radius,
+$r_{\mathrm{min}}$.
+
+The exact equations defining the vector field are
+\begin{eqnarray}
+x &=& \frac{\pi}{2} \frac{\delta}{r_{\mathrm{min}}} \\
+\vec{v} &=&\left\{
+\begin{array}{lrcl}
+\hat{e}_r  &                      &\delta& <  -r_{\mathrm{min}} \\
+-\sin x \cdot \hat{e}_r - \cos x \cdot \hat{e}_{\theta}
+  &\;\;\;\; -r_{\mathrm{min}} \le &\delta& \le r_{\mathrm{min}} \\
+-\hat{e}_r & r_{\mathrm{min}} <   &\delta&
+\end{array}
+\right.
+\end{eqnarray}
+where $\hat{e}_r$ and $\hat{e}_{\theta}$ are the radial and tangential
+unit vectors.
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}[scale=2.5]
+  \def\R{1};
+  \def\rmin{0.7};
+  \def\r{0.1};
+
+  % Draw vector field.
+  \begin{scope}[color=lightgray]
+    \foreach \x in {-2, -1.79, ..., 2} {
+      \foreach \y in {-2, -1.79, ..., 2} {
+        \def\norm{max(sqrt(\x*\x + \y*\y), 0.1)};
+        \def\radx{(\x / \norm)};
+        \def\rady{(\y / \norm)};
+        \def\tanx{(\y / \norm)};
+        \def\tany{(-\x / \norm)};
+        \def\ang{max(min(0.5 * pi * (\norm - \R) / \rmin, pi/2), -pi/2)};
+        \def\crad{(-0.1 * sin(deg(\ang)))};
+        \def\ctan{( 0.1 * cos(deg(\ang)))};
+        \draw [arrows={-latex}] (\x, \y) --
+              ({\x + \crad * \radx + \ctan * \tanx},
+               {\y + \crad * \rady + \ctan * \tany});
+      };
+    };
+  \end{scope}
+  \draw [arrows={latex-latex}] (-2, 0) -- (2, 0);
+  \draw [arrows={latex-latex}] (0, -2) -- (0, 2);
+  \draw [color=black] (0, 0) circle (\R);
+  \draw [color=black, dashed] (0, 0) circle ({\R - \rmin});
+  \draw [color=black, dashed] (0, 0) circle ({\R + \rmin});
+
+  \draw [decorate,decoration={brace,amplitude=5pt}]
+        ({(\R + \rmin) * cos(30)}, {(\R + \rmin) * sin(30)}) --
+        ({\R * cos(30)}, {\R * sin(30)})
+        node[midway, below right] {$r_{\mathrm{min}}$};
+
+  % Draw trajectory.
+  \def\startangle{60}
+  \def\etaone{30}
+  \def\epsangle{15};
+  \def\headingangle{(\startangle - \epsangle)}
+  \coordinate (start) at ({-(\R + \r) * cos(\startangle)},
+                          { (\R + \r) * sin(\startangle)});
+  \draw [thick, color=black]
+        (start)
+        arc ({180 - \startangle + \epsangle}:
+             {180 - \startangle + \epsangle - \etaone/2}:
+             {\R})
+        node [above=0.5cm, left] {$t_1$}
+        arc ({180 - \startangle + \epsangle - \etaone/2}:
+             {180 - \startangle + \epsangle - \etaone}:
+             {\R})
+        coordinate (midpoint);
+
+  \draw [thick, color=black, arrows={-latex}]
+        (start)
+        -- ($(start) + ({0.5 * sin(\headingangle)}, {0.5 * cos(\headingangle)})$);
+
+  \foreach \command in {0.6, 0.8, ..., 1.4} {
+    \draw [color=blue, arrows={-latex}]
+          (midpoint)
+          arc ({180 - \startangle + \epsangle - \etaone}:
+               {180 - \startangle + \epsangle - \etaone - 50/\command}:
+               {\command});
+  }
+  \path [color=blue]
+        (midpoint)
+        arc ({180 - \startangle + \epsangle - \etaone}:
+             {180 - \startangle + \epsangle - \etaone - 25 / 1.4}:
+             {1.4})
+        node [above] {$t_2$};
+\end{tikzpicture}
+\caption{Vector field of ideal headings and the predicted trajectory
+  of the kite.  The ideal headings are based around returning to the
+  circle path using a minimum turning radius, $r_{\mathrm{min}}$.}
+\label{fig:vector_field}
+\end{center}
+\end{figure}
+
+\section{Kinematics of circular path following}
+
+\begin{figure}[!ht]
+\begin{center}
+  \begin{tikzpicture}
+    \def\R{4}
+    \def\axislen{\R * 1.5}
+    \def\deltaoffset{\R * 0.2}
+    \def\deltar{\R * 0.1}
+    \def\epsilondeg{20}
+    \def\epsilonrad{\epsilondeg * 3.14159 / 180.0}
+    \def\etadeg{50}
+    \def\etarad{\etadeg * 3.14 / 180}
+
+    \coordinate (pathorigin) at (0, 0);
+    \coordinate (turnorigin) at
+                ({-\deltaoffset - \R + (\R + \deltar) * cos(\epsilondeg)},
+                 {(\R + \deltar) * sin(\epsilondeg)});
+    \coordinate (nominalturnorigin) at
+                ({-\deltaoffset - \R + \R * cos(\epsilondeg)},
+                 {\R * sin(\epsilondeg)});
+    \coordinate (nominalstart) at (-\R, 0);
+    \coordinate (start) at (-\deltaoffset - \R, 0);
+
+    % Draw path circle and axes.
+    \draw [arrows={latex-latex}] (-\axislen, 0) -- (\axislen, 0);
+    \draw [arrows={latex-latex}] (0, -\axislen) -- (0, \axislen);
+    \draw (0, 0) circle (\R);
+
+    % Draw turn circle.
+    \draw[fill] (turnorigin) circle (0.05);
+    \node[below, xshift=5pt] at (turnorigin) {$(x_c, y_c)$};
+    \draw [color=gray!25] (nominalturnorigin) circle (\R);
+    \draw [color=gray!60] (turnorigin) circle (\R + \deltar);
+
+    \draw [arrows={-latex}] (turnorigin)
+          -- ($(turnorigin) + ({(\R + \deltar) * cos(45)},
+               {(\R + \deltar) * sin(45)})$)
+          node[midway, below right] {$R + \delta r$};
+
+    % Draw turn tradjectory.
+    \draw[fill] (start) circle (0.05);
+    \node[below left] at (start) {$(x_0, y_0)$};
+    \draw (start)
+          arc ({180 + \epsilondeg}:{180 + \epsilondeg - \etadeg}:{\R + \deltar})
+          coordinate (end);
+
+    \draw [dashed] (end) -- (pathorigin);
+    \draw [dashed] (end) -- (turnorigin);
+    \draw [dashed] (start) -- (turnorigin);
+    \draw[fill] (end) circle (0.05);
+    \node[above left] at (end) {$(x(\eta), y(\eta))$};
+
+    \draw [decorate,decoration={brace,amplitude=5pt}]
+          (nominalstart) -- (start)
+          node[midway, below, yshift=-5pt] {$\delta_0$};
+
+    \coordinate (nominalend) at ($(pathorigin)!\R cm!(end)$);
+    \draw [decorate,decoration={brace,amplitude=5pt}]
+          ($(nominalend)$) -- ($(end)$)
+          node[midway, below left, yshift=-5pt] {$\delta(\eta)$};
+
+    \draw [arrows={-latex}] (pathorigin) -- ({\R * cos(30)}, {\R * sin(30)})
+          node[midway, below right] {$R$};
+
+    % Label epsilon angles.
+    \def\epsilonmarkerfrac{0.3}
+    \draw [dashed] (start) --
+          ($(start) + ({-\R/2 * sin(\epsilondeg)}, {\R/2 * cos(\epsilondeg)})$);
+    \draw [dashed] (start) -- ($(start) + (0, \R/2)$);
+    \draw [arrows={latex-latex}] ($(start) + (0, \R/4)$)
+          arc (90:{90 + \epsilondeg}:{\R/4})
+          node[left] {$\epsilon_0$};
+    \path (start) -- ($(start)!\epsilonmarkerfrac!(pathorigin)$)
+          arc (0:{\epsilondeg/2}:{(\R + \deltar) * \epsilonmarkerfrac})
+          node {$\epsilon_0$};
+
+    % Label \epsilon(\eta) angle.
+    \path (start)
+          arc ({180 + \epsilondeg}:
+               {180 + \epsilondeg - \etadeg + 5}:
+               {\R + \deltar})
+          coordinate (turntangent);
+    \path [dashed] let \p{end}=(end) in
+          (end) -- ($(end) + (\y{end}, -\x{end})$)
+          coordinate (pathtangent);
+    \draw [dashed] (end)
+          -- ($(end)!1.5cm!(pathtangent)$)
+          coordinate (epsetapathmarker)
+          -- ($(end)!2.5cm!(pathtangent)$);
+    \draw [dashed] (end)
+          -- ($(end)!-1.5cm!(turntangent)$)
+          coordinate (epsetaturnmarker)
+          -- ($(end)!-2.5cm!(turntangent)$);
+    \draw [arrows={latex-latex}] (epsetaturnmarker)
+          arc ({90 + \epsilondeg - \etadeg}:
+               {90 + \epsilondeg - \etadeg - 0.6 * \epsilondeg)}:
+               1.5cm);
+    \path [arrows={-latex}] (epsetaturnmarker)
+          arc ({90 + \epsilondeg - \etadeg}:
+               {90 + \epsilondeg - \etadeg - 0.3 * \epsilondeg)}:
+               1.5cm)
+          node [above left] {$\epsilon(\eta)$};
+
+    % Label \eta angle.
+    \def\etamarkerfrac{0.15}
+    \path (turnorigin) -- ($(turnorigin)!\etamarkerfrac!(start)$)
+          coordinate (etamarker);
+    \path (etamarker)
+          arc ({180 + \epsilondeg}:
+               {180 + \epsilondeg - \etadeg / 2}:
+               {(\R + \deltar) * \etamarkerfrac})
+          node {$\eta$};
+  \end{tikzpicture}
+  \caption{Geometry of the curvature controller. The dark circle is
+    the commanded path.  The lighter circle shows a constant radius
+    path with radius $R + \delta r$, that starts at a small crosstrack
+    offset, $\delta_0$, and heading offset, $\epsilon_0$.  This
+    trajectory is projected forward to the point $(x(\eta), y(\eta))$.
+    The lightest circle is a constant radius path with
+    radius $R$ for comparison.}
+  \label{fig:path_geometry}
+\end{center}
+\end{figure}
+%
+Figure \ref{fig:path_geometry} shows the geometry of the circular
+flight path and the trajectory of a wing flying at constant curvature,
+$(R + \delta r)^{-1}$, with a small crosstrack offset, $\delta_0$, and
+heading offset, $\epsilon_0$.  The center of the kite trajectory is
+given by:
+\begin{alignat}{2}
+x_c &= -R - \delta_0 + (R + \delta r) \cos \epsilon_0
+& \; &\approx -\delta_0 + \delta r \\
+y_c &= (R + \delta r) \sin \epsilon_0 & \; &\approx R \epsilon_0
+\end{alignat}
+%
+To determine the kinematics, the crosstrack offset and heading offset
+are expressed in terms of the $\eta$ angle parameter, which is related
+to time as follows:
+%
+\begin{equation}
+\eta = \frac{v t}{R + \delta r}
+\end{equation}
+%
+A point on the trajectory projected out for a time $t$ is then:
+\begin{eqnarray}
+x(\eta) &=& x_c - (R + \delta r)
+(\cos \eta \cos \epsilon_0 + \sin \eta \sin \epsilon_0) \\
+y(\eta) &=& y_c + (R + \delta r)
+(\sin \eta \cos \epsilon_0 - \cos \eta \sin \epsilon_0)
+\end{eqnarray}
+or approximately
+\begin{eqnarray}
+x(\eta) &\approx&
+-R \cos \eta - \delta_0 + (1 - \cos \eta - \eta \sin \eta) \delta r -
+R \sin \eta \cdot \epsilon_0 \\
+y(\eta) &\approx& R \sin \eta + (\sin \eta - \eta \cos \eta) \delta r +
+R (1 - \cos \eta) \epsilon_0
+\end{eqnarray}
+%
+The crosstrack offset and heading offset at time $t$ are then:
+%
+\begin{eqnarray}
+\delta(\eta) &=& \cos \eta \cdot \delta_0 + (1 - \cos \eta) \delta r +
+R \sin \eta \cdot \epsilon_0
+\label{eqn:delta_eta} \\
+\epsilon(\eta) &=& -\frac{\sin \eta}{R} \delta_0 + \frac{\sin \eta}{R} \delta r +
+\cos \eta \cdot \epsilon_0
+\label{eqn:epsilon_eta}
+\end{eqnarray}
+
+The kinematics of the system may be found by first taking the small
+$\eta$ approximation of Eq. \ref{eqn:delta_eta} and
+Eq. \ref{eqn:epsilon_eta}.
+%
+\begin{eqnarray}
+\delta(\eta) &\approx& \delta_0 + R \eta \epsilon_0 \\
+\epsilon(\eta) &\approx& -\frac{\eta}{R} \delta_0 + \frac{\eta}{R} \delta r +
+\epsilon_0
+\end{eqnarray}
+%
+Then, taking the time derivative:
+%
+\begin{eqnarray}
+\dot{\delta} &=& v \epsilon \\
+\dot{\epsilon} &=& -\frac{v}{R^2} \delta - v \delta \kappa_{\mathrm{cmd}}
+\end{eqnarray}
+%
+Here $\delta r$ is replaced by $\delta \kappa$ using the relation
+$\delta \kappa = -\delta r / R^2$.  Finally, these equations are
+combined to arrive at\footnote{There should be a $\frac{a}{v} \dot{\delta}$
+on the right-hand side if it is not assumed that velocity is constant.}:
+%
+\begin{equation}
+\ddot{\delta} = -\frac{v^2}{R^2} \delta - v^2 \delta \kappa_{\mathrm{cmd}}
+\label{eqn:delta_diffeq}
+\end{equation}
+
+If the curvature command takes the form of the typical crosstrack PD
+controller:
+%
+\begin{equation}
+v^2 \delta \kappa_{\mathrm{cmd}} = k_p \delta + k_d v \epsilon
+\end{equation}
+%
+then the closed-loop system is:
+%
+\begin{equation}
+\ddot{\delta} + k_d \dot{\delta} + \left(\frac{v^2}{R^2} + k_p \right) \delta = 0
+\end{equation}
+%
+The closed-loop system is stable if $k_d > 0$ and $k_p > -v^2/R^2$.
+The characteristic frequency and damping ratio of this system are:
+%
+\begin{eqnarray}
+\omega_0 &=& \sqrt{\frac{v^2}{R^2} + k_p} \label{eqn:omega0} \\
+\zeta &=& \frac{k_d}{2 \sqrt{\frac{v^2}{R^2} + k_p}} \label{eqn:zeta}
+\end{eqnarray}
+
+\section{Analysis of basic path control ($t_1 = 0$)}
+
+In the simplest form of the path controller, it is assumed that the
+kite instantly meets the commanded curvature.  Thus, when predicting
+the future position and heading of the kite, the time spent at the
+current curvature is set to zero ($t_1 = 0$).
+
+The curvature command is chosen to minimize a cost function, which we
+define as the negative of the dot product between the final velocity
+vector and the ideal velocity vector as defined by the vector field
+(see Fig. \ref{fig:vector_field}).  More simply put, the command is
+chosen to align the final velocity vector with the ideal velocity
+vector as much as possible.  Obviously, this minimum occurs when these
+vectors are aligned, or more specifically when:
+%
+\begin{equation}
+\epsilon(\eta) = -k \delta(\eta)\;\;\;\; k = \frac{\pi}{2 r_{\mathrm{min}}}
+\label{eqn:cost_func_solution}
+\end{equation}
+%
+Thus Eq. \ref{eqn:delta_eta} and Eq. \ref{eqn:epsilon_eta} can be
+combined with Eq. \ref{eqn:cost_func_solution} to find the analytic,
+linearized form of the curvature command:
+\begin{equation}
+\delta \kappa_{\mathrm{cmd}} = \frac{1}{R^2} \left[
+\frac{\cos \eta - \frac{\sin \eta}{kR}}
+{1 - (\cos \eta - \frac{\sin \eta}{kR})} \delta +
+\frac{\sin \eta + \frac{\cos \eta}{kR}}
+{1 - (\cos \eta - \frac{\sin \eta}{kR})} R \epsilon
+\right]
+\end{equation}
+The equivalent linear crosstrack PD gains are:
+\begin{eqnarray}
+k_p &=& \frac{v^2}{R^2}
+\frac{\cos \eta - \frac{\sin \eta}{kR}}
+{1 - (\cos \eta - \frac{\sin \eta}{kR})} \\
+k_d &=& \frac{v}{R}
+\frac{\sin \eta + \frac{\cos \eta}{kR}}
+{1 - (\cos \eta - \frac{\sin \eta}{kR})}
+\end{eqnarray}
+
+The characteristic frequency and damping ratio can be expressed in
+terms of $\eta$, $r_{\mathrm{min}}$, $v$, and $R$ by substituting
+these gains into Eq. \ref{eqn:omega0} and Eq. \ref{eqn:zeta}.
+\begin{equation}
+\omega_0 = \frac{v}{R}
+\left( 1 - (\cos \eta - \frac{\sin \eta}{kR}) \right)^{-1/2}
+\label{eqn:path_omega0}
+\end{equation}
+%
+\begin{equation}
+\zeta = \frac{\sin \eta + \frac{\cos \eta}{kR}}
+{2 \sqrt{1 - (\cos \eta - \frac{\sin \eta}{kR})}}
+\label{eqn:path_zeta}
+\end{equation}
+%
+These equations may be combined to eliminate $k$ as follows:
+\begin{equation}
+kR = \frac{\omega_0^2 \sin \eta}{v^2/R^2 - \omega_0^2 (1 - \cos \eta)}
+\label{eqn:kr}
+\end{equation}
+%
+\begin{equation}
+(1 - \cos \eta) (\omega_0 R / v)^2 - 2 \zeta \sin \eta \cdot (\omega_0 R /v) +
+\cos \eta = 0
+\end{equation}
+%
+\begin{equation}
+\omega_0 = \frac{v}{R} \frac{
+\zeta \sin \eta - \sqrt{\zeta^2 \sin^2 \eta - \cos \eta (1 - \cos \eta)}
+}{
+1 - \cos \eta
+}
+\label{eqn:omega_zeta_eta}
+\end{equation}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{ccccccc}
+\hline
+\hline
+$v$ & $R$ & $\zeta$ & $\omega_0/2 \pi$ & $\eta$ & $t$ & $r_{\mathrm{min}}$ \\\
+[m/s] & [m] & [\#] & [Hz] & [\#] & [s] & [m] \\
+\hline
+30 & 110 & 0.707 & 0.1 & 0.462 & 1.69 & 32 \\
+60 & 110 & 0.616 & 0.117 & 0.924 & 1.69 & 32 \\
+90 & 110 & 0.508 & 0.13 & 1.386 & 1.69 & 32 \\
+\hline
+30 & 110 & 0.918 & 0.075 & 0.364 & 1.33 & 130 \\
+60 & 110 & 0.707 & 0.1 & 0.727 & 1.33 & 130 \\
+90 & 110 & 0.562 & 0.119 & 1.09 & 1.33 & 130 \\
+\hline
+30 & 110 & 1.30 & 0.059 & 0.298 & 1.09 & 293 \\
+60 & 110 & 0.926 & 0.08 & 0.596 & 1.09 & 293 \\
+90 & 110 & 0.707 & 0.1 & 0.894 & 1.09 & 293 \\
+\hline
+\hline
+\end{tabular}
+\caption{Selecting path controller parameters with fixed $\zeta$ or
+  look-ahead time ($t = \eta / (v/R)$).}
+\label{tbl:choose_parameters}
+\end{center}
+\end{table}
+
+Now the various tunable parameters ($r_{\mathrm{min}}$ and $\eta$) may
+be chosen by first selecting a desired damping ratio $\zeta$ and
+bandwidth.  Then, Eq. \ref{eqn:omega_zeta_eta} is used to select an
+$\eta$ that meets the desired bandwidth.  Finally, these values are
+converted to $k$ and thus $r_{\mathrm{min}}$ through Eq. \ref{eqn:kr}.
+Examples of selecting parameters with this method are shown in
+Tbl. \ref{tbl:choose_parameters}.
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=1.3,
+    xlabel=$\eta$,
+    xmin=0,
+    xmax=3,
+    ymin=-1.3,
+    ymax=4,
+    grid=both
+  ]
+  \def\R{110};
+  \def\rmin{75};
+  \def\kR{(pi/2/\rmin * \R)};
+  \def\z{(cos(deg(x)) - sin(deg(x)) / \kR)};
+  \def\kp{(\z / (1 - \z))};
+  \def\kd{((sin(deg(x)) + cos(deg(x)) / \kR) / (1 - \z))};
+  \def\omegafunc{sqrt(1 + \kp)};
+  \def\zetafunc{(\kd / (2 * \omegafunc))};
+  \addplot [smooth, color=blue, mark=none, domain=0:3] {\kp};
+  \addplot [smooth, color=green, mark=none, domain=0:3] {\kd};
+  \addplot [smooth, color=red, mark=none, domain=0:3] {\omegafunc};
+  \addplot [smooth, color=cyan, mark=none, domain=0:3] {\zetafunc};
+  \addplot [smooth, color=black, domain=0:3] {0};
+  %\addplot [smooth, color=gray, domain=0:3] {sqrt(2)/2};
+  \legend{$k_p / (v/R)^2$, $k_d / (v/R)$, $\omega_0 / (v/R)$, $\zeta$};
+\end{axis}
+\end{tikzpicture}
+\caption{Gains and parameters of the linearized curvature controller
+  without the current curvature look-ahead ($R = 110, r_{\mathrm{min}} = 75$).
+  Typically, $\eta \sim 1$ in normal flight conditions. All values are
+  expressed in non-dimensional form.}
+\label{fig:simple_gains}
+\end{center}
+\end{figure}
+
+
+\section{Analysis of general path control}
+
+In the general form of the path controller, the future position of the
+kite is based on projecting the current measured curvature for a time
+$t_1$ and then projecting a future commanded curvature for a time
+$t_2$.  This is modeled by breaking up $\eta$ into two components:
+%
+\begin{equation}
+\eta = \eta_1 + \eta_2
+\end{equation}
+%
+and then applying Eq. \ref{eqn:delta_eta} and \ref{eqn:epsilon_eta}
+twice.  The outputs of the first application of these equations are
+the inputs to the next application.  Thus, the crosstrack offset and
+heading offset at time $t_1$ is:
+%
+\begin{eqnarray}
+\delta(\eta_1) &=& \cos \eta_1 \cdot \delta_0 + (1 - \cos \eta_1) \delta r_0 +
+R \sin \eta_1 \cdot \epsilon_0 \\
+\epsilon(\eta_1) &=& -\frac{\sin \eta_1}{R} \delta_0 +
+\frac{\sin \eta_1}{R} \delta r_0 +
+\cos \eta_1 \cdot \epsilon_0
+\end{eqnarray}
+%
+And, the crosstrack offset and heading offset at time $t = t_1 + t_2$
+is:
+%
+\begin{eqnarray}
+\delta(\eta) &=& \cos \eta_2 \left(
+\cos \eta_1 \cdot \delta_0 + (1 - \cos \eta_1) \delta r_0 +
+R \sin \eta_1 \cdot \epsilon_0 \right) \\
+&+& (1 - \cos \eta_2) \delta r \nonumber \\
+&+& R \sin \eta_2 \left(-\frac{\sin \eta_1}{R} \delta_0 +
+\frac{\sin \eta_1}{R} \delta r_0 +
+\cos \eta_1 \cdot \epsilon_0 \right) \nonumber \\
+\epsilon(\eta) &=& -\frac{\sin \eta_2}{R} \left(
+\cos \eta_1 \cdot \delta_0 + (1 - \cos \eta_1) \delta r_0 +
+R \sin \eta_1 \cdot \epsilon_0 \right) \\
+&+& \frac{\sin \eta_2}{R} \delta r \nonumber \\
+&+& \cos \eta_2 \left(-\frac{\sin \eta_1}{R} \delta_0 +
+\frac{\sin \eta_1}{R} \delta r_0 +
+\cos \eta_1 \cdot \epsilon_0 \right) \nonumber
+\end{eqnarray}
+
+From these equations, it is possible to extract the linearized form of
+the curvature command:
+%
+\begin{alignat}{3}
+\delta \kappa_{\mathrm{cmd}} &= -\frac{1}{R^2} \bigg[&\bigg(&
+-k \cos \eta_2 \cos \eta_1 + k \sin \eta_2 \sin \eta_1 \\
+& && + \sin \eta_2 \cos \eta_1/R + \cos \eta_2 \sin \eta_1/R
+\bigg) \cdot \delta \nonumber \\
+%
+& &+& \bigg(-k \cos \eta_2 (1 - \cos \eta_1) -
+k \sin \eta_2 \sin \eta_1 \nonumber \\
+& && + \sin \eta_2 (1 - \cos \eta_1)/R -
+\cos \eta_2 \sin \eta_1 / R \bigg) \cdot \delta r \nonumber \\
+%
+& &+& \bigg(-kR \cos \eta_2 \sin \eta_1 -
+kR \sin \eta_2 \cos \eta_1 \nonumber \\
+& && + \sin \eta_2 \sin \eta_1 - \cos \eta_2 \cos \eta_1
+\bigg) \cdot \epsilon \bigg] \nonumber \\
+%
+& &\bigg/& \left( \frac{\sin \eta_2}{R} + k (1 - \cos \eta_2) \right) \nonumber
+\end{alignat}
+%
+which simplifies to:
+\begin{alignat}{3}
+\delta \kappa_{\mathrm{cmd}} &= \frac{1}{R^2} \bigg[&\bigg(&
+\cos \eta - \frac{\sin \eta}{kR} \bigg) \cdot \delta \\
+%
+& &+& \bigg(-\cos \eta + \cos \eta_2
++ \frac{\sin \eta}{kR} - \frac{\sin \eta_2}{kR} \bigg) \cdot \delta r \nonumber \\
+%
+& &+& \bigg(\sin \eta + \frac{\cos \eta}{kR} \bigg) \cdot R \epsilon \bigg] \nonumber \\
+%
+& &\bigg/& \left( 1 - (\cos \eta_2 - \frac{\sin \eta_2}{kR}) \right) \nonumber
+\end{alignat}
+%
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=1.3,
+    xlabel=$\eta$,
+    xmin=0,
+    xmax=3,
+    ymin=-1.3,
+    ymax=4,
+    grid=both
+  ]
+  \def\R{110};
+  \def\rmin{75};
+  \def\kR{(pi/2/\rmin * \R)};
+  \def\neta{(x)};
+  \def\netaone{(0.2 * x)};
+  \def\netatwo{(0.8 * x)};
+  \def\den{(1 - (cos(deg(\netatwo)) - sin(deg(\netatwo)) / \kR))};
+  \def\kp{((cos(deg(\neta)) - sin(deg(\neta)) / \kR) / \den)};
+  \def\kd{((sin(deg(\neta)) + cos(deg(\neta)) / \kR) / \den)};
+  \def\ka{((-cos(deg(\neta)) + sin(deg(\neta)) / \kR +
+            cos(deg(\netatwo)) - sin(deg(\netatwo)) / \kR) /
+            \den)};
+  \def\omegafunc{sqrt(1 + \kp / (1 + \ka))}
+  \def\omegaorig{sqrt(1 + \kporig)}
+  \def\zetafunc{((\kd / (1 + \ka)) / (2 * \omegafunc))};
+  \addplot [smooth, color=blue, mark=none, domain=0:3] {\kp};
+  \addplot [smooth, color=green, mark=none, domain=0:3] {\kd};
+  \addplot [smooth, color=yellow, mark=none, domain=0:3] {\ka};
+  \addplot [smooth, color=red, mark=none, domain=0:3] {\omegafunc};
+  \addplot [smooth, color=cyan, mark=none, domain=0:3] {\zetafunc};
+  \addplot [smooth, color=black, domain=0:3] {0};
+  %\addplot [smooth, color=gray, domain=0:3] {sqrt(2)/2};
+  \legend{$k_p / (v/R)^2$, $k_d / (v/R)$, $k_a$, $\omega_0 / (v/R)$, $\zeta$};
+\end{axis}
+\end{tikzpicture}
+\caption{Gains and parameters of the linearized curvature controller
+  {\it with} the current curvature look-ahead
+  ($R = 110, r_{\mathrm{min}} = 75, \eta_1 = \eta/5$).
+  All values are expressed in non-dimensional form.}
+\label{fig:general_gains}
+\end{center}
+\end{figure}
+%
+In addition to the PD terms, the curvature command also has an
+acceleration (i.e. curvature) term:
+%
+\begin{equation}
+v^2 \delta \kappa_{\mathrm{cmd}} =
+k_p \delta + k_d v \epsilon - k_a v^2 \delta \kappa
+\label{eqn:crosstrack_with_accel}
+\end{equation}
+%
+The proportional, derivative, and acceleration gains are:
+%
+\begin{eqnarray}
+k_p &=& \frac{v^2}{R^2} \frac{
+\cos \eta - \frac{\sin \eta}{k R}}
+{1 - (\cos \eta_2 - \frac{\sin \eta_2}{k R})} \\
+%
+k_d &=& \frac{v}{R} \frac{\sin \eta + \frac{\cos \eta}{kR}}
+{1 - (\cos \eta_2 - \frac{\sin \eta_2}{kR})} \nonumber \\
+k_a &=& \frac{-\cos \eta + \frac{\sin \eta}{kR} + \cos \eta_2 -
+  \frac{\sin \eta_2}{kR}}
+{1 - (\cos \eta_2 - \frac{\sin \eta_2}{kR})}
+\end{eqnarray}
+
+The inner loop, which controls tether roll to meet a commanded
+curvature, may be modeled as a simple low-pass filter with cut-off
+frequency $\omega_{\kappa}$.
+\begin{equation}
+  \delta \dot{\kappa} = \omega_{\kappa}
+  (\delta \kappa_{\mathrm{cmd}} - \delta \kappa)
+  \label{eqn:inner_loop_model}
+\end{equation}
+%
+Then, from combining Eq. \ref{eqn:delta_diffeq},
+\ref{eqn:crosstrack_with_accel}, and \ref{eqn:inner_loop_model}, the
+closed loop dynamics of the system are:
+\begin{equation}
+  \dddot{\delta} + (k_d + \omega_{\kappa} (1 + k_a)) \ddot{\delta} +
+  (v^2/R^2 + \omega_{\kappa} k_d + k_p) \dot{\delta} +
+  \omega_{\kappa} (v^2/R^2 (1 + k_a) + k_p) \delta = 0
+\end{equation}
+%
+It is useful to examine the $\omega_{\kappa} \gg 1$ case to compare
+this system with the basic path control case.
+\begin{equation}
+  \ddot{\delta} + \frac{k_d}{1 + k_a} \dot{\delta} +
+  \left(\frac{v^2}{R^2} + \frac{k_p}{1 + k_a} \right) \delta = 0
+\end{equation}
+%
+It is clear that the proportional and derivative gains must be
+increased to account for the acceleration gain.  However, $\omega$ and
+$\zeta$ still only depend on $\eta$ and are given by the same formulas
+as the basic case (Eq. \ref{eqn:path_omega0} and
+Eq. \ref{eqn:path_zeta}).  Note that the acceleration gain cannot be
+increased to the point where $\eta = \eta_1$ or the controller will
+run into issues with saturations and other nonlinearities due to the
+high proportional and derivative gains.
+
+The acceleration gain does two things.  First, it increases the
+disturbance rejection on the curvature inner loop.  This may be seen
+by separating the acceleration gain from the proportional and
+derivative gains as shown in Fig. \ref{fig:path_inner_outer}.
+Increasing the disturbance rejection in the manner is important
+because the inner loop actually controls tether roll, which is related
+to but is not identical to curvature.  Second, the acceleration gain
+makes the nonlinear, anticipatory aspects of the curvature control
+more accurate.
+
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=8mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$\delta_{\mathrm{cmd}}$}; &[-4mm]
+    \node[vdspadder] (n01) {}; &[-4mm]
+    \node[dspfilter] (n02) {$C_{\mathrm{path}}$}; &[-8mm]
+    \node[vdspadder] (n03) {}; &[4mm]
+    \node[dspfilter] (n05) {$\kappa \rightarrow \phi_t$}; &[-4mm]
+    \node[dspfilter] (n06) {$G^{\mathrm{closed}}_{\mathrm{lateral}}$}; &[-4mm]
+    \node[dspfilter] (n07) {$\phi_t \rightarrow \kappa$}; &
+    \node[dspnodefull] (n08) {}; &[-4mm]
+    \node[dspfilter] (n09) {$G_{\mathrm{path}}$}; &[-4mm]
+    \node[dspnodefull] (n0a) {}; &
+    \node[dspnodeopen, dsp/label=above] (n0b) {$\delta$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[coordinate] (n15) {}; &
+    \node[dspsquare] (n16) {$k_a$}; &
+    \node[coordinate] (n17) {}; &
+    \node[coordinate] (n18) {}; &
+    \node[coordinate] (n19) {}; &
+    \node[coordinate] (n1a) {}; &
+    \node[coordinate] (n1b) {}; & \\
+    \node[coordinate] (n20) {}; &
+    \node[coordinate] (n21) {}; &
+    \node[coordinate] (n22) {}; &
+    \node[coordinate] (n23) {}; &
+    \node[coordinate] (n25) {}; &
+    \node[coordinate] (n26) {}; &
+    \node[coordinate] (n27) {}; &
+    \node[coordinate] (n28) {}; &
+    \node[coordinate] (n29) {}; &
+    \node[coordinate] (n2a) {}; &
+    \node[coordinate] (n2b) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- (n02) -- (n03);
+  \draw[dspconn] (n03) -- node[above] {$\delta \kappa_{\cmd}$} (n05)
+                       -- (n06) -- (n07)
+                       -- node[above] {$\delta \kappa$} (n08)
+                       -- (n09) -- (n0a) -- (n0b);
+  \draw[dspconn] (n08) |- (n16) -| (n03);
+  \draw[dspconn] (n0a) |- (n2a) -| (n01);
+\end{tikzpicture}
+\caption{Schematic of the path control loop.}
+\label{fig:path_inner_outer}
+\end{center}
+\end{figure}
+
+\section{Final notes}
+
+This analysis shows that the nonlinear path controller is equivalent
+to a more traditional linear crosstrack controller for small
+crosstrack and heading offsets.  And also, that the parameters
+($\zeta$ and $\omega_0$) of the equivalent linear crosstrack
+controller may be set using the parameters of the nonlinear path
+controller (i.e. $\eta$ and $r_{\mathrm{min}}$).
+
+However, it remains to be shown whether the nonlinear path controller
+actually offers any advantages over the simple linear crosstrack
+controller or over other nonlinear path tracking schemes
+\cite{park2004}.
+
+\begin{thebibliography}{1}
+\bibitem{park2004} Park, Sanghyuk, John Deyst, and Jonathan
+  P. How. ``A new nonlinear guidance logic for trajectory tracking.''
+  {\it Proceedings of the AIAA Guidance, Navigation and Control
+    Conference}. 2004.
+\end{thebibliography}
+
+\end{document}

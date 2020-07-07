@@ -1,0 +1,178 @@
+\documentclass{article} %[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{pgfplots}
+\usetikzlibrary{
+  arrows,
+  calc,
+  decorations.markings,
+  decorations.pathreplacing,
+  dsp,
+  fit,
+  positioning
+}
+\input{../util/airfoils.tex}
+\input{../util/wing.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/control.tex}
+
+\pgfplotsset{grid style={dashed,gray!25}}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\ff}{\mathrm{ff}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\grav}{\mathrm{grav}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+\newcommand{\cw}{\mathrm{cw}}
+
+
+\begin{document}
+
+\section{Curvature from force balance}
+
+\begin{figure}[h]
+\begin{center}
+  \begin{tikzpicture}[scale=0.75]
+    \begin{scope}[shift={(-5, 0)}, scale=0.3, rotate=-10]
+      \DrawWingFront[]
+      \draw[line width=1.5pt, -latex] (4, 1) -- (9, 1) node[midway, above] {$-Y$};
+      \draw[line width=1.5pt, -latex] (0, 5) -- (0, 12) node[midway, right] {$L$};
+      \draw (-5.86, -0.13) -- (0, -4.92);
+      \draw (5.86, -0.13) -- (0, -4.92);
+      \draw[dashed] (0, -4.92) -- (0, -15);
+    \end{scope}
+    \node at (-5, -3) {$\phi_t$};
+    \draw[line width=1.5pt, -latex] (-5.25, -1.45) --
+    (-3.5, -4.3) node[midway, above right] {$t$};
+    \draw[line width=1.5pt, -latex] (-3.5, -1) -- (-2, -2)
+    node[midway, below left] {$W$};
+    \draw (-5.25, -1.45) -- (0, -10) node[midway, above right] {$l_t$};
+    %\draw[dashed] (-5.25, -1.45) -- (-0.975, 1.175);
+    \node at (-0.5, -8.5) {$\gamma$};
+    \draw[dashed] (0, -10) -- (0, -5);
+    %\draw[dashed] (-5, 0) -- (-10, 0) node[near end, above] {$-\phi$};
+    %\draw[line width=1.5pt, -latex] (-7, 0) -- (-9, 0) node[midway, below]
+    %{$mv^2/R$};
+    \DrawCoordinateSystem{shift={(0, -10)}, scale=1}
+                         {$x_{\cw}$}{$y_{\cw}$}{$z_{\cw}$}
+  \end{tikzpicture}
+  \caption{Diagram of force balance in the stability axes' y-z plane.}
+\end{center}
+\end{figure}
+
+By balancing forces in the stability axes' y-z plane, it is possible
+to relate the curvature of a kite's flight path to a few known
+parameters of the kite (e.g. lift coefficient, wing area, and mass)
+and the easily measured roll angle between the kite and the tether.
+This implies that it is possible to steer the kite simply by
+controlling the tether roll angle.  Indeed, this is the approach taken
+in the current flight controller.  Here an appoximate relationship
+between tether roll angle and curvature is derived.  To simplify the
+relationship, the tether is appoximated as a straight line from the
+ground-station to the bridle point.  Other effects on the tether such
+as the catenary from gravity are ignored.
+
+It is easiest to conduct the force balance along axes that are
+parallel and perpendicular to the tether.  Because the wing is forced
+to fly on the surface of a sphere with radius equal to the tether
+length, $l_t$, the acceleration parallel to the tether is
+$a_{\parallel} = v_i^2/l_t$.  The lift, pylon side force, and weight
+each have components along the direction perpendicular to the tether.
+Together, these create an acceleration perpendicular to the tether
+given by
+\begin{equation}
+m_{\eff} a_{\bot} = L \sin \phi_t - Y \cos \phi_t -
+W_{\cw, x} \cos \gamma - W_{\cw, z} \sin \gamma
+\end{equation}
+Here $m_{\eff}$ is the effective mass of the kite, which is given by
+$m_{\eff} = m_{\kite} + m_{\mathrm{tether}} / 3$.  The extra term from
+the tether mass comes from calculating the acceleration of a point
+mass at the end of a rigid rod due to a force applied at the point
+mass.  Also, a few small approximations were made such as ignoring
+forces from motor thrust, ignoring the component of drag along the
+stability z-axis, and ignoring the cosine term from projecting the
+lift vector onto the stability z-axis.
+
+The curvature and thus acceleration that is relevant for control is
+that in the crosswind flight plane.  The parallel and perpendicular
+accelerations can be combined, projected onto the crosswind $x$-axis,
+and converted to a curvature as follows:
+\begin{equation}
+\kappa_{\cw} = \frac{1}{l_t} \sin \gamma +
+\frac{\rho A v_{\app}^2}{2 m_{\eff} v_i^2}
+\left(C_L \sin \phi_t - C_Y \cos \phi_t \right) \cos \gamma -
+\frac{m}{m_{\eff} v_i^2}
+(g_{\cw,x} \cos \gamma + g_{\cw,z} \sin \gamma) \cos \gamma
+\end{equation}
+%
+It is somtimes useful to decompose this total, in-plane curvature into
+components caused by the tether sphere, aerodynamic angles, wind, and
+gravity:
+\begin{equation}
+\kappa_{\cw} = \kappa_0 + \kappa_{\aero} + \kappa_{\wind} + \kappa_{\grav}
+\end{equation}
+%
+where
+%
+\begin{eqnarray}
+\kappa_0 &=& \frac{1}{l_t} \sin \gamma \\
+\kappa_{\aero} &=&
+\frac{\rho A}{2 m_{\eff}} \left(C_L \sin \phi_t - C_Y \cos \phi_t \right) \cos \gamma \\
+\kappa_{\wind} &=&
+\left( \frac{v_w^2 - 2 \vec{v}_i \cdot \vec{v}_w}{v_i^2} \right) \kappa_{\aero} \\
+\kappa_{\grav} &=&
+-\frac{m}{m_{\eff} v_i^2}
+(g_{\cw,x} \cos \gamma + g_{\cw,z} \sin \gamma) \cos \gamma
+\end{eqnarray}
+
+\section{Curvature mixer}
+
+The curvature mixer takes as input the curvature command,
+$\kappa_{\cmd}$, and a component of the curvature command due to lift
+and tether roll, $\kappa^{\aero}_{\cmd}$.  It returns the inner loop
+incidence and tether angle commands and angular rate commands that
+will generate these curvatures.
+
+\begin{equation}
+[\alpha_{\cmd},\; \Delta {C_L}_{\cmd},\; \beta_{\cmd},\; {\phi_t}_{\cmd}]^T
+= F(\kappa_{\cmd}^{\aero})
+\end{equation}
+
+
+\begin{equation}
+\kappa_{\cw} \approx v \cdot |\vec{\omega}|
+\end{equation}
+
+
+\begin{equation}
+\kappa^{\cw} = \frac{|\vec{a}_b \times \vec{v}_b|}{|\vec{v}_b|^3}
+\end{equation}
+
+\begin{equation}
+[p_{\cmd},\; r_{\cmd}]^T = G(\kappa_{\cmd}^{\geom})
+\end{equation}
+
+\begin{eqnarray}
+\alpha_{\cmd} &=& \alpha_{\nom} \\
+\Delta {C_L}_{\cmd} &=& 0 \\
+\beta_{\cmd} &=& 0 \\
+{\phi_t}_{\cmd} &=& \sin^{-1} \left(
+\frac{2 m \kappa_{\cmd}^{\aero}}{\rho A {C_L}_{\nom}} +
+\frac{C_{Y_0}}{{C_L}_{\nom}} \right)
+\end{eqnarray}
+
+\end{document}

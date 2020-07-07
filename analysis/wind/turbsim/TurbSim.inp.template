@@ -1,0 +1,66 @@
+TurbSim Input File. Valid for TurbSim v1.06.00, 21-Sep-2012
+
+---------Runtime Options-----------------------------------
+{random_seed}       RandSeed1       - First random seed  (-2147483648 to 2147483647)
+RANLUX              RandSeed2       - Second random seed (-2147483648 to 2147483647) for intrinsic pRNG, or an alternative pRNG: "RanLux" or "RNSNLW"
+False               WrBHHTP         - Output hub-height turbulence parameters in binary form?  (Generates RootName.bin)
+False               WrFHHTP         - Output hub-height turbulence parameters in formatted form?  (Generates RootName.dat)
+False               WrADHH          - Output hub-height time-series data in AeroDyn form?  (Generates RootName.hh)
+False               WrADFF          - Output full-field time-series data in TurbSim/AeroDyn form? (Generates Rootname.bts)
+True                WrBLFF          - Output full-field time-series data in BLADED/AeroDyn form?  (Generates RootName.wnd)
+False               WrADTWR         - Output tower time-series data? (Generates RootName.twr)
+False               WrFMTFF         - Output full-field time-series data in formatted (readable) form?  (Generates RootName.u, RootName.v, RootName.w)
+False               WrACT           - Output coherent turbulence time steps in AeroDyn form? (Generates RootName.cts)
+True                Clockwise       - Clockwise rotation looking downwind? (used only for full-field binary files - not necessary for AeroDyn)
+2                   ScaleIEC        - Scale IEC turbulence models to exact target standard deviation? [0=no additional scaling; 1=use hub scale uniformly; 2=use individual scales]
+
+--------Turbine/Model Specifications-----------------------
+{num_z}             NumGrid_Z       - Vertical grid-point matrix dimension
+{num_y}             NumGrid_Y       - Horizontal grid-point matrix dimension
+{time_step}         TimeStep        - Time step [seconds]
+600                 AnalysisTime    - Length of analysis time series [seconds] (program will add time if necessary: AnalysisTime = MAX(AnalysisTime, UsableTime+GridWidth/MeanHHWS) )
+{duration}          UsableTime      - Usable length of output time series [seconds] (program will add GridWidth/MeanHHWS seconds)
+{hub_height}        HubHt           - Hub height [m] (should be > 0.5*GridHeight)
+{height}            GridHeight      - Grid height [m]
+{width}             GridWidth       - Grid width [m] (should be >= 2*(RotorRadius+ShaftLength))
+{v_flow_ang}        VFlowAng        - Vertical mean flow (uptilt) angle [degrees]
+0                   HFlowAng        - Horizontal mean flow (skew) angle [degrees]
+
+--------Meteorological Boundary Conditions-------------------
+"{turb_model}"      TurbModel       - Turbulence model ("IECKAI"=Kaimal, "IECVKM"=von Karman, "GP_LLJ", "NWTCUP", "SMOOTH", "WF_UPW", "WF_07D", "WF_14D", "TIDAL", or "NONE")
+"{standard}"        IECstandard     - Number of IEC 61400-x standard (x=1,2, or 3 with optional 61400-1 edition number (i.e. "1-Ed2") )
+"{turbc}"           IECturbc        - IEC turbulence characteristic ("A", "B", "C" or the turbulence intensity in percent) ("KHTEST" option with NWTCUP model, not used for other models)
+"{wind_type}"       IEC_WindType    - IEC turbulence type ("NTM"=normal, "xETM"=extreme turbulence, "xEWM1"=extreme 1-year wind, "xEWM50"=extreme 50-year wind, where x=wind turbine class 1, 2, or 3)
+default             ETMc            - IEC Extreme Turbulence Model "c" parameter [m/s]
+"PL"                WindProfileType - Wind profile type ("JET";"LOG"=logarithmic;"PL"=power law;"H2L"=Log law for TIDAL spectral model;"IEC"=PL on rotor disk, LOG elsewhere; or "default")
+80                  RefHt           - Height of the reference wind speed [m]
+{mean_wind_speed}   URef            - Mean (total) wind speed at the reference height [m/s] (or "default" for JET wind profile)
+default             ZJetMax         - Jet height [m] (used only for JET wind profile, valid 70-490 m)
+{wind_shear_exp}    PLExp           - Power law exponent [-] (or "default")
+default             Z0              - Surface roughness length [m] (or "default")
+
+--------Non-IEC Meteorological Boundary Conditions------------
+default             Latitude        - Site latitude [degrees] (or "default")
+0.0                 RICH_NO         - Gradient Richardson number
+default             UStar           - Friction or shear velocity [m/s] (or "default")
+default             ZI              - Mixing layer depth [m] (or "default")
+default             PC_UW           - Hub mean u'w' Reynolds stress (or "default")
+default             PC_UV           - Hub mean u'v' Reynolds stress (or "default")
+default             PC_VW           - Hub mean v'w' Reynolds stress (or "default")
+default             IncDec1         - u-component coherence parameters (e.g. "10.0  0.3e-3" in quotes) (or "default")
+default             IncDec2         - v-component coherence parameters (e.g. "10.0  0.3e-3" in quotes) (or "default")
+default             IncDec3         - w-component coherence parameters (e.g. "10.0  0.3e-3" in quotes) (or "default")
+default             CohExp          - Coherence exponent (or "default")
+
+--------Coherent Turbulence Scaling Parameters-------------------
+""                  CTEventPath     - Name of the path where event data files are located
+"Random"            CTEventFile     - Type of event files ("LES", "DNS", or "RANDOM")
+true                Randomize       - Randomize the disturbance scale and locations? (true/false)
+ 1.0                DistScl         - Disturbance scale (ratio of wave height to rotor disk). (Ignored when Randomize = true.)
+ 0.5                CTLy            - Fractional location of tower centerline from right (looking downwind) to left side of the dataset. (Ignored when Randomize = true.)
+ 0.5                CTLz            - Fractional location of hub height from the bottom of the dataset. (Ignored when Randomize = true.)
+30.0                CTStartTime     - Minimum start time for coherent structures in RootName.cts [seconds]
+
+==================================================
+NOTE: Do not add or remove any lines in this file!
+==================================================

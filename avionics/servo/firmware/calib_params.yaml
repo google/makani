@@ -1,0 +1,104 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+zero_ccw: !ServoCalibParams {resolver_zero: 0.0, direction: 1}
+zero_cw: !ServoCalibParams {resolver_zero: 0.0, direction: -1}
+
+# YM600 SN 1.
+# Wing ailerons calibrated on 2016-04-25.
+# Elevator and rudder calibrated on 2018-09-06.
+a1_sn1: !ServoCalibParams {resolver_zero: -0.70310, direction: -1}
+a2_sn1: !ServoCalibParams {resolver_zero: 0.04985, direction: -1}
+a4_sn1: !ServoCalibParams {resolver_zero: -0.16670, direction: 1}
+a5_sn1: !ServoCalibParams {resolver_zero: 0.18963, direction: -1}
+a7_sn1: !ServoCalibParams {resolver_zero: 0.05561, direction: 1}
+a8_sn1: !ServoCalibParams {resolver_zero: -0.96794, direction: 1}
+e1_sn1: !ServoCalibParams {resolver_zero: -0.14457, direction: 1}
+e2_sn1: !ServoCalibParams {resolver_zero: 0.01649, direction: -1}
+r1_sn1: !ServoCalibParams {resolver_zero: 0.74935, direction: 1}
+r2_sn1: !ServoCalibParams {resolver_zero: -0.66958, direction: -1}
+
+# YM600 SN 4.
+# Wing elevator and rudder calibrated on 2018-10-24.
+# Wing ailerons calibrated 2018-11-15.
+a1_sn4: !ServoCalibParams {resolver_zero: 0.29376, direction: -1}
+a2_sn4: !ServoCalibParams {resolver_zero: 0.94455, direction: -1}
+a4_sn4: !ServoCalibParams {resolver_zero: -0.49662, direction: 1}
+a5_sn4: !ServoCalibParams {resolver_zero: 0.36739, direction: -1}
+a7_sn4: !ServoCalibParams {resolver_zero: 0.16260, direction: 1}
+a8_sn4: !ServoCalibParams {resolver_zero: -1.41394, direction: 1}
+e1_sn4: !ServoCalibParams {resolver_zero: -0.18484, direction: 1}
+e2_sn4: !ServoCalibParams {resolver_zero: 0.22626, direction: -1}
+r1_sn4: !ServoCalibParams {resolver_zero: -0.13767, direction: 1}
+r2_sn4: !ServoCalibParams {resolver_zero: 0.20325, direction: -1}
+
+# YM600 SN 5.
+# Wing rudder calibrated by on 2019-06-13.
+# Wing ailerons calibrated by 2018-12-18.
+a1_sn5: !ServoCalibParams {resolver_zero: -0.16, direction: -1}
+a2_sn5: !ServoCalibParams {resolver_zero: -0.466, direction: -1}
+a4_sn5: !ServoCalibParams {resolver_zero: 1.055, direction: 1}
+a5_sn5: !ServoCalibParams {resolver_zero: -0.803, direction: -1}
+a7_sn5: !ServoCalibParams {resolver_zero: 0.329, direction: 1}
+a8_sn5: !ServoCalibParams {resolver_zero: 0.499, direction: 1}
+e1_sn5: !ServoCalibParams {resolver_zero:  0.046, direction: 1}
+e2_sn5: !ServoCalibParams {resolver_zero: -0.938, direction: -1}
+r1_sn5: !ServoCalibParams {resolver_zero: 0.486, direction: 1}
+r2_sn5: !ServoCalibParams {resolver_zero: -0.461, direction: -1}
+
+# YM600 SN 6.
+# Wing elevator and rudder calibrated on 2020-01-09.
+# Wing ailerons calibrated on 2020-01-09.
+a1_sn6: !ServoCalibParams {resolver_zero: 0.153, direction: -1}
+a2_sn6: !ServoCalibParams {resolver_zero: -0.212, direction: -1}
+a4_sn6: !ServoCalibParams {resolver_zero: 0.441, direction: 1}
+a5_sn6: !ServoCalibParams {resolver_zero: -0.266, direction: -1}
+a7_sn6: !ServoCalibParams {resolver_zero: 0.280, direction: 1}
+a8_sn6: !ServoCalibParams {resolver_zero: 0.110, direction: 1}
+e1_sn6: !ServoCalibParams {resolver_zero: 0.152, direction: 1}
+e2_sn6: !ServoCalibParams {resolver_zero: -0.321, direction: -1}
+r1_sn6: !ServoCalibParams {resolver_zero: -0.420, direction: 1}
+r2_sn6: !ServoCalibParams {resolver_zero: 0.464, direction: -1}
+
+# YM600 SN 7.
+# Wing elevator and rudder not yet calibrated.
+# Wing ailerons calibrated on 2019-12-05.
+a1_sn7: !ServoCalibParams {resolver_zero: -0.188, direction: -1}
+a2_sn7: !ServoCalibParams {resolver_zero: -0.123, direction: -1}
+a4_sn7: !ServoCalibParams {resolver_zero: 0.476, direction: 1}
+a5_sn7: !ServoCalibParams {resolver_zero: -0.506, direction: -1}
+a7_sn7: !ServoCalibParams {resolver_zero: 0.727, direction: 1}
+a8_sn7: !ServoCalibParams {resolver_zero: 0.531, direction: 1}
+e1_sn7: !ServoCalibParams {resolver_zero: 0.0, direction: 1}
+e2_sn7: !ServoCalibParams {resolver_zero: 0.0, direction: -1}
+r1_sn7: !ServoCalibParams {resolver_zero: 0.0, direction: 1}
+r2_sn7: !ServoCalibParams {resolver_zero: 0.0, direction: -1}
+
+# Iron bird.
+# Iron bird ailerons calibrated on 2016-06-17.
+a1_ib: !ServoCalibParams {resolver_zero: -0.22550, direction: 1}
+a2_ib: !ServoCalibParams {resolver_zero: 0.12579, direction: 1}
+a4_ib: !ServoCalibParams {resolver_zero: -0.04870, direction: -1}
+a5_ib: !ServoCalibParams {resolver_zero: -0.13039, direction: -1}
+a7_ib: !ServoCalibParams {resolver_zero: 0.06519, direction: 1}
+a8_ib: !ServoCalibParams {resolver_zero: -0.12425, direction: -1}
+e1_ib: !ServoCalibParams {resolver_zero: -0.59433, direction: 1}
+e2_ib: !ServoCalibParams {resolver_zero: 0.59234, direction: -1}
+r1_ib: !ServoCalibParams {resolver_zero: 0.01208, direction: 1}
+r2_ib: !ServoCalibParams {resolver_zero: -0.25915, direction: -1}
+
+# Bench elevator stand.
+# Calibrated on 2015-07-21.
+e1_bench: !ServoCalibParams {resolver_zero: -0.08203, direction: 1}
+e2_bench: !ServoCalibParams {resolver_zero: 0.19940, direction: -1}

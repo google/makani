@@ -1,0 +1,57 @@
+/*  GRID OF SEVEN   ============================================================================= */
+
+
+.span_7_of_7 {
+	width: 100%;
+}
+
+.span_6_of_7 {
+	width: 85.48%;
+}
+
+.span_5_of_7 {
+  	width: 70.97%;
+}
+
+.span_4_of_7 {
+  	width: 56.45%;
+}
+
+.span_3_of_7 {
+  	width: 41.94%;
+}
+
+.span_2_of_7 {
+  	width: 27.42%;
+}
+
+.span_1_of_7 {
+  	width: 12.91%;
+}
+
+
+/*  GO FULL WIDTH AT LESS THAN 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+	.span_7_of_7 {
+		width: 100%; 
+	}
+	.span_6_of_7 {
+		width: 100%; 
+	}
+	.span_5_of_7 {
+		width: 100%; 
+	}
+	.span_4_of_7 {
+		width: 100%; 
+	}
+	.span_3_of_7 {
+		width: 100%; 
+	}
+	.span_2_of_7 {
+		width: 100%; 
+	}
+	.span_1_of_7 {
+		width: 100%; 
+	}
+}

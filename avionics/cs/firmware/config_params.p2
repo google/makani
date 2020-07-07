@@ -1,0 +1,13 @@
+include "avionics/firmware/drivers/microhard_params.p2";
+
+struct CsStaticAddress {
+  int32 port;
+  uint8 mac[6];
+}
+
+param CsConfigParams {
+  int32 enable_radio;
+  uint32 xlr_network_id;
+  CsStaticAddress static_addresses[10];
+  MicrohardParams microhard_params;
+}

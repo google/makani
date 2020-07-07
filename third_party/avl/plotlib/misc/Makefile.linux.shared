@@ -1,0 +1,222 @@
+#***********************************************************************
+#    Module:  Makefile.linux
+# 
+#    Copyright (C) 1996 Harold Youngren, Mark Drela 
+# 
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Library General Public
+#    License as published by the Free Software Foundation; either
+#    version 2 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Library General Public License for more details.
+#
+#    You should have received a copy of the GNU Library General Public
+#    License along with this library; if not, write to the Free
+#    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#    Report problems to:    guppy@maine.com 
+#                        or drela@mit.edu  
+#***********************************************************************
+
+#=======================================================================
+# This Makefile was used to make a shared library version of the plotlib
+# on Linux.  This has not been updated or supported.
+#=======================================================================
+
+
+
+#================================#
+# Makefile for Xplot11 library   #
+#================================#
+
+#point to your install directory
+INSTALLDIR= $(HOME)/lib
+#INSTALLDIR= /usr/local/lib
+#INSTALLDIR= .
+
+### Use these to set library name 
+### (add DP to keep double precision version separate)
+PLTLIB = libPlt
+#PLTLIB = libPltDP
+
+###========================================================
+###  Basic plot library object files
+OBJ     = plt_base.o plt_font.o plt_util.o plt_color.o \
+          set_subs.o gw_subs.o ps_subs.o Xwin.o
+OBJMISC =
+OBJ3D   =
+OBJOLD  =
+###
+###--------------------------------------------------------
+###  Uncomment to add the old plot compatibility routines
+OBJOLD  = plt_old.o
+###
+###--------------------------------------------------------
+###  Uncomment to add the 3D-view routines
+OBJ3D  = plt_3D.o
+###
+###--------------------------------------------------------
+###  Uncomment for f77 compiler w/o AND() and RSHIFT/LSHIFT functions.
+###   This adds some functions to duplicate these using IAND and ISHFT
+###   which often appear in these offending fortran's libraries.
+###   The compilers that this has affected include:
+###      HPUX f77
+###      Absoft f77 on Linux
+###
+#OBJMISC = util-ops.o
+
+
+
+###================================================
+###  Default compilers and flags, install commands
+F77 = f77
+CC  = cc
+
+# Uncomment DP to make double-precision version
+#DP = -r8
+
+# Some fortrans need trailing underscores in C interface symbols (see Xwin.c)
+DEFINE = -DUNDERSCORE
+
+FFLAGS  = -O $(DP)
+CFLAGS  = -O $(DEFINE)
+AR = ar r 
+RANLIB = ranlib
+LINKLIB =  -lX11 
+
+
+###-------------------------------------------------------------------------
+###  Uncomment for Linux, using the script f77 (unusable in Slackware 3.0) 
+###  Note compiler options for Linux:
+###   f77    script (calls f2c/gcc) note bug in Slackware 3.0 f77 script
+###   fort77 script (calls f2c/gcc) perl script from RH or from yaf77
+###   g77    the GNU F77 compiler 
+F77 = g77
+#F77 = fort77
+#F77 = f77-f2c 
+CC  = gcc
+# Uncomment DP to make double-precision version
+# (note -r8 does not work in g77, use f2c instead)
+#DP = -r8
+FFLAGS  = -O2 $(DP)
+CFLAGS  = -O2 $(DEFINE)
+#AR = ar r
+#RANLIB = ranlib 
+LINKLIB = -L/usr/X11R6/lib -lX11 
+
+
+
+
+###-------------------------------------------------------------------------
+### Basic make targets - build library, test programs
+
+$(PLTLIB):  $(OBJ) $(OBJOLD) $(OBJ3D) $(OBJMISC)
+	$(AR)     $(PLTLIB).a $(OBJ) $(OBJOLD) $(OBJ3D) $(OBJMISC)
+	$(RANLIB) $(PLTLIB).a
+
+test:  $(PLTLIB)
+	(cd examples; make test)
+
+
+###-------------------------------------------------------------------------
+### Utility functions - install the library, clean the directory
+
+install:  $(PLTLIB).a
+	mv $(PLTLIB).a $(INSTALLDIR)
+	$(RANLIB)   $(INSTALLDIR)/$(PLTLIB).a
+
+clean:
+	-/bin/rm *.o
+#	-/bin/rm -r PIC
+	-/bin/rm *.a *.so.*
+	-/bin/rm plot*.ps
+	(cd examples; make clean)
+
+
+###-------------------------------------------------------------------------
+### This set of targets makes the libPlt Linux ELF shared library
+### As far as I know this only works with g77 as it is the only Linux
+### compiler that makes shared libraries.
+###
+### You will need to install the library in some place that ldconfig knows 
+### about to get this to work as a shared library.  
+###  1) Before making the shared library you may need to change the -lf2c
+###     library reference in the $(PLTLIB).so target below to the shared 
+###     fortran library that you are using (most Linuxes use libf2c, hence
+###     the -lf2c).
+###  2) Install the shared library in some place (like /usr/local/lib).
+###  3) Make the following links in that directory
+###     ln -s libPlt.so.0.21 libPlt.so.0
+###     ln -s libPlt.so.0    libPlt.so
+###  4) Look in /etc/ld.so.conf and check that the library directory is 
+###     in the list of directories and add it if it isn't.  
+###  5) Then run ldconfig -v (as root) to get the loader to recognize the 
+###     shared library.
+ 
+$(PLTLIB).so:
+	mkdir -p PIC
+	make -f Makefile.linux.shared shared 
+	gcc -shared -Wl,-soname,$(PLTLIB).so.0 -o $(PLTLIB).so.0.21 \
+             PIC/*.o -lf2c -lm -lc
+
+SHAREDOBJ = $(patsubst %.o,PIC/%.o,$(OBJ) $(OBJOLD) $(OBJ3D) $(OBJMISC))
+
+shared: $(SHAREDOBJ)
+###-------------------------------------------------------------------------
+
+
+
+###-------------------------------------------------------------------------
+### compile plot package routines
+
+plt_base.o: plt_base.f pltlib.inc
+	$(F77) -c $(FFLAGS)  plt_base.f
+
+plt_color.o: plt_color.f  pltlib.inc
+	$(F77) -c $(FFLAGS)  plt_color.f
+
+plt_font.o: plt_font.f CHAR.INC SLAN.INC MATH.INC SYMB.INC
+	$(F77) -c $(FFLAGS)  plt_font.f
+
+plt_util.o: plt_util.f
+	$(F77) -c $(FFLAGS)  plt_util.f
+
+plt_3D.o: plt_3D.f
+	$(F77) -c $(FFLAGS)  plt_3D.f
+
+plt_old.o: plt_old.f pltlib.inc
+	$(F77) -c $(FFLAGS)  plt_old.f
+
+set_subs.o: set_subs.f  pltlib.inc
+	$(F77) -c $(FFLAGS)  set_subs.f
+
+gw_subs.o: gw_subs.f  pltlib.inc
+	$(F77) -c $(FFLAGS)  gw_subs.f
+
+ps_subs.o: ps_subs.f  pltlib.inc
+	$(F77) -c $(FFLAGS)  ps_subs.f
+
+util-ops.o: util-ops.f 
+	$(F77) -c $(FFLAGS)  util-ops.f
+
+Xwin.o: Xwin.c
+	$(CC) -c $(CFLAGS) Xwin.c
+
+
+### May need to specify these on a brain-dead make system
+#.f.o:	$(F77) -c $(FFLAGS) $<
+#.c.o:	$(CC)  -c $(CFLAGS) $<
+
+
+### Handles the shared library objects
+
+PIC/%.o : %.f
+	$(F77) -c $(FFLAGS) -fPIC -o $@ $<
+PIC/%.o : %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -fPIC -o $@ $<
+
+
+

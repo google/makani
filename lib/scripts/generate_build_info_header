@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Generates a C header with build info.
+
+readonly HEADER="${MAKANI_HOME}/avionics/common/generated_build_info.h"
+readonly GUARD='AVIONICS_COMMON_GENERATED_BUILD_INFO_H_'
+
+echo "#ifndef ${GUARD}
+#define ${GUARD}
+
+#define GIT_DIRTY_FILES $(git status --porcelain | grep -v '^??' | wc -l)
+#define GIT_HASH \"$(git rev-parse HEAD)\"
+
+#endif  // ${GUARD}
+" > "${HEADER}"

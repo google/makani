@@ -1,0 +1,21 @@
+#!/bin/bash
+# The IGMP_MAX_MEMBERSHIPS determines the max number of memberships to receive
+# multicasted messages. Because system default is usually small (e.g., 20), we
+# need to increase the value to receive all AIO messages.
+
+function set_igmp_max_memberships() {
+  local readonly IGMP_MAX_MEMBERSHIPS="$(sysctl net.ipv4.igmp_max_memberships -n)"
+
+  if [[ "${IGMP_MAX_MEMBERSHIPS}" != "$1" ]]; then
+    echo "Changing IGMP_MAX_MEMBERSHIPS from ${IGMP_MAX_MEMBERSHIPS} to $1"
+    sudo sysctl -w "net.ipv4.igmp_max_memberships=$1"
+  fi
+}
+
+if [[ "$#" = 1 && -n "$1" ]]; then
+  set_igmp_max_memberships "$1"
+else
+  echo 'ERROR: Missing the desired value for IGMP_MAX_MEMBERSHIPS.'
+  exit 1
+fi
+

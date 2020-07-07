@@ -1,0 +1,53 @@
+#!/bin/bash -u
+#
+# Compiles all software.  See --help for usage.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/network_config.sh"
+
+# Source shflags.
+source /opt/shflags-1.0.3/src/shflags
+
+DEFINE_boolean 'asserts_on' false \
+  'Whether to enable assertions.'
+DEFINE_boolean 'clean' true \
+  'Whether to clean the build.'
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+# Exit on any error.
+set -o errexit
+
+cd "${MAKANI_HOME}"
+
+# Check if log is running, if so, warn and exit.
+if [[ -n "$(ps -a | sed -n /tcpdump/p)" ]]; then
+  echo 'WARNING: You are attempting to compile while logging messages!'
+  echo 'To prevent logging corrupted messages, please do the following:'
+  echo '1. Save your current log.'
+  echo '2. Stop the logger.'
+  echo '3. Compile and bootload the wing.'
+  echo '4. Restart logging.'
+  echo 'Compilation is aborted and nothing has been affected.'
+  exit 1
+fi
+
+if [[ "${FLAGS_asserts_on}" -eq "${FLAGS_TRUE}" ]]; then
+  BUILD_FLAGS=''
+else
+  BUILD_FLAGS="--copt -DNDEBUG --copt -Wno-unused-variable \
+    --copt -Wno-unused-parameter"
+fi
+
+# It should not be necessary to run 'bazel clean'.  However as an
+# additional level of paranoia for the flight code, we always clean
+# before building.  Also, this forces the configuration system to run
+# and create a new version number, which is useful for ensuring the
+# proper code is running on the wing (see b/25568415).
+if [[ "${FLAGS_clean}" -eq "${FLAGS_TRUE}" ]]; then
+  bazel clean --async
+fi
+
+# Build software.
+./lib/scripts/developer/bbuild_all ${BUILD_FLAGS}

@@ -1,0 +1,1 @@
+export LD_LIBRARY_PATH=third_party_toolchains/arm_linux_gnueabi/usr/x86_64-linux-gnu/arm-linux-gnueabi/lib:third_party_toolchains/arm_linux_gnueabi/usr/lib/x86_64-linux-gnu:third_party_toolchains/arm_linux_gnueabi/usr/lib

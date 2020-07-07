@@ -1,0 +1,67 @@
+\documentclass[11pt]{amsart}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{xcolor}
+
+\usetikzlibrary{
+  arrows,
+  calc,
+  decorations.markings,
+  decorations.pathreplacing,
+  dsp,
+  fit,
+  positioning
+}
+\input{../util/airfoils.tex}
+\input{../util/wing.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/control.tex}
+
+\begin{document}
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{scope}[scale=0.3]
+        % Wing.
+        \draw[thick] ({-25.66 / 2}, -1.7) -- ({25.66 / 2}, -1.7);
+        \draw[thick] ({-25.66 / 2}, 1.7) -- ({25.66 / 2}, 1.7);
+
+        % Rotors.
+        \draw[gray!75] ({-1.5 - 6},  1.7) circle (1.4);
+        \draw[gray!75] ({-1.5 - 3},  1.7) circle (1.4);
+        \draw[gray!75] ({-1.5 - 0},  1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 0},  1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 3},  1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 6},  1.7) circle (1.4);
+        \draw[gray!75] ({-1.5 - 6}, -1.7) circle (1.4);
+        \draw[gray!75] ({-1.5 - 3}, -1.7) circle (1.4);
+        \draw[gray!75] ({-1.5 - 0}, -1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 0}, -1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 3}, -1.7) circle (1.4);
+        \draw[gray!75] ({ 1.5 + 6}, -1.7) circle (1.4);
+
+        % Pylons.
+        \draw[thick] (-4.5, -1.7) -- (-4.5, 1.7);
+        \draw[thick] ( 4.5, -1.7) -- ( 4.5, 1.7);
+
+        % Bridles.
+        \draw[blue] (-4.5, 1.7) -- (0, -1.9);
+        \draw[blue] ( 4.5, 1.7) -- (0, -1.9);
+
+        % Tether.
+        \draw[blue] (0, -1.9) -- (5, -10);
+
+        % Cross-bracing.
+        \draw[gray!50] (-4.5, -1.7) -- (4.5,  1.7);
+        \draw[gray!50] (-4.5,  1.7) -- (4.5, -1.7);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{figure}
+
+
+\end{document}

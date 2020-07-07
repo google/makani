@@ -1,0 +1,1984 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+%YAML 1.2
+
+# M600 Network Definition
+
+# The network.yaml file is a description of the avionics network.  It includes
+# the nodes, messages sent on the network, the switches on the network,
+# and the network topology.  This file is the authoritative source for the set
+# of legal nodes and messages on the network.  It is also used to configure the
+# switches on the network to ensure reliable delivery of avionics traffic,
+# prevent unwanted traffic, and validate the network configuration.  The
+# required sections of this file are aio_nodes, message_types, and switches.
+#
+# aio_nodes: [list] The AIO nodes on the network grouped by label.  Fields:
+#   - label_name: [string] The type of node.
+#   - instances: [list] The instances of that node.
+#     - name: [string] The name of the node.
+#     - ip: [int] The last octet of the IP address for that node.
+#
+# aio_messages: [list] The AIO message types on the network.  Included fields:
+#   - name: [string] A unique name for the message.
+#   - index: [int] Specify static index/address for message (optional).
+#   - freq: [int] Allocated repetition rate in packets per second.  Non-cyclic
+#     packets are assigned a frequency of 0.
+#   - senders: [list] Nodes which send the message (used to generate CVT).
+#   - receivers: [list] Nodes which receive the message (used for routing).
+#   - routes: [list] Dict containing senders and receivers described above.
+#   - inhibit_routing: [boolean, default false] Don't generate forwarding maps
+#     for this type.
+#   - inhibit_cvt: [boolean, default false] Don't generate CVT entries for this
+#     type.
+#
+# eop_messages: [list] The EOP message types on the network.
+# Included fields:
+#   - name: [string] A unique name for the message.
+#   - index: [int] Specify static index/address for message (optional).
+#   - freq: [int] Allocated repetition rate in packets per second.  Non-cyclic
+#     packets are assigned a frequency of 0.
+#   - senders: [list] Nodes which send the message.
+#   - receivers: [list] Nodes which receive the message (used for routing).
+#   - routes: [list] Dict containing senders and receivers described above.
+#   - inhibit_routing: [boolean, default false] Don't generate forwarding maps
+#     for this type.
+#
+# winch_messages: [list] The winch message types on the network.
+# Included fields:
+#   - name: [string] A unique name for the message.
+#   - index: [int] Specify static index/address for message (optional).
+#   - freq: [int] Allocated repetition rate in packets per second.  Non-cyclic
+#     packets are assigned a frequency of 0.
+#   - senders: [list] Nodes which send the message.
+#   - receivers: [list] Nodes which receive the message (used for routing).
+#   - routes: [list] Dict containing senders and receivers described above.
+#   - inhibit_routing: [boolean, default false] Don't generate forwarding maps
+#     for this type.
+#
+# switches: [list] All of the switches on the network and their connected
+# nodes.  Included fields:
+#   - config: [dict] The switch configuration settings.
+#     - chip: [dict] Information about the switch part used.
+#       - type: [string] Type of switch chip.
+#       - num_ports: [int] Total number of ports on the switch.
+#       - num_fiber_ports: [int] Number of 100Mbps plastic optical fiber ports.
+#         These are assumed to be consecutive starting at port 0.
+#     - network_a: [list of ints] Ports in network A.  Allows for a range
+#       specification by using a sublist with two values (min and exclusive
+#       max).
+#     - network_b: [list of ints] Ports in network B.  Allows for a range
+#       specification by using a sublist with two values (min and exclusive
+#       max).
+#     - unicast: [list of ints] Ports allowing unicast.  This setting means an
+#       unknown address will be learned on this port and unknown traffic will
+#       be flooded to this port.  Allows for a range specification by using a
+#       sublist with two values (min and exclusive max).
+#     - tms570: [int] The port connected to the TMS570 which configures this
+#       switch.
+#     - mirror: [int] The port which will receive all mirrored traffic if
+#       enabled.
+#     - isolate: [list of ints, optional] These ports are not permitted to
+#       communicate with each other.  All ingress traffic from one of them will
+#       not be sent out any other.  Allows for a range specification by using a
+#       sublist with two values (min and exclusive max).
+#     - restrict: [dict of list of strings, optional] A set of egress route
+#       restrictions for a given port.  By default a port has no route
+#       restrictions.  For each port specified, contains a list of message types
+#       which are allowed to be sent out over this port.  Routes for other
+#       message types will not be generated.
+#     - trunk: [dict, optional] This section is used to describe a logical
+#       trunk.  The specified ports are intended to connect the same endpoints,
+#       and other settings determine how that traffic is split up.  Currently we
+#       use a message to select a subset of ports for which messages should
+#       be delivered, subject to some exceptions.  These settings do not create
+#       any new routes -- they simply limit existing ones.
+#       - ports: [list of ports] Ports in the trunk.
+#       - override_message_routes: [dict of list of ports] A set of overrides
+#         which will always apply to included message types.  For each declared
+#         type, messages will be routed only over the explicitly declared subset
+#         of trunk ports.
+#   - ports: [dict of strings] List of switch connections by port number.  These
+#     connections include other switches and AIO nodes attached to the switch
+#     directly.
+#   - port_names: [dict of strings, optional] Aliases for ports by number.
+#     These can be used in many parts of the config block, and are used for
+#     asymmetric parts of the network topology.
+#   - asymmetric_ports: [list of ports] Ports which are not connected symmetrically
+#     on A and B networks.  This is used for verification of the topology.
+
+---
+default_bootloader: bootloader/firmware/bootloader.elf
+default_bootloader_application: bootloader/firmware/bootloader_application.elf
+
+aio_nodes:
+  - label_name: unknown
+    instances:
+      - name: unknown
+        ip: &UNKNOWN_IP 254
+  - label_name: batt
+    application: batt/firmware/batt_application.elf
+    instances: &BATTS
+      - name: batt_a
+        ip: 46
+      - name: batt_b
+        ip: 47
+  - label_name: cmd  # Command Center.
+    instances:
+      - &CMD_FLIGHT_SPARE
+        name: cmd_flight_spare
+        ip: 93
+      - &CMD_LOGGER_A
+        name: cmd_logger_a
+        ip: 91
+      - &CMD_LOGGER_B
+        name: cmd_logger_b
+        ip: 92
+      - &CMD_WEBMONITOR
+        name: cmd_webmonitor
+        ip: 94
+  - label_name: controller
+    instances: &CONTROLLERS
+      - name: controller_a
+        ip: 1
+      - name: controller_b
+        ip: 2
+      - name: controller_c
+        ip: 3
+  - label_name: core_switch
+    application: cs/firmware/cs_application.elf
+    instances: &CORE_SWITCHES
+      - &CS_A
+        name: cs_a
+        ip: 4
+      - &CS_B
+        name: cs_b
+        ip: 5
+      - &CS_DYNO_A
+        name: cs_dyno_a
+        ip: 63
+      - &CS_DYNO_B
+        name: cs_dyno_b
+        ip: 64
+      - &CS_GS_A
+        name: cs_gs_a
+        ip: 34
+      - &CS_GS_B
+        name: cs_gs_b
+        ip: 35
+  - label_name: drum
+    application: drum/firmware/drum_application.elf
+    instances: &DRUMS
+      - name: drum_sensors_a
+        ip: 36
+      - name: drum_sensors_b
+        ip: 52
+  - label_name: dyno_motor
+    application: motor/firmware/dyno_motor_application.elf
+    instances: &DYNO_MOTORS
+      - name: dyno_motor_sbo
+        ip: 55
+      - name: dyno_motor_sbi
+        ip: 56
+      - name: dyno_motor_pbi
+        ip: 57
+      - name: dyno_motor_pbo
+        ip: 58
+      - name: dyno_motor_pto
+        ip: 59
+      - name: dyno_motor_pti
+        ip: 60
+      - name: dyno_motor_sti
+        ip: 61
+      - name: dyno_motor_sto
+        ip: 62
+  - label_name: eop
+    instances: &EOP
+      - &EOP_GS_B
+        name: eop_gs_b
+        ip: 66
+      - &EOP_WING_B
+        name: eop_wing_b
+        ip: 68
+  - label_name: flight_computer
+    application: fc/firmware/fc_application.elf
+    instances: &FLIGHT_COMPUTERS
+      - &FC_A
+        name: fc_a
+        ip: 6
+      - &FC_B
+        name: fc_b
+        ip: 7
+      - &FC_C
+        name: fc_c
+        ip: 8
+  - label_name: gps
+    application: gps/firmware/gps_application.elf
+    instances: &GS_GPS
+      - &GPS_BASE_STATION
+        name: gps_base_station
+        ip: 38
+  - label_name: ground_power_q7
+    instances: &GROUND_POWER_Q7S
+      - name: ground_power_q7_a
+        ip: 69
+  - label_name: ground_power_tms570
+    application: ground_power/firmware/ground_power_application.elf
+    instances: &GROUND_POWER_TMS570S
+      - name: ground_power_tms570_a
+        ip: 53
+  - label_name: gs_estimator
+    instances: &GS_ESTIMATOR
+      - name: gs_estimator
+        ip: 74
+  - label_name: joystick
+    application: joystick/firmware/joystick_application.elf
+    instances: &JOYSTICKS
+      - name: joystick_a
+        ip: 31
+  - label_name: light
+    application: light/firmware/light_application.elf
+    instances: &LIGHTS
+      - &LIGHT_PORT
+        name: light_port
+        ip: 10
+      - &LIGHT_STBD
+        name: light_stbd
+        ip: 37
+      - &LIGHT_TAIL_BOTTOM
+        name: light_tail_bottom
+        ip: 70
+      - &LIGHT_TAIL_TOP
+        name: light_tail_top
+        ip: 73
+  - label_name: loadcell_node
+    application: loadcell/firmware/loadcell_application.elf
+    instances: &LOADCELLS
+      - name: loadcell_port_a
+        ip: 48
+      - name: loadcell_port_b
+        ip: 49
+      - name: loadcell_starboard_a
+        ip: 50
+      - name: loadcell_starboard_b
+        ip: 51
+  - label_name: motor
+    application: motor/firmware/motor_application.elf
+    instances: &MOTORS
+      - name: motor_sbo
+        ip: 11
+      - name: motor_sbi
+        ip: 12
+      - name: motor_pbi
+        ip: 13
+      - name: motor_pbo
+        ip: 14
+      - name: motor_pto
+        ip: 15
+      - name: motor_pti
+        ip: 16
+      - name: motor_sti
+        ip: 17
+      - name: motor_sto
+        ip: 18
+  - label_name: mvlv
+    application: mvlv/firmware/mvlv_application.elf
+    instances: &MVLV
+      - name: mvlv
+        ip: 71
+  - label_name: operator
+    instances: &OPERATOR
+      - name: operator
+        ip: 0
+  - label_name: platform
+    application: platform/firmware/platform_application.elf
+    instances: &PLATFORMS
+      - &PLATFORM_WEATHER
+        name: platform_sensors_a
+        ip: 41
+      - name: platform_sensors_b
+        ip: 40
+  - label_name: plc_gs02
+    application: plc/firmware/gs02_plc_application.elf
+    instances: &PLC_GS02
+      - name: plc_gs02
+        ip: 72
+  - label_name: plc_tophat
+    application: plc/firmware/tophat_plc_application.elf
+    instances: &PLC_TOPHAT
+      - name: plc_tophat
+        ip: 39
+  - label_name: recorder_q7
+    instances: &RECORDER_Q7S
+      - &RECORDER_Q7_PLATFORM
+        name: recorder_q7_platform
+        ip: 42
+      - &RECORDER_Q7_WING
+        name: recorder_q7_wing
+        ip: 43
+  - label_name: recorder_tms570
+    application: recorder/firmware/recorder_application.elf
+    instances: &RECORDER_TMS570S
+      - &RECORDER_TMS570_PLATFORM
+        name: recorder_tms570_platform
+        ip: 44
+      - &RECORDER_TMS570_WING
+        name: recorder_tms570_wing
+        ip: 45
+  - label_name: servo
+    application: servo/firmware/servo_application.elf
+    instances: &SERVOS
+      - &SERVO_A1
+        name: servo_a1
+        ip: 19
+      - &SERVO_A2
+        name: servo_a2
+        ip: 20
+      - &SERVO_A4
+        name: servo_a4
+        ip: 21
+      - &SERVO_A5
+        name: servo_a5
+        ip: 22
+      - &SERVO_A7
+        name: servo_a7
+        ip: 23
+      - &SERVO_A8
+        name: servo_a8
+        ip: 24
+      - &SERVO_E1
+        name: servo_e1
+        ip: 25
+      - &SERVO_E2
+        name: servo_e2
+        ip: 26
+      - &SERVO_R1
+        name: servo_r1
+        ip: 27
+      - &SERVO_R2
+        name: servo_r2
+        ip: 28
+  - label_name: short_stack
+    application: short_stack/firmware/short_stack_application.elf
+    instances: &SHORT_STACK
+      - name: short_stack
+        ip: 9
+  - label_name: simulated_joystick
+    instances: &SIMULATED_JOYSTICK
+      - name: simulated_joystick
+        ip: 33
+  - label_name: simulator
+    instances: &SIMULATOR
+      - name: simulator
+        ip: 29
+  - label_name: telemetry_snapshot
+    instances: &TELEMETRY_SNAPSHOT
+      - name: telemetry_snapshot
+        ip: 30
+  - label_name: torque_cell
+    instances: &TORQUE_CELL
+      - name: torque_cell
+        ip: 54
+  - label_name: uwb
+    instances: &UWBS
+      - name: uwb_a
+        ip: 75
+      - name: uwb_b
+        ip: 76
+      - name: uwb_c
+        ip: 77
+      - name: uwb_d
+        ip: 78
+  - label_name: visualizer
+    instances: &VISUALIZER
+      - name: visualizer
+        ip: 32
+# IPs 90-99 are reserved for command center.
+unused_ips: [65, 67, [79, 91], [95, 100]]
+next_ip: 100
+unknown_ip: *UNKNOWN_IP
+
+# Add a few handy group aliases for later use.
+dyno_core_switches: &DYNO_CORE_SWITCHES
+  [*CS_DYNO_A, *CS_DYNO_B]
+gs_core_switches: &GS_CORE_SWITCHES
+  [*CS_GS_A, *CS_GS_B]
+loggers: &CMD_LOGGERS
+  [*CMD_LOGGER_A, *CMD_LOGGER_B]
+monitors: &MONITORS
+  [*CMD_FLIGHT_SPARE, *CMD_WEBMONITOR]
+plcs: &PLCS
+  [*PLC_GS02, *PLC_TOPHAT]
+q7s_wing: &Q7S_WING
+  [*CONTROLLERS, *RECORDER_Q7_WING]
+q7s_ground: &Q7S_GROUND
+  [*GROUND_POWER_Q7S, *GS_ESTIMATOR, *RECORDER_Q7_PLATFORM]
+q7s: &Q7S
+  [*Q7S_GROUND, *Q7S_WING]
+servos_aileron: &SERVOS_AILERON
+  [*SERVO_A1, *SERVO_A2, *SERVO_A4, *SERVO_A5, *SERVO_A7, *SERVO_A8]
+servos_elevator: &SERVOS_ELEVATOR
+  [*SERVO_E1, *SERVO_E2]
+servos_rudder: &SERVOS_RUDDER
+  [*SERVO_R1, *SERVO_R2]
+wing_core_switches: &WING_CORE_SWITCHES
+  [*CS_A, *CS_B]
+wing_gpses: &WING_GPSES
+  [*FC_A, *FC_B, *LIGHT_PORT, *LIGHT_STBD]
+tms570s_no_cs: &TMS570S_NO_CS
+  [*BATTS, *DRUMS, *FLIGHT_COMPUTERS, *GROUND_POWER_TMS570S, *GS_GPS,
+   *JOYSTICKS, *LIGHTS, *LOADCELLS, *MOTORS, *DYNO_MOTORS, *MVLV,
+   *PLATFORMS, *PLCS, *RECORDER_TMS570S, *SERVOS, *SHORT_STACK]
+tms570s: &TMS570S
+  [*CORE_SWITCHES, *TMS570S_NO_CS]
+tms570s_wing_no_cs: &TMS570S_WING_NO_CS
+  [*BATTS, *FLIGHT_COMPUTERS, *LIGHTS, *LOADCELLS, *MOTORS, *MVLV,
+   *RECORDER_TMS570_WING, *SERVOS, *SHORT_STACK]
+tms570s_wing: &TMS570S_WING
+  [*TMS570S_WING_NO_CS, *WING_CORE_SWITCHES]
+
+aio_messages:
+  - name: BattCommand
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*BATTS, *GS_CORE_SWITCHES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: *BATTS
+  - name: BatteryStatus
+    freq: 50
+    senders: [*BATTS]
+    receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: BattPairedStatus
+    freq: 50
+    senders: [*BATTS]
+    receivers: [*BATTS, *RECORDER_Q7_WING]
+  - name: BootloaderSlowStatus
+    index: 1  # Message shared by bootloader and application.
+    freq: 0
+    senders: *TMS570S
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: ControlDebug
+    freq: 100
+    senders: *CONTROLLERS
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: ControllerCommand
+    freq: 100
+    senders: [*CONTROLLERS, *OPERATOR]
+    receivers: [*FC_C, *GS_CORE_SWITCHES, *LOADCELLS, *MOTORS, *OPERATOR,
+                *PLCS, *RECORDER_Q7S, *SERVOS, *WING_CORE_SWITCHES]
+  - name: ControllerSync
+    freq: 100
+    senders: *CONTROLLERS
+    receivers: [*CONTROLLERS, *RECORDER_Q7S]
+  - name: ControlSlowTelemetry
+    freq: 1
+    senders: *CONTROLLERS
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: ControlTelemetry
+    freq: 10
+    senders: *CONTROLLERS
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: CoreSwitchConnectionSelect
+    freq: 0
+    senders: *OPERATOR
+    receivers: *CORE_SWITCHES
+  - name: CoreSwitchSlowStatus
+    freq: 1
+    routes:
+      - senders: [*GS_CORE_SWITCHES, *DYNO_CORE_SWITCHES]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: CoreSwitchStatus
+    freq: 100
+    routes:
+      - senders: [*GS_CORE_SWITCHES, *DYNO_CORE_SWITCHES]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: Decawave
+    freq: 20
+    senders: *UWBS
+    receivers: *OPERATOR
+  - name: DrumSensors
+    freq: 100
+    senders: *DRUMS
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *PLC_TOPHAT,
+                *RECORDER_Q7_PLATFORM]
+  - name: DrumSensorsMonitor
+    freq: 100
+    senders: *DRUMS
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: DumpRoutesRequest
+    freq: 0
+    senders: *OPERATOR
+    receivers: *TMS570S
+  - name: DumpRoutesResponse
+    freq: 0
+    senders: *TMS570S
+    receivers: *OPERATOR
+    inhibit_cvt: true
+  - name: DynamicsReplay
+    freq: 0
+    senders: *SIMULATOR
+    receivers: [*OPERATOR]
+  - name: DynoCommand
+    freq: 100
+    senders: [*OPERATOR, *SIMULATOR]
+    receivers: [*OPERATOR, *DYNO_MOTORS, *RECORDER_Q7_PLATFORM]
+  - name: DynoMotorGetParam
+    freq: 0
+    senders: [*OPERATOR]
+    receivers: [*OPERATOR, *DYNO_MOTORS, *RECORDER_Q7S]
+  - name: DynoMotorSetParam
+    freq: 0
+    senders: [*OPERATOR]
+    receivers: [*OPERATOR, *DYNO_MOTORS, *RECORDER_Q7S]
+  - name: DynoMotorSetState
+    freq: 0
+    senders: [*OPERATOR]
+    receivers: [*DYNO_MOTORS, *RECORDER_Q7_PLATFORM]
+  - name: EopSlowStatus
+    freq: 1
+    routes:
+      - senders: *CS_GS_B
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *CS_B
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: EstimatorReplay
+    freq: 0
+    senders: *SIMULATOR
+    receivers: [*OPERATOR]
+  - name: FaaLightAckParam
+    freq: 0
+    routes:
+      - senders: [*GPS_BASE_STATION]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: [*LIGHTS]
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: FaaLightGetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GPS_BASE_STATION, *LIGHTS,
+                    *RECORDER_Q7S]
+  - name: FaaLightSetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GPS_BASE_STATION, *LIGHTS,
+                    *RECORDER_Q7S]
+  - name: FaaLightStatus
+    freq: 100
+    routes:
+      - senders: [*GPS_BASE_STATION]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: [*LIGHTS]
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: FlightCommand
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*CONTROLLERS, *GS_CORE_SWITCHES, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*CONTROLLERS, *RECORDER_Q7_WING]
+  - name: FlightComputerImu
+    freq: 600
+    routes:
+      - senders: [*FLIGHT_COMPUTERS, *LIGHTS]
+        receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S]
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_ESTIMATOR, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: FlightComputerSensor
+    freq: 100
+    routes:
+      - senders: [*FLIGHT_COMPUTERS, *LIGHTS]
+        receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_ESTIMATOR, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: FpvSetState
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*FC_C, *GS_CORE_SWITCHES, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*FC_C, *RECORDER_Q7_WING]
+  - name: GpsRtcm  # Catch all.
+    freq: 0
+    senders: *GPS_BASE_STATION
+    receivers: [*OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+  - name: GpsRtcm1006  # Stationary antenna reference w/ height.
+    freq: 1
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1033  # Receiver and antenna descriptors.
+    freq: 1
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1072  # MSM2 Compact GNSS phase ranges.
+    freq: 0  # Disabled for now.
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1074  # MSM4 Full GNSS observables.
+    freq: 10
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1082  # MSM2 Compact GNSS phase ranges.
+    freq: 0  # Disabled for now.
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1084  # MSM4 Full GNSS observables.
+    freq: 10
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsRtcm1230  # GLONASS L1 & L2 code phase biases.
+    freq: 1
+    routes:
+      - senders: *GPS_BASE_STATION
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S, *WING_GPSES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*RECORDER_Q7_WING, *WING_GPSES]
+  - name: GpsSatellites
+    freq: 1
+    senders: [*GS_GPS, *WING_GPSES]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: GpsStatus
+    freq: 100
+    senders: [*GS_GPS]
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GpsTime
+    freq: 1
+    senders: [*GS_GPS, *WING_GPSES]
+    receivers: [*OPERATOR, *RECORDER_Q7S, *TMS570S]
+  - name: GroundEstimate
+    freq: 100
+    senders: *GS_ESTIMATOR
+    receivers: [*CONTROLLERS, *GS_CORE_SWITCHES, *MONITORS,
+                *OPERATOR, *RECORDER_Q7S]
+  - name: GroundEstimateSim
+    freq: 100
+    senders: *GS_ESTIMATOR
+    receivers: [*CONTROLLERS, *GS_CORE_SWITCHES, *MONITORS,
+                *OPERATOR, *RECORDER_Q7S]
+  - name: GroundPowerAckParam
+    freq: 0
+    senders: *GROUND_POWER_Q7S
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundPowerCommand
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*GROUND_POWER_Q7S, *RECORDER_Q7_PLATFORM]
+  - name: GroundPowerGetParam
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*GROUND_POWER_Q7S, *RECORDER_Q7_PLATFORM]
+  - name: GroundPowerSetParam
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*GROUND_POWER_Q7S, *RECORDER_Q7_PLATFORM]
+  - name: GroundPowerStatus
+    freq: 40
+    senders: *GROUND_POWER_Q7S
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationControl
+    freq: 93
+    senders: [*PLC_GS02]
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationDetwistSetState
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*PLC_TOPHAT, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationPlcMonitorStatus
+    freq: 100
+    senders: *PLCS
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationPlcOperator
+    freq: 100
+    senders: *OPERATOR
+    receivers: [*PLC_TOPHAT, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationPlcStatus
+    freq: 93
+    senders: [*PLC_TOPHAT]
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationSetState
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*PLC_GS02, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationStatus
+    freq: 93
+    senders: [*PLC_GS02]
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationWeather
+    freq: 20
+    senders: *PLATFORM_WEATHER
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *PLCS, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationWinchSetState
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*CS_GS_A, *PLC_TOPHAT, *RECORDER_Q7_PLATFORM]
+  - name: GroundStationWinchStatus
+    freq: 100
+    senders: [*PLC_TOPHAT, *GS_CORE_SWITCHES]
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: GroundTelemetry
+    freq: 100
+    senders: *GS_ESTIMATOR
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: JoystickCommand
+    freq: 0
+    senders: [*CONTROLLERS, *OPERATOR]
+    receivers: [*JOYSTICKS, *SIMULATED_JOYSTICK]
+  - name: JoystickMonitorStatus
+    freq: 100
+    senders: [*JOYSTICKS, *SIMULATED_JOYSTICK]
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: JoystickRawStatus
+    freq: 100
+    senders: [*JOYSTICKS]
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: JoystickStatus
+    freq: 100
+    senders: [*JOYSTICKS, *SIMULATED_JOYSTICK]
+    receivers: [*CONTROLLERS, *GS_CORE_SWITCHES, *LOADCELLS, *MONITORS,
+                *OPERATOR, *RECORDER_Q7S, *SERVOS]
+  - name: LatencyProbe
+    freq: 1
+    senders: [*OPERATOR]
+    receivers: *TMS570S
+  - name: LatencyResponse
+    freq: 1
+    inhibit_cvt: true
+    senders: *TMS570S
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: LoadbankAckParam
+    freq: 0
+    senders: *GROUND_POWER_Q7S
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: LoadbankSetLoad
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*GROUND_POWER_Q7S, *RECORDER_Q7_PLATFORM]
+  - name: LoadbankSetState
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*GROUND_POWER_Q7S, *RECORDER_Q7_PLATFORM]
+  - name: LoadbankStateAckParam
+    freq: 0
+    senders: *GROUND_POWER_Q7S
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: LoadbankStatus
+    freq: 40
+    senders: *GROUND_POWER_Q7S
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: Loadcell
+    freq: 100
+    senders: [*LOADCELLS]
+    receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S, *SERVOS,
+                *WING_CORE_SWITCHES]
+  - name: LoadcellCommand
+    freq: 0
+    senders: [*OPERATOR, *CONTROLLERS]
+    receivers: [*OPERATOR, *LOADCELLS, *RECORDER_Q7S]
+  - name: LoggerCommand
+    freq: 0
+    senders: [*OPERATOR]
+    receivers: [*CMD_LOGGERS, *RECORDER_Q7S]
+  - name: LoggerStatus
+    freq: 10
+    routes:
+      - senders: *RECORDER_Q7_WING
+        receivers: [*OPERATOR, *CMD_LOGGERS, *RECORDER_Q7S]
+      - senders: [*CMD_LOGGERS, *RECORDER_Q7_PLATFORM]
+        receivers: [*OPERATOR, *CMD_LOGGERS, *RECORDER_Q7_PLATFORM]
+  - name: MotorAckParam
+    freq: 0
+    routes:
+      - senders: *MOTORS
+        receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+      - senders: [*DYNO_MOTORS, *GS_CORE_SWITCHES]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: MotorAdcLog
+    freq: 0
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: MotorCalibration
+    freq: 0
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: MotorDebug
+    freq: 1000
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: MotorGetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *MOTORS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*MOTORS, *RECORDER_Q7_WING]
+  - name: MotorIsrDiag
+    freq: 0  # When enabled, the frequence is actually 1000 Hz.
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: MotorIsrLog
+    freq: 0
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: MotorSetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *MOTORS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*MOTORS, *RECORDER_Q7_WING]
+  - name: MotorSetState
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *MOTORS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*MOTORS, *RECORDER_Q7_WING]
+  - name: MotorStacking
+    freq: 1000
+    senders: *MOTORS
+    receivers: [*OPERATOR, *MOTORS, *RECORDER_Q7S, *SHORT_STACK]
+  - name: MotorStatus
+    freq: 10
+    senders: [*MOTORS, *DYNO_MOTORS]
+    receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: MvlvCommand
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*MVLV, *GS_CORE_SWITCHES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: *MVLV
+  - name: MvlvStatus
+    freq: 50
+    senders: [*MVLV]
+    receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: NovAtelCompass
+    freq: 20
+    senders: *GPS_BASE_STATION
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7_PLATFORM, *GS_ESTIMATOR]
+  - name: NovAtelObservations
+    freq: 50
+    senders: [*WING_GPSES, *GS_GPS]
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: NovAtelSolution
+    freq: 50
+    routes:
+      - senders: [*GS_GPS]
+        receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7_PLATFORM, *GS_ESTIMATOR]
+      - senders: [*WING_GPSES]
+        receivers: [*CONTROLLERS, *GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7S,
+                    *WING_CORE_SWITCHES]
+  - name: ParamRequest
+    freq: 0
+    senders: *OPERATOR
+    receivers: *TMS570S
+  - name: ParamResponse
+    freq: 0
+    senders: *TMS570S
+    receivers: *OPERATOR
+  - name: PitotSetState
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*FC_C, *GS_CORE_SWITCHES, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*FC_C, *RECORDER_Q7_WING]
+  - name: PlatformSensors
+    freq: 100
+    senders: *PLATFORMS
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *PLCS,
+                *RECORDER_Q7_PLATFORM]
+  - name: PlatformSensorsMonitor
+    freq: 100
+    senders: *PLATFORMS
+    receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: Q7SlowStatus
+    freq: 1
+    routes:
+      - senders: *Q7S_GROUND
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *Q7S_WING
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: RecorderStatus
+    freq: 100
+    routes:
+      - senders: *RECORDER_TMS570_PLATFORM
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *RECORDER_TMS570_WING
+        receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: SelfTest
+    freq: 1  # Only sent on failure.
+    routes:
+      - senders: *TMS570S
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+      - senders: *TMS570S_WING
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: SeptentrioObservations
+    freq: 0
+    senders: *WING_GPSES
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: SeptentrioSolution
+    freq: 0
+    senders: *WING_GPSES
+    receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S]
+  - name: SerialDebug
+    freq: 100
+    routes:
+      - senders: [*WING_GPSES]
+        receivers: [*OPERATOR, *RECORDER_Q7S]
+      - senders: [*GPS_BASE_STATION]
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: ServoAckParam
+    freq: 0
+    routes:
+      - senders: *SERVOS
+        receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+      - senders: *GS_CORE_SWITCHES
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: ServoClearErrorLog
+    freq: 0
+    senders: *OPERATOR
+    receivers: [*SERVOS, *RECORDER_Q7S]
+  - name: ServoDebug
+    freq: 100
+    senders: *SERVOS
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: ServoErrorLog
+    freq: 0
+    senders: *SERVOS
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+  - name: ServoGetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *SERVOS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*SERVOS, *RECORDER_Q7_WING]
+  - name: ServoPairedStatusElevator
+    freq: 100
+    senders: *SERVOS_ELEVATOR
+    receivers: [*SERVOS_ELEVATOR, *RECORDER_Q7S]
+  - name: ServoPairedStatusRudder
+    freq: 100
+    senders: *SERVOS_RUDDER
+    receivers: [*SERVOS_RUDDER, *RECORDER_Q7S]
+  - name: ServoSetParam
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *SERVOS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*SERVOS, *RECORDER_Q7_WING]
+  - name: ServoSetState
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *SERVOS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*SERVOS, *RECORDER_Q7_WING]
+  - name: ServoStatus
+    freq: 10
+    senders: *SERVOS
+    receivers: [*CONTROLLERS, *OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: ShortStackCommand
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*SHORT_STACK, *GS_CORE_SWITCHES]
+      - senders: *WING_CORE_SWITCHES
+        receivers: *SHORT_STACK
+  - name: ShortStackStacking
+    freq: 1000
+    senders: [*SHORT_STACK]
+    receivers: [*RECORDER_Q7_WING, *MOTORS]
+  - name: ShortStackStatus
+    freq: 50
+    senders: [*SHORT_STACK]
+    receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+  - name: SimCommand
+    freq: 0
+    senders: [*CONTROLLERS, *GS_ESTIMATOR, *OPERATOR, *SIMULATOR, *SIMULATED_JOYSTICK]
+    receivers:
+    inhibit_routing: true
+  - name: SimSensor
+    freq: 0
+    senders: *SIMULATOR
+    receivers: [*CONTROLLERS, *GS_ESTIMATOR, *OPERATOR, *RECORDER_Q7S]
+  - name: SimTelemetry
+    freq: 0
+    senders: *SIMULATOR
+    receivers:
+    inhibit_routing: true
+  - name: SimTetherDown
+    freq: 0
+    senders: *SIMULATOR
+    receivers: *OPERATOR
+  - name: SlowStatus
+    freq: 1
+    routes:
+      - senders: *TMS570S_WING_NO_CS
+        receivers: [*OPERATOR, *RECORDER_Q7S, *WING_CORE_SWITCHES]
+      - senders: *TMS570S_NO_CS
+        receivers: [*OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: SmallControlTelemetry
+    freq: 100
+    senders: *CONTROLLERS
+    receivers: [*RECORDER_Q7_WING, *WING_CORE_SWITCHES]
+  - name: Stdio
+    index: 0  # Message shared by bootloader and application.
+    freq: 0
+    senders: *TMS570S
+    receivers: [*OPERATOR, *RECORDER_Q7S]
+    inhibit_cvt: true
+  - name: TestExecute
+    index: 70  # Message shared by application and test fixture core switch.
+    freq: 0
+    senders: *OPERATOR
+    receivers: *TMS570S
+  - name: TestFailure
+    index: 71  # Message shared by application and test fixture core switch.
+    freq: 0
+    senders: *TMS570S
+    receivers: *OPERATOR
+  - name: TestStart
+    index: 72  # Message shared by application and test fixture core switch.
+    freq: 0
+    senders: *TMS570S
+    receivers: *OPERATOR
+  - name: TestStatus
+    index: 73  # Message shared by application and test fixture core switch.
+    freq: 0
+    senders: *TMS570S
+    receivers: *OPERATOR
+  - name: TetherDown
+    freq: 100  # Must be an integer multiple of 900 MHz radio transmit rate.
+    routes:
+      - senders: *GS_CORE_SWITCHES
+        receivers: [*MONITORS, *OPERATOR, *PLCS, *RECORDER_Q7_PLATFORM]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*MONITORS, *OPERATOR, *PLCS, *RECORDER_Q7S]
+  - name: TetherReleaseSetState
+    freq: 0
+    routes:
+      - senders: *OPERATOR
+        receivers: [*GS_CORE_SWITCHES, *LOADCELLS, *RECORDER_Q7S]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*LOADCELLS, *RECORDER_Q7_WING]
+  - name: TetherUp
+    freq: 100  # Must be an integer multiple of 900 MHz radio transmit rate.
+    routes:
+      - senders: *GS_CORE_SWITCHES
+        receivers: [*MONITORS, *CONTROLLERS, *LOADCELLS, *OPERATOR,
+                    *RECORDER_Q7S, *SERVOS]
+      - senders: *WING_CORE_SWITCHES
+        receivers: [*CONTROLLERS, *LOADCELLS, *RECORDER_Q7_WING, *SERVOS]
+      - senders: *CS_GS_A
+        receivers: *CS_A
+      - senders: *CS_GS_B
+        receivers: *CS_B
+  - name: TorqueCell
+    freq: 0
+    senders: *TORQUE_CELL
+    receivers: *OPERATOR
+
+eop_messages:
+  - name: EopModemStatus
+    index: 0  # Message shared between EOP modem and application.
+    freq: 1
+    routes:
+      - senders: *EOP_GS_B
+        receivers: [*CS_GS_B, *RECORDER_Q7_PLATFORM]
+      - senders: *EOP_WING_B
+        receivers: [*CS_B, *RECORDER_Q7_WING]
+
+winch_messages:
+  - name: PlcWinchCommand
+    index: 1  # Message shared between PLC and application.
+    freq: 300
+    senders: *GS_CORE_SWITCHES
+    receivers: [*PLC_TOPHAT, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: PlcWinchSetState
+    index: 3  # Message shared between PLC and application.
+    freq: 0
+    senders: *GS_CORE_SWITCHES
+    receivers: [*PLC_TOPHAT, *OPERATOR, *RECORDER_Q7_PLATFORM]
+  - name: PlcWinchStatus
+    index: 2  # Message shared between PLC and application.
+    freq: 100
+    senders: [*PLC_TOPHAT]
+    receivers: [*GS_CORE_SWITCHES, *OPERATOR, *RECORDER_Q7_PLATFORM]
+
+switch_chips:
+  - &BCM53284
+    type: bcm53284
+    num_ports: 27
+    num_fiber_ports: 23
+  - &BCM53101
+    type: bcm53101
+    num_ports: 6
+    num_fiber_ports: 4
+
+# Per port bandwidth utilization limits in bits per second (for tests).
+# TODO: Determine max utilization for wing network POF, radio links,
+# diagnostic POF, ground side POF, gigabit connections, and WiFi.
+# TODO: Remove exceptions once we can pass them unmodified:
+#  - Flight controller AS port 4 (link speed 100 Mbps, nominal 25 Mbps?).
+#  - WiFi ports (minimum expected bandwidth is 7.2 Mbps with BPSK/1:2 encoding,
+#    20MHz bandwidth, and a 400ns gap interval.)
+bandwidth:
+  - &AS_BANDWIDTH
+    default: 25e6
+  - &AS_FC_BANDWIDTH
+    default: 25e6
+    4: 38e6  # This exception is above the nominal speed.
+  - &AS_RECORDER_BANDWIDTH
+    default: 110e6  # This exception is pending recorder bandwidth reduction.
+  - &JS_RADIO_DOWN_BANDWIDTH
+    default: 25e6
+    js_radio: 0.76e6
+  - &JS_RADIO_UP_BANDWIDTH
+    default: 25e6
+    js_radio: 0.40e6
+
+switch_configs:
+  - &CONFIG_CS_A
+    chip: *BCM53284
+    network_a: [[0, 22], [23, 27]]
+    network_b: []
+    network_c: [22]
+    unicast: [[0, 27]]
+    tms570: 24
+    mirror: 25
+    bandwidth:
+      default: 25e6
+      pof: 45e6
+      wifi: 12.5e6  # This exception is pending WiFi link characterization.
+      3: 80e6
+    trunk:
+      ports: [pof, wifi]
+      unicast_learning: [pof]
+      network_c_transit: [pof, wifi]
+      override_message_routes: &OVERRIDE_ROUTES_A
+        # These messages are restricted in support of HITL.
+        SimCommand: [pof]
+        SimSensor: [pof]
+        SimTelemetry: [pof]
+        # These messages are restricted in support of embedded hardware testing.
+        TestFailure: [pof]
+        TestStatus: [pof]
+        # These high bandwidth messages are restricted for debugging.
+        ControlDebug: [pof]
+        EopSlowStatus: [pof]
+        FlightComputerImu: [pof]
+        MotorDebug: [pof]
+        MotorIsrDiag: [pof]
+        MotorStacking: [pof]
+        NovAtelObservations: [pof]
+        SeptentrioObservations: [pof]
+        ServoDebug: [pof]
+        ServoPairedStatusElevator: [pof]
+        ServoPairedStatusRudder: [pof]
+        # These messages are for debugging GPS and other serial communications.
+        SerialDebug: [pof]
+  - &CONFIG_CS_B
+    chip: *BCM53284
+    network_a: []
+    network_b: [[0, 27]]
+    network_c: []
+    unicast: [18, 20, [22, 27]]
+    tms570: 24
+    mirror: 25
+    bandwidth:
+      default: 25e6
+      pof: 45e6
+      eop: 12.5e6  # This exception is pending EOP link characterization.
+      wifi: 12.5e6  # This exception is pending WiFi link characterization.
+      3: 80e6
+    restrict:
+      js_radio: [FaaLightAckParam, MotorAckParam, ServoAckParam, TetherDown]
+      recorder: [BootloaderSlowStatus, CoreSwitchStatus,
+                 CoreSwitchSlowStatus, EopModemStatus, EopSlowStatus,
+                 FaaLightGetParam, FaaLightSetParam, FlightCommand, FpvSetState,
+                 GpsRtcm1006, GpsRtcm1033, GpsRtcm1072, GpsRtcm1074,
+                 GpsRtcm1082, GpsRtcm1084, GpsRtcm1230, LatencyResponse,
+                 MotorGetParam, MotorSetParam, MotorSetState,
+                 PitotSetState, SelfTest, ServoGetParam, ServoSetParam,
+                 ServoSetState, Stdio, TetherDown, TetherUp,
+                 TetherReleaseSetState]
+    trunk:
+      ports: [eop, js_radio, pof, wifi]
+      override_message_routes: &OVERRIDE_ROUTES_B
+        # These messages are restricted in support of HITL.
+        #
+        # SimSensorMessage is completely restricted from the B network.
+        # Sending a fragmented message over both networks results in frequent
+        # packet-reassembly errors. See http://b/28678390.
+        #
+        # TODO: Make it possible to share common parts of the override
+        # routes configurations for the A and B networks.
+        SimCommand: [pof]
+        SimSensor: []
+        SimTelemetry: [pof]
+        # These messages are restricted in support of embedded hardware testing.
+        TestFailure: [pof]
+        TestStatus: [pof]
+        # These high bandwidth messages are restricted for debugging.
+        ControlDebug: [pof]
+        EopSlowStatus: [pof]
+        FlightComputerImu: [pof]
+        MotorDebug: [pof]
+        MotorIsrDiag: [pof]
+        MotorStacking: [pof]
+        NovAtelObservations: [pof]
+        SeptentrioObservations: [pof]
+        ServoDebug: [pof]
+        ServoPairedStatusElevator: [pof]
+        ServoPairedStatusRudder: [pof]
+        # These messages are for debugging GPS and other serial communications.
+        SerialDebug: [pof]
+        # These EOP messages are sent by the EOP modems over EOP. The
+        # associated core switches repackage these messages as AIO messages
+        # for others to consume.
+        EopModemStatus: [eop]
+  - &CONFIG_CS_GS_A
+    chip: *BCM53284
+    network_a: [[0, 22], [23, 27]]
+    network_b: []
+    network_c: [22]
+    unicast: [[0, 27]]
+    tms570: 24
+    mirror: 25
+    bandwidth:
+      default: 80e6
+      pof: 45e6
+      wifi: 3e6
+      24: 500e6
+      25: 500e6
+    trunk:
+      ports: [pof, wifi]
+      unicast_learning: [pof]
+      network_c_transit: [pof, wifi]
+      override_message_routes: *OVERRIDE_ROUTES_A
+  - &CONFIG_CS_GS_B
+    chip: *BCM53284
+    network_a: []
+    network_b: [[0, 27]]
+    unicast: [18, 20, [22, 27]]
+    tms570: 24
+    mirror: 25
+    bandwidth:
+      default: 80e6
+      pof: 45e6
+      eop: 3e6
+      wifi: 3e6
+      24: 500e6
+      25: 500e6
+    restrict:
+      recorder: [BootloaderSlowStatus, CoreSwitchStatus,
+                 CoreSwitchSlowStatus, EopSlowStatus, EopModemStatus,
+                 GroundStationWinchStatus, LatencyResponse, FaaLightAckParam,
+                 MotorAckParam, PlcWinchCommand, PlcWinchSetState,
+                 SelfTest, ServoAckParam, Stdio, TetherUp, TetherDown]
+    trunk:
+      ports: [eop, pof, wifi]
+      override_message_routes: *OVERRIDE_ROUTES_B
+  - &CONFIG_MOTOR
+    chip: *BCM53101
+    network_a: [0, 5]
+    network_b: [1, 5]
+    unicast: [0, 5]
+    tms570: 5
+    mirror: 3
+    bandwidth: *AS_BANDWIDTH
+  # Normal AIO configuration.  Port 4 is on both networks for debugging.
+  - &CONFIG_AIO
+    chip: *BCM53101
+    network_a: [0, 2, 4, 5]
+    network_b: [1, 3, 4, 5]
+    unicast: [0, 2, 4, 5]
+    tms570: 5
+    mirror: 4
+    bandwidth: *AS_BANDWIDTH
+  - &CONFIG_AIO_NET_C
+    chip: *BCM53101
+    network_a: [0, 4, 5]
+    network_b: [1, 3, 4, 5]
+    network_c: [2]
+    unicast: [0, 2, 4, 5]
+    tms570: 5
+    mirror: 4
+    bandwidth: *AS_BANDWIDTH
+  # Special case config for the Joystick:
+  #   - Port 0 is connected to network A in the command center.
+  #   - Port 1 is connected to network B in the command center.
+  #   - Port 3 is connected to joystick radio link.
+  #   - Port 4 is connector directly to the flight monitor.
+  - &CONFIG_AIO_JOYSTICK
+    chip: *BCM53101
+    network_a: [0, 4, 5]
+    network_b: [1, 3, 4, 5]
+    unicast: [0, 3, 4, 5]
+    mirror: 4
+    restrict:
+      js_radio:
+        [BattCommand, FaaLightGetParam, FaaLightSetParam, FlightCommand,
+         FpvSetState, JoystickStatus, MotorGetParam, MotorSetParam,
+         MotorSetState, MvlvCommand, PitotSetState, ServoGetParam,
+         ServoSetParam, ServoSetState, ShortStackCommand, TetherReleaseSetState,
+         TetherUp]
+    tms570: 5
+    bandwidth: *AS_BANDWIDTH
+  # Special case config for the PLC.  Port 4 is connected to the PLC and
+  # is isolated from ports 0 and 1.
+  # Port 2 should remain disconnected, as it is used in a fake daisy chain and
+  # PLC traffic would flow onto it if it were connected.
+  - &CONFIG_AIO_PLC
+    chip: *BCM53101
+    network_a: [0, 2, 4, 5]
+    network_b: [1, 3, 5]
+    unicast: [0, 2, 4, 5]
+    isolate: [0, 1, 4]
+    tms570: 5
+    mirror: 3
+    bandwidth: *AS_BANDWIDTH
+  # Special case config for the Q7 daughter board which uses port 4 for the Q7.
+  # Port 2 and 3 are unconnected.
+  - &CONFIG_AIO_Q7
+    chip: *BCM53101
+    network_a: [0, 4, 5]
+    network_b: [1, 4, 5]
+    unicast: [0, 4, 5]
+    tms570: 5
+    mirror: 3
+    bandwidth: *AS_FC_BANDWIDTH
+  - &CONFIG_AIO_Q7_GROUND_POWER
+    chip: *BCM53101
+    network_a: [0, 3, 4, 5]
+    network_b: [1, 3, 4, 5]
+    unicast: [0, 3, 4, 5]
+    isolate: [0, 1, 3]
+    tms570: 5
+    mirror: 3
+    bandwidth: *AS_BANDWIDTH
+  - &CONFIG_AIO_Q7_RECORDER
+    chip: *BCM53101
+    network_a: [0, 4, 5]
+    network_b: [1, 4, 5]
+    unicast: [0, 4, 5]
+    tms570: 5
+    mirror: 3
+    bandwidth: *AS_RECORDER_BANDWIDTH
+
+switches:
+  batt_a:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.19
+      1: switches.mvlv.3
+      2: switches.mvlv.0
+      5: aio_nodes.batt_a
+  batt_b:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.16
+      1: switches.short_stack.3
+      2: switches.short_stack.0
+      5: aio_nodes.batt_b
+  cs_a:
+    config: *CONFIG_CS_A
+    ports:
+      0: switches.fc_a.0
+      1: switches.fc_b.0
+      2: switches.fc_c.0
+      3: switches.recorder_wing.0
+      4: switches.servo_r1.0
+      5: switches.servo_e1.0
+      6: switches.servo_a4.0
+      7: switches.servo_a5.0
+      8: switches.motor_sbo.0
+      9: switches.motor_sbi.0
+      10: switches.motor_pbi.0
+      11: switches.motor_pbo.0
+      12: switches.motor_pto.0
+      13: switches.motor_pti.0
+      14: switches.motor_sti.0
+      15: switches.motor_sto.0
+      16: switches.batt_b.0
+      17: switches.loadcell_port_a.0
+      18: switches.cs_gs_a.18
+      19: switches.batt_a.0
+      20: switches.cs_gs_a.20
+      21: switches.loadcell_starboard_a.0
+      24: aio_nodes.cs_a
+    port_names:
+      3: recorder
+      4: rudder
+      5: elevator
+      6: port_ails
+      7: star_ails
+      17: port_loads
+      18: wifi
+      20: pof
+      21: star_loads
+      24: tms570
+    asymmetric_ports: [4, 5, 6, 7, 16, 17, 18, 19, 21, 22, 23]
+  cs_b:
+    config: *CONFIG_CS_B
+    ports:
+      0: switches.fc_a.1
+      1: switches.fc_b.1
+      2: switches.fc_c.1
+      3: switches.recorder_wing.1
+      4: switches.servo_r2.1
+      5: switches.servo_e2.1
+      6: switches.servo_a1.1
+      7: switches.servo_a8.1
+      8: switches.motor_sbo.1
+      9: switches.motor_sbi.1
+      10: switches.motor_pbi.1
+      11: switches.motor_pbo.1
+      12: switches.motor_pto.1
+      13: switches.motor_pti.1
+      14: switches.motor_sti.1
+      15: switches.motor_sto.1
+      16: switches.short_stack.1
+      17: switches.loadcell_port_b.1
+      18: switches.eop_wing_b.1
+      19: switches.mvlv.1
+      20: switches.cs_gs_b.20
+      21: switches.loadcell_starboard_b.1
+      22: switches.cs_gs_b.22
+      23: switches.joystick_radio_wing.1
+      24: aio_nodes.cs_b
+    port_names:
+      3: recorder
+      4: rudder
+      5: elevator
+      6: port_ails
+      7: star_ails
+      17: port_loads
+      18: eop
+      20: pof
+      21: star_loads
+      22: wifi
+      23: js_radio
+      24: tms570
+    asymmetric_ports: [4, 5, 6, 7, 16, 17, 18, 19, 21, 22, 23]
+  cs_dyno_a:
+    config: *CONFIG_CS_A
+    ports:
+      8: switches.dyno_motor_sbo.0
+      9: switches.dyno_motor_sbi.0
+      10: switches.dyno_motor_pbi.0
+      11: switches.dyno_motor_pbo.0
+      12: switches.dyno_motor_pto.0
+      13: switches.dyno_motor_pti.0
+      14: switches.dyno_motor_sti.0
+      15: switches.dyno_motor_sto.0
+      20: switches.cs_gs_a.21
+      24: aio_nodes.cs_dyno_a
+  cs_dyno_b:
+    config: *CONFIG_CS_B
+    ports:
+      8: switches.dyno_motor_sbo.1
+      9: switches.dyno_motor_sbi.1
+      10: switches.dyno_motor_pbi.1
+      11: switches.dyno_motor_pbo.1
+      12: switches.dyno_motor_pto.1
+      13: switches.dyno_motor_pti.1
+      14: switches.dyno_motor_sti.1
+      15: switches.dyno_motor_sto.1
+      20: switches.cs_gs_b.21
+      24: aio_nodes.cs_dyno_b
+  cs_gs_a:
+    config: *CONFIG_CS_GS_A
+    ports:
+      1: switches.gps_base_station.0
+      2: switches.uwb.0
+      3: switches.recorder_platform.0
+      9: switches.ground_power.0
+      10: switches.drum_sensors_a.0
+      11: switches.platform_sensors_a.0
+      12: switches.plc_gs02.0
+      18: switches.cs_a.18
+      20: switches.cs_a.20
+      21: switches.cs_dyno_a.20
+      24: aio_nodes.cs_gs_a
+      26: switches.remote_command.0
+    port_names:
+      1: gps_base
+      3: recorder
+      9: ground_pwr
+      10: drum
+      11: platform
+      18: wifi
+      20: pof
+      21: dyno
+      24: tms570
+    asymmetric_ports: [2, 9, 10, 11, 12, 18, 22]
+  cs_gs_b:
+    config: *CONFIG_CS_GS_B
+    ports:
+      1: switches.gps_base_station.1
+      3: switches.recorder_platform.1
+      9: switches.ground_power.1
+      10: switches.drum_sensors_b.1
+      11: switches.platform_sensors_b.1
+      12: switches.plc_tophat.1
+      18: switches.eop_gs_b.1
+      20: switches.cs_b.20
+      21: switches.cs_dyno_b.20
+      22: switches.cs_b.22
+      24: aio_nodes.cs_gs_b
+      26: switches.remote_command.1
+    port_names:
+      1: gps_base
+      3: recorder
+      9: ground_pwr
+      10: drum
+      11: platform
+      18: eop
+      20: pof
+      21: dyno
+      22: wifi
+      24: tms570
+    asymmetric_ports: [2, 9, 10, 11, 12, 18, 22]
+  eop_gs_b:
+    ports:
+      1: switches.cs_gs_b.18
+      3: switches.eop_wing_b.3
+      4: aio_nodes.eop_gs_b
+  eop_wing_b:
+    ports:
+      1: switches.cs_b.18
+      3: switches.eop_gs_b.3
+      4: aio_nodes.eop_wing_b
+  fc_a:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.0
+      1: switches.cs_b.0
+      4: aio_nodes.controller_a
+      5: aio_nodes.fc_a
+  fc_b:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.1
+      1: switches.cs_b.1
+      4: aio_nodes.controller_b
+      5: aio_nodes.fc_b
+  fc_c:
+    config: *CONFIG_AIO_Q7
+    ports:
+      0: switches.cs_a.2
+      1: switches.cs_b.2
+      4: aio_nodes.controller_c
+      5: aio_nodes.fc_c
+  gps_base_station:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_gs_a.1
+      1: switches.cs_gs_b.1
+      4: aio_nodes.gs_estimator
+      5: aio_nodes.gps_base_station
+  ground_power:
+    config: *CONFIG_AIO_Q7_GROUND_POWER
+    ports:
+      0: switches.cs_gs_a.9
+      1: switches.cs_gs_b.9
+      3: switches.ground_power_inverter.1
+      4: aio_nodes.ground_power_q7_a
+      5: aio_nodes.ground_power_tms570_a
+  # This fake switch represents the network node of the inverters themselves.
+  ground_power_inverter:
+    ports:
+      1: switches.ground_power.3
+  joystick_a:
+    config: *CONFIG_AIO_JOYSTICK
+    ports:
+      0: switches.remote_command.2
+      1: switches.remote_command.3
+      3: switches.joystick_radio_ground.1
+      5: aio_nodes.joystick_a
+    port_names:
+      3: js_radio
+  joystick_radio_ground:
+    config:
+      network_b: [1, 3]
+      bandwidth: *JS_RADIO_UP_BANDWIDTH
+    ports:
+      1: switches.joystick_a.3
+      3: switches.joystick_radio_wing.3
+    port_names:
+      3: js_radio
+  joystick_radio_wing:
+    config:
+      network_b: [1, 3]
+      bandwidth: *JS_RADIO_DOWN_BANDWIDTH
+    ports:
+      1: switches.cs_b.23
+      3: switches.joystick_radio_ground.3
+    port_names:
+      3: js_radio
+  remote_command:  # Fake entry to multiplex operator, joystick, etc.
+    config:
+      network_a: [0, 2, [5, 14]]
+      network_b: [1, 3, [5, 14]]
+      network_c: [4]
+      bandwidth:
+        default: 500e6
+    ports:
+      0: switches.cs_gs_a.26
+      1: switches.cs_gs_b.26
+      2: switches.joystick_a.0
+      3: switches.joystick_a.1
+      5: aio_nodes.operator
+      7: aio_nodes.simulator
+      8: aio_nodes.simulated_joystick
+      9: aio_nodes.torque_cell
+      10: aio_nodes.cmd_logger_a
+      11: aio_nodes.cmd_logger_b
+      12: aio_nodes.cmd_flight_spare
+      13: aio_nodes.cmd_webmonitor
+  light_port:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a1.2
+      1: switches.servo_a4.3
+      5: aio_nodes.light_port
+  light_stbd:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a8.2
+      1: switches.servo_a5.3
+      5: aio_nodes.light_stbd
+  light_tail_bottom:
+    config: *CONFIG_AIO_NET_C
+    ports:
+      0: switches.light_tail_top.2
+      1: switches.servo_r1.3
+      3: switches.light_tail_top.1
+      5: aio_nodes.light_tail_bottom
+  light_tail_top:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_r2.2
+      1: switches.light_tail_bottom.3
+      2: switches.light_tail_bottom.0
+      5: aio_nodes.light_tail_top
+  loadcell_port_a:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.17
+      1: switches.loadcell_port_b.3
+      2: switches.loadcell_port_b.0
+      5: aio_nodes.loadcell_port_a
+  loadcell_port_b:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.loadcell_port_a.2
+      1: switches.cs_b.17
+      3: switches.loadcell_port_a.1
+      5: aio_nodes.loadcell_port_b
+  loadcell_starboard_a:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.21
+      1: switches.loadcell_starboard_b.3
+      2: switches.loadcell_starboard_b.0
+      5: aio_nodes.loadcell_starboard_a
+  loadcell_starboard_b:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.loadcell_starboard_a.2
+      1: switches.cs_b.21
+      3: switches.loadcell_starboard_a.1
+      5: aio_nodes.loadcell_starboard_b
+  motor_sbo:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.8
+      1: switches.cs_b.8
+      5: aio_nodes.motor_sbo
+  motor_sbi:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.9
+      1: switches.cs_b.9
+      5: aio_nodes.motor_sbi
+  motor_pbi:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.10
+      1: switches.cs_b.10
+      5: aio_nodes.motor_pbi
+  motor_pbo:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.11
+      1: switches.cs_b.11
+      5: aio_nodes.motor_pbo
+  motor_pto:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.12
+      1: switches.cs_b.12
+      5: aio_nodes.motor_pto
+  motor_pti:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.13
+      1: switches.cs_b.13
+      5: aio_nodes.motor_pti
+  motor_sti:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.14
+      1: switches.cs_b.14
+      5: aio_nodes.motor_sti
+  motor_sto:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_a.15
+      1: switches.cs_b.15
+      5: aio_nodes.motor_sto
+  dyno_motor_sbo:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.8
+      1: switches.cs_dyno_b.8
+      5: aio_nodes.dyno_motor_sbo
+  dyno_motor_sbi:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.9
+      1: switches.cs_dyno_b.9
+      5: aio_nodes.dyno_motor_sbi
+  dyno_motor_pbi:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.10
+      1: switches.cs_dyno_b.10
+      5: aio_nodes.dyno_motor_pbi
+  dyno_motor_pbo:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.11
+      1: switches.cs_dyno_b.11
+      5: aio_nodes.dyno_motor_pbo
+  dyno_motor_pto:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.12
+      1: switches.cs_dyno_b.12
+      5: aio_nodes.dyno_motor_pto
+  dyno_motor_pti:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.13
+      1: switches.cs_dyno_b.13
+      5: aio_nodes.dyno_motor_pti
+  dyno_motor_sti:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.14
+      1: switches.cs_dyno_b.14
+      5: aio_nodes.dyno_motor_sti
+  dyno_motor_sto:
+    config: *CONFIG_MOTOR
+    ports:
+      0: switches.cs_dyno_a.15
+      1: switches.cs_dyno_b.15
+      5: aio_nodes.dyno_motor_sto
+  mvlv:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.batt_a.2
+      1: switches.cs_b.19
+      3: switches.batt_a.1
+      5: aio_nodes.mvlv
+  platform_sensors_a:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_gs_a.11
+      1: switches.platform_sensors_b.3
+      2: switches.platform_sensors_b.0
+      5: aio_nodes.platform_sensors_a
+  platform_sensors_b:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.platform_sensors_a.2
+      1: switches.cs_gs_b.11
+      3: switches.platform_sensors_a.1
+      5: aio_nodes.platform_sensors_b
+  # Below, plc_gs02 and plc_tophat are daisy chained so that the network can
+  # accommodate either node type without breaking due to the absence of one.
+  plc_gs02:
+    config: *CONFIG_AIO_PLC
+    ports:
+      0: switches.cs_gs_a.12
+      1: switches.plc_tophat.3
+      2: switches.plc_tophat.0
+      5: aio_nodes.plc_gs02
+  plc_tophat:
+    config: *CONFIG_AIO_PLC
+    ports:
+      0: switches.plc_gs02.2
+      1: switches.cs_gs_b.12
+      3: switches.plc_gs02.1
+      5: aio_nodes.plc_tophat
+  recorder_wing:
+    config: *CONFIG_AIO_Q7_RECORDER
+    ports:
+      0: switches.cs_a.3
+      1: switches.cs_b.3
+      4: aio_nodes.recorder_q7_wing
+      5: aio_nodes.recorder_tms570_wing
+  recorder_platform:
+    config: *CONFIG_AIO_Q7_RECORDER
+    ports:
+      0: switches.cs_gs_a.3
+      1: switches.cs_gs_b.3
+      4: aio_nodes.recorder_q7_platform
+      5: aio_nodes.recorder_tms570_platform
+  servo_a1:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a2.2
+      1: switches.cs_b.6
+      2: switches.light_port.0
+      3: switches.servo_a2.1
+      5: aio_nodes.servo_a1
+  servo_a2:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a4.2
+      1: switches.servo_a1.3
+      2: switches.servo_a1.0
+      3: switches.servo_a4.1
+      5: aio_nodes.servo_a2
+  servo_a4:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.6
+      1: switches.servo_a2.3
+      2: switches.servo_a2.0
+      3: switches.light_port.1
+      5: aio_nodes.servo_a4
+  servo_a5:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.7
+      1: switches.servo_a7.3
+      2: switches.servo_a7.0
+      3: switches.light_stbd.1
+      5: aio_nodes.servo_a5
+  servo_a7:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a5.2
+      1: switches.servo_a8.3
+      2: switches.servo_a8.0
+      3: switches.servo_a5.1
+      5: aio_nodes.servo_a7
+  servo_a8:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_a7.2
+      1: switches.cs_b.7
+      2: switches.light_stbd.0
+      3: switches.servo_a7.1
+      5: aio_nodes.servo_a8
+  servo_e1:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.5
+      1: switches.servo_e2.3
+      2: switches.servo_e2.0
+      5: aio_nodes.servo_e1
+  servo_e2:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_e1.2
+      1: switches.cs_b.5
+      3: switches.servo_e1.1
+      5: aio_nodes.servo_e2
+  servo_r1:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_a.4
+      1: switches.servo_r2.3
+      2: switches.servo_r2.0
+      3: switches.light_tail_bottom.1
+      5: aio_nodes.servo_r1
+  servo_r2:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.servo_r1.2
+      1: switches.cs_b.4
+      2: switches.light_tail_top.0
+      3: switches.servo_r1.1
+      5: aio_nodes.servo_r2
+  short_stack:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.batt_b.2
+      1: switches.cs_b.16
+      3: switches.batt_b.1
+      5: aio_nodes.short_stack
+  drum_sensors_b:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.drum_sensors_a.2
+      1: switches.cs_gs_b.10
+      3: switches.drum_sensors_a.1
+      5: aio_nodes.drum_sensors_b
+  drum_sensors_a:
+    config: *CONFIG_AIO
+    ports:
+      0: switches.cs_gs_a.10
+      1: switches.drum_sensors_b.3
+      2: switches.drum_sensors_b.0
+      5: aio_nodes.drum_sensors_a
+  uwb:
+    ports:
+      0: switches.cs_gs_a.2
+      1: aio_nodes.uwb_a
+      2: aio_nodes.uwb_b
+      3: aio_nodes.uwb_c
+      4: aio_nodes.uwb_d

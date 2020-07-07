@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="d3.v4.min.js"></script>
+    <link href="c3.css" rel="stylesheet">
+    <script src="c3.min.js"></script>
+    <script type="text/javascript" src="sweeps_report.js"></script>
+    <script type="text/javascript" src="shared_library.js"></script>
+    <link rel="stylesheet" type="text/css" href="sweeps_report.css"/>
+  </head>
+  <body>
+    <div id="metric_configuration" class="sidebar">
+      <div style="display: inline-block; text-align: left">
+
+        <h3>Score aggregate function</h3>
+
+        <form id="aggregate">
+          <input type="radio" name="aggregate" id="hybrid_max_rss_function"
+              onclick="rescore();" checked>
+              Max(crash scores, RSS(quality scores)) <br>
+          <input type="radio" name="aggregate" id="max_function"
+              onclick="rescore();"> Max(all scores) <br>
+        </form>
+
+        <h3>Score Selection</h3>
+
+        <div id="score_display">
+          <button type="button" id="select_all" onclick="selectAllScores();">
+            Select All
+          </button>
+          <button type="button" id="clear_all" onclick="clearAllScores();">
+            Clear All
+          </button>
+
+          <h4>Active Flight Modes</h4>
+
+          <div class="row">
+            <div class="column">
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="payout_modes" value="1"
+                      onclick="toggleFlightModeScores(
+                          this, ['kFlightModeHoverAscend',
+                                 'kFlightModeHoverPayOut']);"
+                      checked>
+                  <span class="slider round"></span>
+                </label>  Hover Ascend and PayOut
+              </div>
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="fulllength_modes" value="1"
+                      onclick="toggleFlightModeScores(
+                          this, ['kFlightModeHoverFullLength']);"
+                      checked>
+                  <span class="slider round"></span>
+                </label>  Hover Full Length
+              </div>
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="transin_modes" value="1"
+                       onclick="toggleFlightModeScores(
+                           this, ['kFlightModeHoverAccel',
+                                  'kFlightModeTransIn']);"
+                       checked>
+                  <span class="slider round"></span>
+                </label>  Hover Accel and TransIn
+              </div>
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="crosswind_modes" value="1"
+                       onclick="toggleFlightModeScores(
+                           this, ['kFlightModeCrosswindNormal']);"
+                       checked>
+                  <span class="slider round"></span>
+                </label>  Crosswind Normal
+              </div>
+
+            </div>
+            <div class="column">
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="transout_modes" value="1"
+                       onclick="toggleFlightModeScores(
+                           this, ['kFlightModeCrosswindPrepTransOut',
+                                  'kFlightModeHoverTransOut']);"
+                       checked>
+                  <span class="slider round"></span>
+                </label>  PrepTransOut and TransOut
+              </div>
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="transform_modes" value="1"
+                       onclick="toggleFlightModeScores(
+                           this, ['kFlightModeHoverTransformGsUp',
+                                  'kFlightModeHoverTransformGsDown',
+                                  'kFlightModeHoverPrepTransformGsUp',
+                                  'kFlightModeHoverPrepTransformGsDown']);"
+                       checked>
+                  <span class="slider round"></span>
+                </label>  GS Transform
+              </div>
+
+              <div class="selectorBox">
+                <label class="switch">
+                  <input type="checkbox" id="reelin_modes" value="1"
+                      onclick="toggleFlightModeScores(
+                          this, ['kFlightModeHoverReelIn',
+                                 'kFlightModeHoverDescend']);"
+                      checked>
+                  <span class="slider round"></span>
+                </label>  Hover ReelIn and Descend
+              </div>
+            </div>
+          </div>
+
+          <h4>Active System Scores</h4>
+
+          <form id="systems">
+            <div class="row">
+              <div class="column">
+                <input type="radio" id="all_systems" name="systems"
+                    value="all"
+                    onclick="updateSystemScores();" checked> All systems <br>
+                <input type="radio" id="crash_system" name="systems"
+                    value="crash"
+                    onclick="updateSystemScores();"> Crash scores <br>
+                <input type="radio" id="aero_system" name="systems"
+                    value="aero"
+                    onclick="updateSystemScores();"> Aero scores <br>
+                <input type="radio" id="controls_system" name="systems"
+                    value="controls"
+                    onclick="updateSystemScores();"> Controls scores
+              </div>
+              <div class="column">
+                <input type="radio" id="loads_system" name="systems"
+                    value="loads"
+                    onclick="updateSystemScores();"> Loads scores <br>
+                <input type="radio" id="power_system" name="systems"
+                    value="power"
+                    onclick="updateSystemScores();"> Power scores <br>
+                <input type="radio" id="rotor_system" name="systems"
+                    value="rotors"
+                    onclick="updateSystemScores();"> Rotors scores <br>
+                <input type="radio" id="tether_system" name="systems"
+                    value="tether"
+                    onclick="updateSystemScores();"> Tether scores
+              </div>
+            </div>
+          </form>
+          <br>
+          <label>
+            <input type="checkbox" id="experimental_scores"
+                onclick="toggleExperimentalScores();">
+          </label> Experimental scores
+
+          <h4>Active Scoring Functions</h4>
+
+          <button type="button" id="manual_selection_button" value="0" disabled
+              onclick="deactivateManualSelection();"> Deactivate
+          </button>
+          <span id="manual_selection_legend"> Manual selection: Inactive</span>
+
+          <form id="active_scores" style="margin-top: 1rem;"></form>
+          <br>
+        </div>
+      </div>
+    </div>
+
+<span id="configuration_tab" class="pull_tab" onclick="openSidebar();">
+      Metric<br>configuration
+    </span>
+
+    <div id="main_section">
+      <h1 id="report_title"></h1>
+      <div id="report_metadata"></div>
+      <br>
+      <br>
+      <div id="results_chart"></div>
+      <div id="scores_chart"></div>
+      <div id="batch_score"></div>
+      <select id="input_cutoff">
+        <option value="20">20</option>
+        <option value="40">40</option>
+        <option value="60" selected="selected">60</option>
+        <option value="80">80</option>
+        <option value="100">100</option>
+      </select>
+      <br>
+      <div id="tables"></div>
+      <div id="plots"></div>
+    </div>
+
+    <span id="job_summary"></span>
+
+    <script type="text/javascript">
+      renderScoreTablesFromFile("overview_data.json");
+    </script>
+  </body>
+</html>

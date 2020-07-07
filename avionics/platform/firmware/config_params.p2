@@ -1,0 +1,8 @@
+include "avionics/firmware/drivers/encoder_params.p2";
+
+param PlatformConfigParams {
+  EncoderCalib levelwind_shoulder;
+  EncoderCalib perch_azi;
+  EncoderCalib drum_pos;
+  EncoderCalib levelwind_wrist;
+}

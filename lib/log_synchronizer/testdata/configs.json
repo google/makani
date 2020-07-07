@@ -1,0 +1,26 @@
+{
+  "remote_basedir": "$test_cloud_base_dir/$test_cloud_log_path",
+  "local_basedir": "$test_machine_log_path",
+  "collections": [
+    {
+      "name": "test",
+      "local_path": "",
+      "remote_path": "logs",
+      "sources": [
+        {
+          "src_pattern": ".+\\.h5$",
+          "dest_name": "$source_base.$source_ext"
+        },
+        {
+          "src_dir_pattern": "\\w+\\d+/folder$",
+          "dest_name": "$source_dir-folder"
+        },
+        {
+          "src_pattern": "dummy.json$",
+          "dest_name": "$source_base.$source_ext"
+        }
+      ]
+    }
+  ],
+  "systems": ["w7", "M600A"]
+}

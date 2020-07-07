@@ -1,0 +1,17 @@
+enum32 EncoderType {
+  None = 0,
+  Amo4306Single = 1,
+  Iha608Multi = 2,
+  MagA300 = 3,
+  MagA550 = 4,
+  Rha507Single = 5,
+}
+
+struct EncoderCalib {
+  EncoderType type;
+  int32 channel;
+  float32 scale_factor;  // [rad/#]
+  float32 zero_position;  // [rad]
+  int32 min_encoder_value;  // [counts]
+  int32 max_encoder_value;  // [counts]
+}

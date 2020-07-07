@@ -1,0 +1,22 @@
+# 8+8 Dyno: motor-side controller parameters.
+
+set_param all omega_to_torque_kp 10
+set_param all omega_to_torque_ki 150
+
+set_param all phase_current_limit 270
+set_param all bus_current_limit 200
+set_param all v_bus_upper_limit 950
+set_param all v_bus_lower_limit 600
+
+set_param all iq_upper_limit 225
+set_param all iq_lower_limit -225
+set_param all ibus_upper_limit 195
+set_param all ibus_lower_limit -195
+
+# Increase the motor status message rate to 100 Hz.
+set_param all motor_status_message_period 0.01
+
+# Disable shutdown_on_warning on all motor controllers to deal with power-good
+# nuisance trips.
+set_param all shutdown_on_warning 0
+

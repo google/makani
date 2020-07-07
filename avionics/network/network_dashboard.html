@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html lang="en">
+<head>
+<title>Avionics Network Dashboard</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+// TODO: Reset version '43' to current when caching issues resolve.
+// See: https://github.com/google/google-visualization-issues/issues/2182 .
+google.charts.load('43', {'packages':['bar', 'corechart', 'gauge']});
+</script>
+
+{% for link in links %}
+  {% include "network_dashboard_gauge.html" with link=link only %}
+  {% for chart in link.charts %}
+    {% if chart.type == "pie" %}
+      {% include "network_dashboard_pie.html" with chart=chart only %}
+    {% elif chart.type == "bar" %}
+      {% include "network_dashboard_bar.html" with chart=chart only %}
+    {% endif %}
+    {{chart.JavaScript | safe}}
+  {% endfor %}
+{% endfor %}
+
+</head>
+<body>
+
+<div class="container">
+  <div id="content">
+    <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+      {% for link in links %}
+      <li align="center">
+        <a href="#tab_{{link.div}}" id="a_{{link.div}}" data-toggle="tab">
+          <div id="{{link.div}}_gauge" style="width: 150px; height: 150px;"></div>
+          {{link.title}}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    <div id="my-tab-content" class="tab-content">
+      {% for link in links %}
+      <div class="tab-pane" id="tab_{{link.div}}">
+        <h1>{{link.title}}</h1>
+        {% for chart in link.charts %}
+        <div id="{{chart.div}}" style="width: 900px; height: 500px;"></div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</body>
+</html>
+

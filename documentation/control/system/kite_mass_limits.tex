@@ -1,0 +1,532 @@
+\documentclass[11pt]{amsart}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{xcolor}
+
+\usetikzlibrary{
+  arrows,
+  calc,
+  decorations.markings,
+  decorations.pathreplacing,
+  dsp,
+  fit,
+  positioning
+}
+\input{../util/airfoils.tex}
+\input{../util/wing.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/control.tex}
+
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\airgrid}{\mathrm{air-grid}}
+\newcommand{\app}{a}
+\newcommand{\climb}{\mathrm{climb}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\cutin}{\mathrm{cut-in}}
+\newcommand{\cutout}{\mathrm{cut-out}}
+\newcommand{\cw}{\mathrm{cw}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\extra}{\mathrm{extra}}
+\newcommand{\figureeight}{\mathrm{figure-eight}}
+\newcommand{\grav}{\mathrm{grav}}
+\newcommand{\groundinverter}{\mathrm{ground\;inv.}}
+\newcommand{\hover}{\mathrm{hover}}
+\newcommand{\kiteinverter}{\mathrm{kite\;inv.}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\lp}{\mathrm{loop}}
+\newcommand{\mx}{\mathrm{max}}
+\newcommand{\mn}{\mathrm{min}}
+\newcommand{\motor}{\mathrm{motor}}
+\newcommand{\nominal}{\mathrm{nom}}
+\newcommand{\path}{\mathrm{path}}
+\newcommand{\prop}{\mathrm{prop}}
+\newcommand{\shaftgrid}{\mathrm{shaft-grid}}
+\newcommand{\swept}{\mathrm{swept}}
+\newcommand{\tether}{\mathrm{tether}}
+\newcommand{\total}{\mathrm{tot}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\mass}{\mathrm{mass}}
+\newcommand{\power}{\mathrm{power}}
+\newcommand{\powertrain}{\mathrm{powertrain}}
+\newcommand{\motorout}{\mathrm{motor-out}}
+
+\definecolor{matlab1}{rgb}{0, 0.4470, 0.7410}
+\definecolor{matlab2}{rgb}{0.8500, 0.3250, 0.0980}
+\definecolor{matlab3}{rgb}{0.9290, 0.6940, 0.1250}
+\definecolor{matlab4}{rgb}{0.4940, 0.1840, 0.5560}
+\definecolor{matlab5}{rgb}{0.4660, 0.6740, 0.1880}
+\definecolor{matlab6}{rgb}{0.3010, 0.7450, 0.9330}
+\definecolor{matlab7}{rgb}{0.6350, 0.0780, 0.1840}
+
+\title{Limits on kite mass}
+\author{Makani Technologies LLC}
+\date{October 6, 2016}
+
+\begin{document}
+\maketitle
+
+% \section*{Nomenclature}
+
+% \begin{tabular}{ll}
+%   $m_{\kite}$       & Kite mass \\
+%   $m_{\total}$      & Combined kite and tether mass \\
+%   $m_{\eff}$        & Effective mass ($m_{\eff} = m_{\kite} + m_{\tether}/3)$ for modeling dynamics \\
+%   $\mathit{TWR}$    & Thrust-to-weight ratio \\
+%   $\eta_{\airgrid}$ & Efficiency of power conversion from the grid to aerodynamic power \\
+
+% \end{tabular}
+
+\section{Vertical take-off and landing}
+
+The relationship between the required grid power for hover and mass
+is:
+%
+\begin{equation}
+  \label{eqn:hover_power}
+  P_{\hover} = \frac{1}{\eta_{\shaftgrid} \cdot \mathit{FM}}
+               \sqrt{\frac{(\mathit{TWR} \cdot m_{\total} g)^3}
+                          {2 \rho_{\mn} f N_{\prop} A_{\prop}}}
+\end{equation}
+%
+where $\mathit{FM}$ is the figure-of-merit of the propellers,
+$\mathit{TWR}$ is the thrust-to-weight ratio, $f$ is the fraction of
+motors available in a motor-out situation, and $m_{\total}$ is the
+combined kite and tether mass.\footnote{The strict limits that
+  vertical take-off and landing places on mass and power have
+  been covered extensively in other documents
+  \cite{tvanalsenoy_power_train}}
+
+Because of the significant cost of the ground-side inverter and other
+power components, which scales approximately linearly with power,
+vertical take-off and landing (VTOL) systems likely do not make
+economic sense unless $P_{\hover} \le P_{\mx}$.  This constraint may
+be relaxed somewhat for multi-kite systems, if it is only necessary to
+hover a single kite at a time.  In this case, the kite is likely
+limited by the available shaft power from the motors.  In a
+well-designed system, the available shaft power from the motors should
+be approximately, $P_{\mx} / \eta_{\shaftgrid}$, where $P_{\mx}$ is
+the per-kite rated power, so that the power system is fully utilized
+during generation.  In this case, the constraint imposed by VTOL is:
+$\eta_{\shaftgrid}^2 P_{\hover} / f \le P_{\mx}$.  Note that the extra
+factor of $\eta_{\shaftgrid} / f$ accounts for the fact that
+Eq. \ref{eqn:hover_power} is written in terms of ground power, and
+also that it is necessary to acccount for the motor-out fraction again
+in a shaft power limited system.
+
+For a single kite M600-like system, assuming $P_{\mx} = 600$ kW,
+$\eta_{\shaftgrid} = 0.83$, $\mathit{FM} = 0.68$, $\rho_{\mn} = 0.95$
+kg/m$^3$, $A_{\prop} = 3.8$ m$^2$, and $\mathit{TWR} = 1.3$,
+$f = 3/4$, this sets a reasonable mass limit of $m_{\total} < 1338$
+kg.  For a multi-kite M600-like system, with equivalent parameters,
+the mass limit is $m_{\total} < 1416$ kg.  If the motor-out fraction
+is increased to $f = 7/8$, then the single- and multi-kite limits are
+1409 kg and 1652 kg, respectively.  Above these mass limits, VTOL
+becomes expensive quickly, scaling as
+$P_{\hover} \propto (m/m_{\nominal})^{3/2}$.
+
+It is of course possible to increase the VTOL lifting ability through
+significant design changes to the M600.  The most significant
+parameter to change is rotor disk area.  In particular,
+Eq. \ref{eqn:hover_power} can be used to solve for the rotor disk area
+that meets a given power requirement.  Later in this paper, limits on
+the power density of a kite system will be derived, so it is actually
+more useful to reexpress Eq. \ref{eqn:hover_power} as a relationship
+between maximum power density and disk mass loading:
+%
+\begin{equation}
+  \label{eqn:hover_power2}
+  \left(\frac{P_{\mx}}{m_{\total}}\right)^2 >
+  k \left(\frac{m_{\total}}{N_{\prop} A_{\prop}}\right)
+\end{equation}
+%
+Assuming the same values as above, the proportionality constant here
+is $k \approx 6400$ W$^2$-m$^2$/kg$^3$.  To get a feel for the range
+of values this constant could take across kite systems, the value
+without motor-out capability is $k \approx 2700$ W$^2$-m$^2$/kg$^3$.
+
+\section{Crosswind flight}
+
+Crosswind flight does not place as strict of a limit on mass as VTOL;
+however it still imposes mass limitations stricter than what would be
+required for traditional flight vehicles.  The main consequences of
+increased mass in crosswind flight are 1) an increase in power
+required to maintain a minimum airspeed during climb, 2) an increase
+in minimum turning radius, and 3) an increase in power and tension
+variations around a loop.  Each of these consequences are analyzed in
+detail below.
+
+\subsection{Minimum airspeed climb}
+
+A reasonable requirement for a kite system is to be able to maintain
+the minimum allowed airspeed, $v_{\app,\mn}$, while climbing up the loop
+with low or zero wind.  Assuming a circular flight path, this results
+in the power requirement for climbing of
+%
+\begin{equation}
+  P_{\climb} = \frac{m_{\eff} g_{\parallel} v_{\app,\mn}}{\eta_{\airgrid}}
+\end{equation}
+%
+which may be converted to a limitation on the maximum reasonable
+effective mass:
+%
+\begin{equation}
+  \label{eqn:mass_minimum_airspeed_climb}
+  m_{\eff} < \frac{\eta_{\airgrid} P_{\mx}}{g_{\parallel} v_{\app,\mn}}
+\end{equation}
+%
+For an M600-like system, assuming $P_{\mx} = 600$ kW,
+$\eta_{\airgrid} = 0.67$, a flight path elevation angle of
+25$^{\circ}$, and $v_{\app,\mn} = 30$ m/s, the maximum reasonable
+effective mass is $m_{\eff} = 1507$ kg.\footnote{TODO: Add drag to
+  calculation.}
+
+\begin{figure}[h]
+\begin{center}
+  \begin{tikzpicture}
+    \begin{scope}[scale=2]]
+      % Downstrokes.
+      \draw[arrows={latex-}] ({sqrt(2) + 1}, 0) arc (0:135:1);
+      \draw                  ({sqrt(2) + 1}, 0) arc (0:-135:1);
+
+      \draw[arrows={latex-}] ({-(sqrt(2) + 1)}, 0) arc (180:45:1);
+      \draw                  ({-(sqrt(2) + 1)}, 0) arc (180:315:1);
+
+      % Upstrokes.
+      \draw[arrows={-latex}] ({-sqrt(2)/2}, {-sqrt(2)/2}) --
+      ({ sqrt(2)/2}, { sqrt(2)/2});
+      \draw[arrows={-latex}] ({ sqrt(2)/2}, {-sqrt(2)/2}) --
+      ({-sqrt(2)/2}, { sqrt(2)/2});
+
+      \draw ({-sqrt(2) - 0.1}, 0) -- ({-sqrt(2) + 0.1}, 0);
+      \draw ({-sqrt(2)}, -0.1) -- ({-sqrt(2)}, 0.1);
+
+      \draw ({sqrt(2) - 0.1}, 0) -- ({sqrt(2) + 0.1}, 0);
+      \draw ({sqrt(2)}, -0.1) -- ({sqrt(2)}, 0.1);
+
+      \draw[dashed] (0, 0) -- ({sqrt(2)}, 0);
+    \end{scope}
+
+    \draw[arrows={latex-latex}] (1, 0) arc (0:45:1);
+    \path (1, 0) arc (0:22.5:1) node[above right] {$\psi_{\climb}$};
+
+    \draw [decorate, decoration={brace, amplitude=5pt}]
+      ({-sqrt(2)*2}, 0) -- ({-sqrt(2)*2 - 1}, {sqrt(3)})
+      node[midway, below left] {$R_{\path}$};
+
+    \draw [decorate, decoration={brace, amplitude=5pt}]
+      (0, 0) -- ({-(sqrt(2) * 2)}, 0)
+      node[midway, below=0.2] {$\delta$};
+
+  \end{tikzpicture}
+  \caption{Figure-eight flight path.}
+\end{center}
+\end{figure}
+
+One concept that attempts to relax the constraints imposed by a
+minimum airspeed climb is to fly figure-eights where the upstrokes are
+the long paths between downstrokes.  Now the power to climb is reduced
+by the sine of the climb angle:
+%
+\begin{equation}
+  \label{eqn:mass_minimum_airspeed_climb2}
+  P_{\climb} = \frac{m_{\eff} g_{\parallel} v_{\app,\mn} \sin \psi_{\climb}}
+                    {\eta_{\airgrid}}
+\end{equation}
+%
+Unfortunately, the figure-eight pattern has significant negative
+effects on power generation.  One effect is that it pushes part of the
+path off-downwind.  Specifically, the center of each of the loops of
+the eight will be approximately
+$\delta = R_{\path} / \sin \psi_{\climb}$ off-downwind.  Thus, there
+will be a power loss roughly proportional to
+%
+\begin{equation}
+  \eta_{\figureeight} \sim \cos^3 (\sin^{-1}(\sin \gamma / \sin \psi_{\climb}))
+\end{equation}
+%
+where $\gamma$ is the half-cone angle of the flight path.  Even for
+moderate climb angles, say $\psi_{\climb} = 45^{\circ}$, these losses
+are substantial, $\eta_{\figureeight} \sim 0.67$ assuming
+$\gamma = 20^{\circ}$ \footnote{For single kite systems, the required
+  low elevation angle of the flight path puts a strict limit on the
+  maximum half-cone angle.  This can be relaxed somewhat for
+  multi-kite systems.}.  And the estimated efficiency drops off
+quickly with shallower climb angles, $\eta_{\figureeight} = 0.38$ at
+$\psi_{\climb} = 30^{\circ}$.  A second slightly harder to quantify
+effect is that the figure-eight will take longer to fly than the
+equivalent set of two independent circles, which also reduces power
+efficiency.
+
+Nonetheless, flying figure-eights does offer an approach to increasing
+the maximum mass calculated with
+Eq. \ref{eqn:mass_minimum_airspeed_climb} by a factor of, very
+roughly, 1.5, while sacrificing some power efficiency.  For an
+M600-like system flying figure-eights, the maximum reasonable
+effective mass is, again very roughly, 2300 kg.
+
+Equations \ref{eqn:mass_minimum_airspeed_climb} and
+\ref{eqn:mass_minimum_airspeed_climb2} set a fairly strict limit on
+the power density of kite systems, which is independent of system
+scale.  Using the same parameters used above for the M600 system,
+which should apply equally well to a generic kite system, the power
+density for a kite system flying a circular path must be greater than
+400 W/kg, and the power density for a kite system flying a
+figure-eight must be greater than roughly 265 W/kg.
+
+\subsection{Turning radius}
+
+The ability of a kite to turn around a tight circular path is
+inversely proportional to its mass.  Higher masses will eventually
+force either a larger path radius or an excessively large roll angle.
+A larger path radius leads to a longer, draggier, and heavier tether
+as well as larger swings in tension and power.  Similarly, an
+excessively large roll angle has negative consequences due to the
+reduced projected wing area normal to the wind.
+
+To quantify these effects, it is useful to derive the exact
+relationship between wing mass and turning radius.  This relationship
+can be found by balancing forces in the stability axes' y-z plane.  To
+simplify the calculation, the tether is appoximated as a straight line
+from the ground-station to the bridle point.  Other effects on the
+tether such as the catenary from gravity are ignored.
+
+\begin{figure}[h]
+\begin{center}
+  \begin{tikzpicture}[scale=0.5]
+    \begin{scope}[shift={(-5, 0)}, scale=0.3, rotate=-10]
+      \DrawWingFront[]
+      \draw[line width=1.5pt, -latex] (4, 1) -- (9, 1) node[midway, above] {$-Y$};
+      \draw[line width=1.5pt, -latex] (0, 5) -- (0, 12) node[midway, right] {$L$};
+      \draw (-5.86, -0.13) -- (0, -4.92);
+      \draw (5.86, -0.13) -- (0, -4.92);
+      \draw[dashed] (0, -4.92) -- (0, -15);
+    \end{scope}
+    \node at (-5, -3) {$\phi_t$};
+    \draw[line width=1.5pt, -latex] (-5.25, -1.45) --
+    (-3.5, -4.3) node[midway, above right] {$t$};
+    \draw[line width=1.5pt, -latex] (-3.5, -1) -- (-2, -2)
+    node[below right] {$W$};
+    \draw (-5.25, -1.45) -- (0, -10) node[midway, above right] {$l_t$};
+    %\draw[dashed] (-5.25, -1.45) -- (-0.975, 1.175);
+    \node at (-0.5, -8.5) {$\gamma$};
+    \draw[dashed] (0, -10) -- (0, -5);
+    %\draw[dashed] (-5, 0) -- (-10, 0) node[near end, above] {$-\phi$};
+    %\draw[line width=1.5pt, -latex] (-7, 0) -- (-9, 0) node[midway, below]
+    %{$mv^2/R$};
+    \DrawCoordinateSystem{shift={(0, -10)}, scale=1}
+                         {$x_{\cw}$}{$y_{\cw}$}{$z_{\cw}$}
+  \end{tikzpicture}
+  \caption{Diagram of force balance in the stability axes' y-z plane.}
+\end{center}
+\end{figure}
+
+It is easiest to conduct the force balance along axes that are
+parallel and perpendicular to the tether.  Because the wing is forced
+to fly on the surface of a sphere with radius equal to the tether
+length, $l_t$, the acceleration parallel to the tether is
+$a_{\parallel} = v_i^2/l_t$.  The lift, pylon side force, and weight
+each have components along the direction perpendicular to the tether.
+Together, these create an acceleration perpendicular to the tether
+given by
+%
+\begin{equation}
+m_{\eff} a_{\bot} = L \sin \phi_t - Y \cos \phi_t -
+W_{\cw, x} \cos \gamma - W_{\cw, z} \sin \gamma
+\end{equation}
+%
+Here $m_{\eff}$ is the effective mass of the kite, which is given by
+$m_{\eff} = m_{\kite} + m_{\mathrm{tether}} / 3$.  The extra term from
+the tether mass comes from calculating the acceleration of a point
+mass at the end of a rigid rod due to a force applied at the point
+mass.  Also, a few small approximations were made such as ignoring
+forces from motor thrust, ignoring the component of drag along the
+stability z-axis, and ignoring the cosine term from projecting the
+lift vector onto the stability z-axis.
+
+The acceleration projected onto the crosswind flight plane is the
+acceleration relevant for following a circular path.  The parallel and
+perpendicular accelerations can be combined, projected onto the
+crosswind $x$-axis as follows:
+%
+\begin{align}
+  \label{eqn:full_curvature}
+  \frac{m_{\eff} v_i^2}{r} =&\;
+    \frac{m_{\eff} v_i^2}{l_t} \sin \gamma +
+    \frac{1}{2} \rho A v_{\app}^2 \left(C_L \sin \phi_t - C_Y \cos \phi_t \right) \cos \gamma \\ \notag
+  & - m (g_{\cw,x} \cos \gamma +
+  g_{\cw,z} \sin \gamma) \cos \gamma
+\end{align}
+%
+For the purposes of this discussion, Eq. \ref{eqn:full_curvature} may
+be simplified for the turn about the bottom of the loop, directly
+downwind, while ignoring some of the smaller terms:
+%
+\begin{equation}
+  r \approx \frac{m_{\eff} v_i^2}
+                 {\frac{1}{2} \rho A v_{\app}^2 C_L \sin \phi_t \cos \gamma -
+                 m g_{\parallel} \cos^2 \gamma}
+\end{equation}
+
+
+The tether roll angle, $\phi_t$, is the primary control variable for
+turning the kite around the path.  It is also possible to use $C_L$ or
+$C_Y$ to turn, but these variables significantly affect power
+production, so they are likely set by other considerations.  At the
+absolute minimum, it is necessary to be able to set $\phi_t$ such that
+$r = R_{\path}$ to fly a circle.  However, to be able to {\it control}
+the kite it is necessary to have an available-to-desired centripetal
+force ratio, $\mathit{CFR}$, greater than one, a similar concept to a
+thrust-to-weight ratio.  Thus, the constraint is that there is some
+$\phi_t$ such that $1/r > \mathit{CFR} / R_{\path}$.  A realistic
+centripetal force ratio may be $\mathit{CFR} \sim 1.5$.  The above
+considerations result in the following constraint on path radius:
+%
+\begin{equation}
+  R_{\path} > \mathit{CFR} \cdot
+              \frac{m v_{i,\mn}^2}
+                   {\frac{1}{2} \rho v_{i,\mn}^2 C_L A \sin \phi_{t,\mx} \cos \gamma_{\mx} -
+                    m g_{\parallel} \cos^2 \gamma_{\mx}}
+\end{equation}
+%
+Note that the apparent wind speed was replaced by an inertial speed
+because it should still be possible to turn without wind!
+
+The constraint on path radius can be converted to a constraint on
+minimum tether length for a given kite mass:
+%
+\begin{equation}
+  l_{t,\mn} > l_{t_0} \frac{m}{m_0 - m}
+\end{equation}
+%
+where the characteristic tether length $l_{t_0}$ is:
+%
+\begin{equation}
+  l_{t_0} = \mathit{CFR} \cdot
+  \frac{m_{\eff} v_{i,\mn}^2}{m g_{\parallel} \sin(\gamma_{\mx}) \cos^2(\gamma_{\mx})}
+\end{equation}
+%
+and the characteristic mass $m_0$ is:
+%
+\begin{equation}
+  \label{eqn:characteristic_mass}
+  m_0 = \frac{\frac{1}{2} \rho v_{i,\mn}^2 A C_L \sin(\gamma_{\mx} + \phi_{\mx})}
+             {g_{\parallel} \cos(\gamma_{\mx})}
+\end{equation}
+
+Clearly, this gives an absolute hard limit on mass of $m < m_0$.  This
+limit can be tightened somewhat by additionally specifying that the
+derivative of the {\it minimum} tether length with respect to
+effective mass should not grow faster than the derivative of the
+tether length with respect to effective mass:
+%
+\begin{equation}
+  m < m_0 - \sqrt{\frac{l_{t_0} m_0 \lambda_t}{3}}
+\end{equation}
+%
+where $\lambda_t$ is the linear mass density of the tether.
+
+For an M600-like system, assuming $\mathit{CFR} = 1.5$, $\rho = 0.95$
+kg/m$^3$, $v_{i,\mn} = 30$ m/s, $\gamma_{\mx} = 20^{\circ}$,
+$\phi_{\mx} = 30^{\circ}$, $\lambda_t = 1$ kg/m, and a flight path
+elevation angle of $25^{\circ}$, $m_0 \approx 2700$ kg and
+$l_{t_0} \approx 540$ m. This implies that $m_{\kite} < 2000$ kg.
+And, ideally $m_{\kite}$ should be significantly less to avoid a
+runaway in mass.
+
+Equation \ref{eqn:characteristic_mass} sets a fairly strict limit on
+wing mass loading, which is independent of system scale.
+Specifically, to be able to fly in a circle on a reasonable length
+tether, a kite system must have a wing mass loading of less than 60
+kg/m$^2$.
+
+\subsection{Tension and power variation}
+This section is not finished yet.
+
+% \section{Designing a kite}
+
+
+% \begin{table}[h]
+%   \begin{tabular}{cccc}
+%     \hline
+%     \hline
+%     Parameter               & Symbol               & Value              & Units \\
+%     \hline
+%     Min. power density      & $\rho_{\power}$      & 400                & W/kg \\
+%     Max. wing mass loading  & $\sigma_{\mass}$     & 60                 & kg/m$^2$ \\
+%     M600 powertrain density & $\rho_{\powertrain}$ & $1.25 \times 10^3$ & W/kg \\
+%     \hline
+%     \hline
+%   \end{tabular}
+% \end{table}
+
+% Choose a rated power: $P_{\mx} = 600$ kW.
+
+% Use the minimum power density to find the maximum effective mass: $P_{\mx} / \rho_{\power} = 1500$ kg.
+
+% Select a lower mass for margin: $m_{\eff, \mx} = 1200$ kg.
+
+% Estimate the amount of kite mass: $m_{\kite, \mx} = 1100$ kg.
+
+% Estimate the total mass: $m_{\total, \mx} = 1400$ kg.
+
+% Use Eq. \ref{} to estimate total rotor area: $N_{\prop} A_{\prop} > 48.8$ m$^2$.
+
+% For current motors, $P_{\mx} = 600$ kW implies $N_{\prop} = 8$.
+
+% Thus, $A_{\prop} = 6.1$ m$^2$ and $R_{\prop} = 1.4$ m.
+
+% Use maximum wing mass loading to determine a minimum wing area:
+% $m_{\kite, \mx} / \sigma_{\mass} = 18$ m$^2$.
+
+% Select a higher area for margin: $A_{\kite} = 25$ m$^2$.
+
+
+\section{Conclusions}
+
+\begin{itemize}
+
+\item For a system with the same aerodynamic and geometric properties
+  as the M600, VTOL imposes a {\it total} mass limit of 1200 kg; the
+  minimum airspeed climb imposes an {\it effective} mass limit of 1500
+  kg (this increases to 2300 kg for a figure-eight flight path); and
+  the turning radius imposes a {\it kite} mass limit of 2000 kg.
+
+\item According to the minimum airspeed climb criterion, a kite that
+  flies circles must have a power density, referenced to {\it
+    effective} mass, of greater than 400 W/kg.  A kite that flies
+  figure-eights may relax this to roughly 265 W/kg.  A kite with a
+  ground-based power system (i.e. pumping kite) can relax these limits
+  even further, potentially to 200 W/kg for figure-eights, due to a
+  more efficient power conversion process. These limits are
+  essentially independent of scale.
+
+\item Given that the specific power of our powertrains is ~1.25 kW/kg,
+  approximately 1/3 to 1/2 of the system weight will be the
+  powertrain, independent of scale.  For an M600-like VTOL system,
+  this leaves $\sim 500$ kg for structure, servos, etc.
+
+\item After a power density is selected, which meets the limit above,
+  Eq. \ref{eqn:hover_power2} may be used to size the total rotor area.
+
+\item According to the turning radius criterion, a kite must have a
+  wing mass loading, referenced to {\it kite} mass, of less than 60
+  kg/m$^2$.  Again, this limit is independent of scale.
+
+\item At the 600 kW scale, designing a system that supports VTOL will
+  require substantially reducing the maximum tension.  Because of the
+  square-cube law, larger scales will likely require significant
+  topology changes (e.g. more bridling, tailless variants, or
+  multi-kites) coupled with a reduction in maximum tension.
+\end{itemize}
+
+
+\begin{thebibliography}{1}
+\bibitem{tvanalsenoy_power_train} Alsenoy, Thomas.
+  ``Airborne wind powertrain trade-off study.''
+  \texttt{Drive > Makani Teams > Engineering > 01\_System\_Engineering > Papers (internal)}. 2016.
+\end{thebibliography}
+
+\end{document}

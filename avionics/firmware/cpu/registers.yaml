@@ -1,0 +1,4018 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+%YAML 1.2
+
+# TMS570 Register Description File.
+
+--- # ADC control registers.
+name: ADC
+base: 0xFFF7C000
+stride: 0x200
+repeat: 2
+
+RSTCR:
+  offset: 0x0
+  RESET: 0
+
+OPMODECR:
+  offset: 0x4
+  10_12_BIT: 31
+  COS: 24
+  CHN_TEST_EN: 20-17
+  RAM_TEST_EN: 16
+  POWER_DOWN: 8
+  IDLE_PWRDN: 4
+  ADC_EN: 0
+
+CLOCKCR:
+  offset: 0x8
+  PS: 4-0
+
+ALCR:
+  offset: 0xC
+  SELF_TEST: 24
+  CAL_ST: 16
+  BRIDGE_EN: 9
+  HILO: 8
+  CAL_EN: 0
+
+EVMODECR:
+  offset: 0x10
+  NO_RESET_ON_CHNSEL: 16
+  EV_DATA_FMT: 9-8
+  EV_CHID: 5
+  OVR_EV_RAM_IGN: 4
+  EV_HW_TRIG: 3
+  EV_SBIT: 2
+  EV_MODE: 1
+  FRZ_EV: 0
+
+G1MODECR:
+  offset: 0x14
+  NO_RESET_ON_CHNSEL: 16
+  G1_DATA_FMT: 9-8
+  G1_CHID: 5
+  OVR_G1_RAM_IGN: 4
+  G1_HW_TRIG: 3
+  G1_SBIT: 2
+  G1_MODE: 1
+  FRZ_G1: 0
+
+EVSRC:
+  offset: 0x1C
+  EV_EDG_BOTH: 4
+  EV_EDG_SEL: 3
+  EV_SRC: 2-0
+
+G1SRC:
+  offset: 0x20
+  G1_EDG_BOTH: 4
+  G1_EDG_SEL: 3
+  G1_SRC: 2-0
+
+G1INTENA:
+  offset: 0x2C
+  G1_END_INT_EN: 3
+  G1_OVR_INT_EN: 1
+  G1_THR_INT_EN: 0
+
+G1INTFLG:
+  offset: 0x38
+  G1_END: 3
+  G1_MEM_EMPTY: 2
+  G1_MEM_OVERRUN: 1
+  G1_THR_INT_FLG: 0
+
+EVDMACR:
+  offset: 0x4C
+  EV_BLOCKS: 24-16
+  DMA_EV_END: 3
+  EV_BLK_XFER: 2
+  EV_DMA_EN: 0
+
+G1DMACR:
+  offset: 0x50
+  G1_BLOCKS: 24-16
+  DMA_G1_END: 3
+  G1_BLK_XFER: 2
+  G1_DMA_EN: 0
+
+BNDCR:
+  offset: 0x58
+  BNDA: 24-16
+  BNDB: 8-0
+
+BNDEND:
+  offset: 0x5C
+  BUF_INIT_ACTIVE: 16
+  BNDEND: 2-0
+
+EVSAMP:
+  offset: 0x60
+  EV_ACQ: 11-0
+
+G1SAMP:
+  offset: 0x64
+  G1_ACQ: 11-0
+
+G2SAMP:
+  offset: 0x68
+  G2_ACQ: 11-0
+
+EVSR:
+  offset: 0x6C
+  EV_MEM_EMPTY: 3
+  EV_BUSY: 2
+  EV_STOP: 1
+  EV_END: 0
+
+G1SR:
+  offset: 0x70
+  G1_MEM_EMPTY: 3
+  G1_BUSY: 2
+  G1_STOP: 1
+  G1_END: 0
+
+G2SR:
+  offset: 0x74
+  G2_MEM_EMPTY: 3
+  G2_BUSY: 2
+  G2_STOP: 1
+  G2_END: 0
+
+EVSEL:
+  offset: 0x78
+  EV_SEL: 15-0
+
+G1SEL:
+  offset: 0x7C
+  G1_SEL: 23-0
+
+G2SEL:
+  offset: 0x80
+  G2_SEL: 15-0
+
+ALR:
+  offset: 0x84
+  ADCALR: 11-0
+
+# NOTE: 10-bit mode is not supported.
+EVBUFFER:
+  offset: 0x90
+  repeat: 8
+  EV_EMPTY: 31
+  EV_CHID: 20-16
+  EV_DR: 11-0
+
+G1BUFFER:
+  offset: 0xB0
+  repeat: 8
+  G1_EMPTY: 31
+  G1_CHID: 20-16
+  G1_DR: 11-0
+
+EVSAMPDISEN:
+  offset: 0x11C
+  EV_SAMP_DIS_CYC: 15-8
+  EV_SAMP_DIS_EN: 0
+
+G1SAMPDISEN:
+  offset: 0x120
+  G1_SAMP_DIS_CYC: 15-8
+  G1_SAMP_DIS_EN: 0
+
+G2SAMPDISEN:
+  offset: 0x124
+  G2_SAMP_DIS_CYC: 15-8
+  G2_SAMP_DIS_EN: 0
+
+MAGINT1CR:
+  offset: 0x128
+  MAG_THR: 27-16
+  CHN_THR_COMP: 15
+  CMP_GE_LT: 14
+  COMP_CHID: 12-8
+  MAG_CHID: 4-0
+
+MAGINT1MASK:
+  offset: 0x12C
+  MAG_INT_MASK: 9-0
+
+MAGINT2CR:
+  offset: 0x130
+  MAG_THR: 27-16
+  CHN_THR_COMP: 15
+  CMP_GE_LT: 14
+  COMP_CHID: 12-8
+  MAG_CHID: 4-0
+
+MAGINT2MASK:
+  offset: 0x134
+  MAG_INT_MASK: 9-0
+
+MAGINT3CR:
+  offset: 0x138
+  MAG_THR: 27-16
+  CHN_THR_COMP: 15
+  CMP_GE_LT: 14
+  COMP_CHID: 12-8
+  MAG_CHID: 4-0
+
+MAGINT3MASK:
+  offset: 0x13C
+  MAG_INT_MASK: 9-0
+
+MAGINTENASET:
+  offset: 0x158
+  MAG_INT_ENA_SET3: 2
+  MAG_INT_ENA_SET2: 1
+  MAG_INT_ENA_SET1: 0
+
+MAGINTENACLR:
+  offset: 0x15C
+  MAG_INT_ENA_CLR3: 2
+  MAG_INT_ENA_CLR2: 1
+  MAG_INT_ENA_CLR1: 0
+
+MAGINTFLG:
+  offset: 0x160
+  MAG_INT_FLG3: 2
+  MAG_INT_FLG2: 1
+  MAG_INT_FLG1: 0
+
+EVRAMWRADDR:
+  offset: 0x174
+  EV_RAM_ADDR: 8-0
+
+G1RAMWRADDR:
+  offset: 0x178
+  G1_RAM_ADDR: 8-0
+
+G2RAMWRADDR:
+  offset: 0x17C
+  G2_RAM_ADDR: 8-0
+
+MAGINTOFF:
+  offset: 0x164
+
+EVCHNSELMODECTRL:
+  offset: 0x190
+  ENH_CHNSEL_MODE_ENABLE: 3-0
+
+G1CHNSELMODECTRL:
+  offset: 0x194
+  ENH_CHNSEL_MODE_ENABLE: 3-0
+
+G2CHNSELMODECTRL:
+  offset: 0x198
+  ENH_CHNSEL_MODE_ENABLE: 3-0
+
+EVCURRCOUNT:
+  offset: 0x19C
+  CURRENT_COUNT: 4-0
+
+EVMAXCOUNT:
+  offset: 0x1A0
+  MAX_COUNT: 4-0
+
+G1CURRCOUNT:
+  offset: 0x1A4
+  CURRENT_COUNT: 4-0
+
+G1MAXCOUNT:
+  offset: 0x1A8
+  MAX_COUNT: 4-0
+
+G2CURRCOUNT:
+  offset: 0x1AC
+  CURRENT_COUNT: 4-0
+
+G2MAXCOUNT:
+  offset: 0x1B0
+  MAX_COUNT: 4-0
+
+--- # ADC RAM.
+name: ADCRAM
+base: 0xFF3E0000
+stride: -0x40000
+repeat: 2
+
+RAM:
+  offset: 0x0
+  repeat: 64
+  CHID: 16-12
+  DR: 11-0
+
+--- # CCM-R4F registers.
+name: CCM
+base: 0xFFFFF600
+stride: 0x100
+
+SR:
+  offset: 0x00
+  CPME: 16
+  STC: 8
+  STET: 1
+  STE: 0
+
+KEYR:
+  offset: 0x04
+  MKEY: 3-0
+
+--- # DCAN control registers.
+name: DCAN
+base: 0xFFF7DC00
+stride: 0x200
+repeat: 3
+
+CTL:
+  offset: 0x00
+  WUBA: 25
+  PDR: 24
+  DE3: 20
+  DE2: 19
+  DE1: 18
+  IE1: 17
+  INIT_DBG: 16
+  SWR: 15
+  PMD: 13-10
+  ABO: 9
+  IDS: 8
+  TEST: 7
+  CCE: 6
+  DAR: 5
+  EIE: 3
+  SIE: 2
+  IE0: 1
+  INIT: 0
+
+ES:
+  offset: 0x04
+  PDA: 10
+  WAKE_UP_PND: 9
+  PER: 8
+  BOFF: 7
+  EWARN: 6
+  EPASS: 5
+  RXOK: 4
+  TXOK: 3
+  LEC: 2-0
+
+ERRC:
+  offset: 0x08
+  RP: 15
+  REC: 14-8
+  TEC: 7-0
+
+BTR:
+  offset: 0x0C
+  BRPE: 19-16
+  TSEG2: 14-12
+  TSEG1: 11-8
+  SJW: 7-6
+  BRP: 5-0
+
+INT:
+  offset: 0x10
+  INT1ID: 23-16
+  INT0ID: 15-0
+
+TEST:
+  offset: 0x14
+  RDA: 9
+  EXL: 8
+  RX: 7
+  TX: 6-5
+  LBACK: 4
+  SILENT: 3
+
+PERR:
+  offset: 0x1C
+  WORD_NUMBER: 10-8
+  MESSAGE_NUMBER: 7-0
+
+ABOTR:
+  offset: 0x80
+  ABOTIME: 31-0
+
+TXRQX:
+  offset: 0x84
+  TXRQSTREG8: 15-14
+  TXRQSTREG7: 13-12
+  TXRQSTREG6: 11-10
+  TXRQSTREG5: 9-8
+  TXRQSTREG4: 7-6
+  TXRQSTREG3: 5-4
+  TXRQSTREG2: 3-2
+  TXRQSTREG1: 1-0
+
+TXRQ:
+  offset: 0x88
+  repeat: 4
+  TXRQST: 31-0
+
+NWDATX:
+  offset: 0x98
+  NEWDATREG8: 15-14
+  NEWDATREG7: 13-12
+  NEWDATREG6: 11-10
+  NEWDATREG5: 9-8
+  NEWDATREG4: 7-6
+  NEWDATREG3: 5-4
+  NEWDATREG2: 3-2
+  NEWDATREG1: 1-0
+
+NWDAT:
+  offset: 0x9C
+  repeat: 4
+  NEWDAT: 31-0
+
+INTPNDX:
+  offset: 0xAC
+  INTPNDREG8: 15-14
+  INTPNDREG7: 13-12
+  INTPNDREG6: 11-10
+  INTPNDREG5: 9-8
+  INTPNDREG4: 7-6
+  INTPNDREG3: 5-4
+  INTPNDREG2: 3-2
+  INTPNDREG1: 1-0
+
+INTPND:
+  offset: 0xB0
+  repeat: 4
+  INTPND: 31-0
+
+MSGVALX:
+  offset: 0xC0
+  MSGVALREG8: 15-14
+  MSGVALREG7: 13-12
+  MSGVALREG6: 11-10
+  MSGVALREG5: 9-8
+  MSGVALREG4: 7-6
+  MSGVALREG3: 5-4
+  MSGVALREG2: 3-2
+  MSGVALREG1: 1-0
+
+MSGVAL:
+  offset: 0xC4
+  repeat: 4
+  MSGVAL: 31-0
+
+INTMUX:
+  offset: 0xD8
+  repeat: 4
+  INTMUX: 31-0
+
+IF1CMD:
+  offset: 0x100
+  WR: 23
+  MASK: 22
+  ARB: 21
+  CONTROL: 20
+  CLRINTPND: 19
+  TXRQST_NEWDAT: 18
+  DATA_A: 17
+  DATA_B: 16
+  BUSY: 15
+  DMA_ACTIVE: 14
+  MESSAGE_NUMBER: 7-0
+
+IF2CMD:
+  offset: 0x120
+  WR: 23
+  MASK: 22
+  ARB: 21
+  CONTROL: 20
+  CLRINTPND: 19
+  TXRQST_NEWDAT: 18
+  DATA_A: 17
+  DATA_B: 16
+  BUSY: 15
+  DMA_ACTIVE: 14
+  MESSAGE_NUMBER: 7-0
+
+IF1MSK:
+  offset: 0x104
+  MXTD: 31
+  MDIR: 30
+  MSK: 28-0
+
+IF2MSK:
+  offset: 0x124
+  MXTD: 31
+  MDIR: 30
+  MSK: 28-0
+
+IF1ARB:
+  offset: 0x108
+  MSGVAL: 31
+  XTD: 30
+  DIR: 29
+  ID: 28-0
+
+IF2ARB:
+  offset: 0x128
+  MSGVAL: 31
+  XTD: 30
+  DIR: 29
+  ID: 28-0
+
+IF1MCTL:
+  offset: 0x10C
+  NEWDAT: 15
+  MSGLST: 14
+  INTPND: 13
+  UMASK: 12
+  TXIE: 11
+  RXIE: 10
+  RMTEN: 9
+  TXRQST: 8
+  EOB: 7
+  DLC: 3-0
+
+IF2MCTL:
+  offset: 0x12C
+  NEWDAT: 15
+  MSGLST: 14
+  INTPND: 13
+  UMASK: 12
+  TXIE: 11
+  RXIE: 10
+  RMTEN: 9
+  TXRQST: 8
+  EOB: 7
+  DLC: 3-0
+
+IF1DATA:
+  offset: 0x110
+  DATA3: 31-24
+  DATA2: 23-16
+  DATA1: 15-8
+  DATA0: 7-0
+
+IF1DATB:
+  offset: 0x114
+  DATA7: 31-24
+  DATA6: 23-16
+  DATA5: 15-8
+  DATA4: 7-0
+
+IF2DATA:
+  offset: 0x130
+  DATA3: 31-24
+  DATA2: 23-16
+  DATA1: 15-8
+  DATA0: 7-0
+
+IF2DATB:
+  offset: 0x134
+  DATA7: 31-24
+  DATA6: 23-16
+  DATA5: 15-8
+  DATA4: 7-0
+
+IF3OBS:
+  offset: 0x140
+  IF3UPD: 15
+  IF3SDB: 12
+  IF3SDA: 11
+  IF3SC: 10
+  IF3SA: 9
+  IF3SM: 8
+  DATAB: 4
+  DATAA: 3
+  CTRL: 2
+  ARB: 1
+  MASK: 0
+
+IF3MSK:
+  offset: 0x144
+  MXTD: 31
+  MDIR: 30
+  MSK: 28-0
+
+IF3ARB:
+  offset: 0x148
+  MSGVAL: 31
+  XTD: 30
+  DIR: 29
+  ID: 28-0
+
+IF3MCTL:
+  offset: 0x14C
+  NEWDAT: 15
+  MSGLST: 14
+  INTPND: 13
+  UMASK: 12
+  TXIE: 11
+  RXIE: 10
+  RMTEN: 9
+  TXRQST: 8
+  EOB: 7
+  DLC: 3-0
+
+IF3DATA:
+  offset: 0x150
+  DATA3: 31-24
+  DATA2: 23-16
+  DATA1: 15-8
+  DATA0: 7-0
+
+IF3DATB:
+  offset: 0x154
+  DATA7: 31-24
+  DATA6: 23-16
+  DATA5: 15-8
+  DATA4: 7-0
+
+IF3UPD:
+  offset: 0x160
+  repeat: 4
+  IF3UPDEN: 31-0
+
+TIOC:
+  offset: 0x1E0
+  PU: 18
+  PD: 17
+  OD: 16
+  FUNC: 3
+  DIR: 2
+  OUT: 1
+  IN: 0
+
+RIOC:
+  offset: 0x1E4
+  PU: 18
+  PD: 17
+  OD: 16
+  FUNC: 3
+  DIR: 2
+  OUT: 1
+  IN: 0
+
+--- # DCAN message RAM.
+name: DCANRAM
+base: 0xFF1E000
+stride: -0x20000
+repeat: 3
+
+--- # DMA control registers.
+name: DMA
+base: 0xFFFFF000
+stride: 0x400
+
+GCTRL:
+  offset: 0x0
+  DMAEN: 16
+  BUSBUSY: 14
+  DEBUGMODE: 9-8
+  DMARES: 0
+
+HWCHENAS:
+  offset: 0x14
+  HWCHENA15: 15
+  HWCHENA14: 14
+  HWCHENA13: 13
+  HWCHENA12: 12
+  HWCHENA11: 11
+  HWCHENA10: 10
+  HWCHENA9: 9
+  HWCHENA8: 8
+  HWCHENA7: 7
+  HWCHENA6: 6
+  HWCHENA5: 5
+  HWCHENA4: 4
+  HWCHENA3: 3
+  HWCHENA2: 2
+  HWCHENA1: 1
+  HWCHENA0: 0
+
+HWCHENAR:
+  offset: 0x1C
+  HWCHDIS15: 15
+  HWCHDIS14: 14
+  HWCHDIS13: 13
+  HWCHDIS12: 12
+  HWCHDIS11: 11
+  HWCHDIS10: 10
+  HWCHDIS9: 9
+  HWCHDIS8: 8
+  HWCHDIS7: 7
+  HWCHDIS6: 6
+  HWCHDIS5: 5
+  HWCHDIS4: 4
+  HWCHDIS3: 3
+  HWCHDIS2: 2
+  HWCHDIS1: 1
+  HWCHDIS0: 0
+
+SWCHENAS:
+  offset: 0x24
+  SWCHENA15: 15
+  SWCHENA14: 14
+  SWCHENA13: 13
+  SWCHENA12: 12
+  SWCHENA11: 11
+  SWCHENA10: 10
+  SWCHENA9: 9
+  SWCHENA8: 8
+  SWCHENA7: 7
+  SWCHENA6: 6
+  SWCHENA5: 5
+  SWCHENA4: 4
+  SWCHENA3: 3
+  SWCHENA2: 2
+  SWCHENA1: 1
+  SWCHENA0: 0
+
+SWCHENAR:
+  offset: 0x2C
+  SWCHDIS15: 15
+  SWCHDIS14: 14
+  SWCHDIS13: 13
+  SWCHDIS12: 12
+  SWCHDIS11: 11
+  SWCHDIS10: 10
+  SWCHDIS9: 9
+  SWCHDIS8: 8
+  SWCHDIS7: 7
+  SWCHDIS6: 6
+  SWCHDIS5: 5
+  SWCHDIS4: 4
+  SWCHDIS3: 3
+  SWCHDIS2: 2
+  SWCHDIS1: 1
+  SWCHDIS0: 0
+
+CHPRIOS:
+  offset: 0x34
+  CPS15: 15
+  CPS14: 14
+  CPS13: 13
+  CPS12: 12
+  CPS11: 11
+  CPS10: 10
+  CPS9: 9
+  CPS8: 8
+  CPS7: 7
+  CPS6: 6
+  CPS5: 5
+  CPS4: 4
+  CPS3: 3
+  CPS2: 2
+  CPS1: 1
+  CPS0: 0
+
+CHPRIOR:
+  offset: 0x3C
+  CPR15: 15
+  CPR14: 14
+  CPR13: 13
+  CPR12: 12
+  CPR11: 11
+  CPR10: 10
+  CPR9: 9
+  CPR8: 8
+  CPR7: 7
+  CPR6: 6
+  CPR5: 5
+  CPR4: 4
+  CPR3: 3
+  CPR2: 2
+  CPR1: 1
+  CPR0: 0
+
+GCHIENAS:
+  offset: 0x44
+  GCHIE15: 15
+  GCHIE14: 14
+  GCHIE13: 13
+  GCHIE12: 12
+  GCHIE11: 11
+  GCHIE10: 10
+  GCHIE9: 9
+  GCHIE8: 8
+  GCHIE7: 7
+  GCHIE6: 6
+  GCHIE5: 5
+  GCHIE4: 4
+  GCHIE3: 3
+  GCHIE2: 2
+  GCHIE1: 1
+  GCHIE0: 0
+
+GCHIENAR:
+  offset: 0x4C
+  GCHID15: 15
+  GCHID14: 14
+  GCHID13: 13
+  GCHID12: 12
+  GCHID11: 11
+  GCHID10: 10
+  GCHID9: 9
+  GCHID8: 8
+  GCHID7: 7
+  GCHID6: 6
+  GCHID5: 5
+  GCHID4: 4
+  GCHID3: 3
+  GCHID2: 2
+  GCHID1: 1
+  GCHID0: 0
+
+DREQASI0:
+  offset: 0x54
+  CH0ASI: 29-24
+  CH1ASI: 21-16
+  CH2ASI: 13-8
+  CH3ASI: 5-0
+
+DREQASI1:
+  offset: 0x58
+  CH4ASI: 29-24
+  CH5ASI: 21-16
+  CH6ASI: 13-8
+  CH7ASI: 5-0
+
+DREQASI2:
+  offset: 0x5C
+  CH8ASI: 29-24
+  CH9ASI: 21-16
+  CH10ASI: 13-8
+  CH11ASI: 5-0
+
+DREQASI3:
+  offset: 0x60
+  CH12ASI: 29-24
+  CH13ASI: 21-16
+  CH14ASI: 13-8
+  CH15ASI: 5-0
+
+PAR0:
+  offset: 0x94
+  CH0PA: 30-28
+  CH1PA: 26-24
+  CH2PA: 22-20
+  CH3PA: 18-16
+  CH4PA: 14-12
+  CH5PA: 10-8
+  CH6PA: 6-4
+  CH7PA: 2-0
+
+PAR1:
+  offset: 0x98
+  CH8PA: 30-28
+  CH9PA: 26-24
+  CH10PA: 22-20
+  CH11PA: 18-16
+  CH12PA: 14-12
+  CH13PA: 10-8
+  CH14PA: 6-4
+  CH15PA: 2-0
+
+HBCINTENAS:
+  offset: 0xFC
+  HBCINTENA15: 15
+  HBCINTENA14: 14
+  HBCINTENA13: 13
+  HBCINTENA12: 12
+  HBCINTENA11: 11
+  HBCINTENA10: 10
+  HBCINTENA9: 9
+  HBCINTENA8: 8
+  HBCINTENA7: 7
+  HBCINTENA6: 6
+  HBCINTENA5: 5
+  HBCINTENA4: 4
+  HBCINTENA3: 3
+  HBCINTENA2: 2
+  HBCINTENA1: 1
+  HBCINTENA0: 0
+
+HBCINTENAR:
+  offset: 0x104
+  HBCINTDIS15: 15
+  HBCINTDIS14: 14
+  HBCINTDIS13: 13
+  HBCINTDIS12: 12
+  HBCINTDIS11: 11
+  HBCINTDIS10: 10
+  HBCINTDIS9: 9
+  HBCINTDIS8: 8
+  HBCINTDIS7: 7
+  HBCINTDIS6: 6
+  HBCINTDIS5: 5
+  HBCINTDIS4: 4
+  HBCINTDIS3: 3
+  HBCINTDIS2: 2
+  HBCINTDIS1: 1
+  HBCINTDIS0: 0
+
+BTCINTENAS:
+  offset: 0x10C
+  BTCINTENA15: 15
+  BTCINTENA14: 14
+  BTCINTENA13: 13
+  BTCINTENA12: 12
+  BTCINTENA11: 11
+  BTCINTENA10: 10
+  BTCINTENA9: 9
+  BTCINTENA8: 8
+  BTCINTENA7: 7
+  BTCINTENA6: 6
+  BTCINTENA5: 5
+  BTCINTENA4: 4
+  BTCINTENA3: 3
+  BTCINTENA2: 2
+  BTCINTENA1: 1
+  BTCINTENA0: 0
+
+BTCINTENAR:
+  offset: 0x114
+  BTCINTDIS15: 15
+  BTCINTDIS14: 14
+  BTCINTDIS13: 13
+  BTCINTDIS12: 12
+  BTCINTDIS11: 11
+  BTCINTDIS10: 10
+  BTCINTDIS9: 9
+  BTCINTDIS8: 8
+  BTCINTDIS7: 7
+  BTCINTDIS6: 6
+  BTCINTDIS5: 5
+  BTCINTDIS4: 4
+  BTCINTDIS3: 3
+  BTCINTDIS2: 2
+  BTCINTDIS1: 1
+  BTCINTDIS0: 0
+
+HBCFLAG:
+  offset: 0x134
+  HBCI15: 15
+  HBCI14: 14
+  HBCI13: 13
+  HBCI12: 12
+  HBCI11: 11
+  HBCI10: 10
+  HBCI9: 9
+  HBCI8: 8
+  HBCI7: 7
+  HBCI6: 6
+  HBCI5: 5
+  HBCI4: 4
+  HBCI3: 3
+  HBCI2: 2
+  HBCI1: 1
+  HBCI0: 0
+
+BTCFLAG:
+  offset: 0x13C
+  BTCI15: 15
+  BTCI14: 14
+  BTCI13: 13
+  BTCI12: 12
+  BTCI11: 11
+  BTCI10: 10
+  BTCI9: 9
+  BTCI8: 8
+  BTCI7: 7
+  BTCI6: 6
+  BTCI5: 5
+  BTCI4: 4
+  BTCI3: 3
+  BTCI2: 2
+  BTCI1: 1
+  BTCI0: 0
+
+--- # DMA control packets.
+name: DMACP
+base: 0xFFF80000
+stride: 0x20
+repeat: 16
+indexing: 0
+
+ISADDR:
+  offset: 0x0
+  ISADDR: 31-0
+
+IDADDR:
+  offset: 0x4
+  IDADDR: 31-0
+
+ITCOUNT:
+  offset: 0x8
+  IFTCOUNT: 28-16
+  IETCOUNT: 12-0
+
+CHCTRL:
+  offset: 0x10
+  CHAIN: 21-16
+  RES: 15-14
+  WES: 13-12
+  TTYPE: 8
+  ADDMR: 4-3
+  ADDMW: 2-1
+  AIM: 0
+
+EIOFF:
+  offset: 0x14
+  EIDXD: 28-16
+  EIDXS: 12-0
+
+FIOFF:
+  offset: 0x18
+  FIDXD: 28-16
+  FIDXS: 12-0
+
+--- # eFuse control registers.
+name: EFC
+base: 0xFFF8C000
+stride: 0x100
+
+BOUND:
+  offset: 0x1C
+  SELF_TEST_ERROR: 21
+  SINGLE_BIT_ERROR: 20
+  INSTRUCTION_ERROR: 19
+  AUTOLOAD_ERROR: 18
+  SELF_TEST_ERROR_OE: 17
+  SINGLE_BIT_ERROR_OE: 16
+  INSTRUCTION_ERROR_OE: 15
+  AUTOLOAD_ERROR_OE: 14
+  ECC_SELF_TEST_ENABLE: 13
+  INPUT_ENABLE: 3-0
+
+PINS:
+  offset: 0x2C
+  SELF_TEST_DONE: 15
+  SELF_TEST_ERROR: 14
+  SINGLE_BIT_ERROR: 12
+  INSTRUCTION_ERROR: 11
+  AUTOLOAD_ERROR: 10
+
+ERR_STAT:
+  offset: 0x3C
+  INSTRUCTION_DONE: 5
+  ERROR_DONE: 4-0
+
+STCY:
+  offset: 0x48
+  CYCLES: 31-0
+
+STSIG:
+  offset: 0x4C
+  SIGNATURE: 31-0
+
+--- # EMAC control registers.
+name: EMAC
+base: 0xFCF78000
+stride: 0x800
+
+TXCONTROL:
+  offset: 0x4
+  TXEN: 0
+
+RXCONTROL:
+  offset: 0x14
+  RXEN: 0
+
+TXINTSTATRAW:
+  offset: 0x80
+  TX7PEND: 7
+  TX6PEND: 6
+  TX5PEND: 5
+  TX4PEND: 4
+  TX3PEND: 3
+  TX2PEND: 2
+  TX1PEND: 1
+  TX0PEND: 0
+
+RXINTSTATRAW:
+  offset: 0xA0
+  RX7PEND: 7
+  RX6PEND: 6
+  RX5PEND: 5
+  RX4PEND: 4
+  RX3PEND: 3
+  RX2PEND: 2
+  RX1PEND: 1
+  RX0PEND: 0
+
+RXMBPENABLE:
+  offset: 0x100
+  RXPASSCRC: 30
+  RXQOSEN: 29
+  RXNOCHAIN: 28
+  RXCMFEN: 24
+  RXCSFEN: 23
+  RXCEFEN: 22
+  RXCAFEN: 21
+  RXPROMCH: 18-16
+  RXBROADEN: 13
+  RXBROADCH: 10-8
+  RXMULTEN: 5
+  RXMULTCH: 2-0
+
+RXUNICASTSET:
+  offset: 0x104
+  RXCH7EN: 7
+  RXCH6EN: 6
+  RXCH5EN: 5
+  RXCH4EN: 4
+  RXCH3EN: 3
+  RXCH2EN: 2
+  RXCH1EN: 1
+  RXCH0EN: 0
+
+MACCONTROL:
+  offset: 0x160
+  RMIISPEED: 15
+  RXOFFLENBLOCK: 14
+  RXOWNERSHIP: 13
+  CMDIDLE: 11
+  TXSHORTGAPEN: 10
+  TXPTYPE: 9
+  TXPACE: 6
+  GMIIEN: 5
+  TXFLOWEN: 4
+  RXBUFFERFLOWEN: 3
+  LOOPBACK: 1
+  FULLDUPLEX: 0
+
+SOFTRESET:
+  offset: 0x174
+  SOFTRESET: 0
+
+MACSRCADDRLO:
+  offset: 0x1D0
+  MACSRCADDR0: 15-8
+  MACSRCADDR1: 7-0
+
+MACSRCADDRHI:
+  offset: 0x1D4
+  MACSRCADDR2: 31-24
+  MACSRCADDR3: 23-16
+  MACSRCADDR4: 15-8
+  MACSRCADDR5: 7-0
+
+MACHASH1:
+  offset: 0x1D8
+  MACHASH1: 31-0
+
+MACHASH2:
+  offset: 0x1DC
+  MACHASH2: 31-0
+
+MACADDRLO:
+  offset: 0x500
+  VALID: 20
+  MATCHFILT: 19
+  CHANNEL: 18-16
+  MACADDR0: 15-8
+  MACADDR1: 7-0
+
+MACADDRHI:
+  offset: 0x504
+  # Writing these fields individually seems to corrupt the register.
+  #MACADDR2: 31-24
+  #MACADDR3: 23-16
+  #MACADDR4: 15-8
+  #MACADDR5: 7-0
+
+MACINDEX:
+  offset: 0x508
+  MACINDEX: 2-0
+
+TXHDP:
+  offset: 0x600
+  repeat: 8
+  TXHDP: 31-0
+
+RXHDP:
+  offset: 0x620
+  repeat: 8
+  RXHDP: 31-0
+
+TXCP:
+  offset: 0x640
+  repeat: 8
+  TXCP: 31-0
+
+RXCP:
+  offset: 0x660
+  repeat: 8
+  RXCP: 31-0
+
+--- # ePWM registers.
+name: EPWM
+base: 0xFCF78C00
+stride: 0x100
+repeat: 7
+align: 16
+
+TBSTS:
+  offset: 0x00
+  CTRMAX: 2
+  SYNCI: 1
+  CTRDIR: 0
+
+TBCTL:
+  offset: 0x02
+  FREE_SOFT: 15-14
+  PHSDIR: 13
+  CLKDIV: 12-10
+  HSPCLKDIV: 9-7
+  SWFSYNC: 6
+  SYNCOSEL: 5-4
+  PRDLD: 3
+  PHSEN: 2
+  CTRMODE: 1-0
+
+TBPHS:
+  offset: 0x04
+  TBPHS: 15-0
+
+TBPRD:
+  offset: 0x08
+  TBPRD: 15-0
+
+TBCTR:
+  offset: 0x0A
+  TBCTR: 15-0
+
+CMPCTL:
+  offset: 0x0C
+  SHDWBFULL: 9
+  SHDWAFULL: 8
+  SHDWBMODE: 6
+  SHDWAMODE: 4
+  LOADBMODE: 3-2
+  LOADAMODE: 1-0
+
+CMPA:
+  offset: 0x10
+  CMPA: 15-0
+
+AQCTLA:
+  offset: 0x14
+  CBD: 11-10
+  CBU: 9-8
+  CAD: 7-6
+  CAU: 5-4
+  PRD: 3-2
+  ZRO: 1-0
+
+CMPB:
+  offset: 0x16
+  CMPB: 15-0
+
+AQSFRC:
+  offset: 0x18
+  RLDCSF: 7-6
+  OTSFB: 5
+  ACTSFB: 4-3
+  OTSFA: 2
+  ACTSFA: 1-0
+
+AQCTLB:
+  offset: 0x1A
+  CBD: 11-10
+  CBU: 9-8
+  CAD: 7-6
+  CAU: 5-4
+  PRD: 3-2
+  ZRO: 1-0
+
+DBCTL:
+  offset: 0x1C
+  HALFCYCLE: 15
+  IN_MODE: 5-4
+  POLSEL: 3-2
+  OUT_MODE: 1-0
+
+AQCSFRC:
+  offset: 0x1E
+  CSFB: 3-2
+  CSFA: 1-0
+
+DBFED:
+  offset: 0x20
+  DEL: 9-0
+
+TZSEL:
+  offset: 0x26
+  DCBEVT1: 15
+  DCAEVT1: 14
+  OSHT6: 13
+  OSHT5: 12
+  OSHT4: 11
+  OSHT3: 10
+  OSHT2: 9
+  OSHT1: 8
+  DCBEVT2: 7
+  DCAEVT2: 6
+  CBC6: 5
+  CBC5: 4
+  CBC4: 3
+  CBC3: 2
+  CBC2: 1
+  CBC1: 0
+
+TZEINT:
+  offset: 0x28
+  DCBEVT2: 6
+  DCBEVT1: 5
+  DCAEVT2: 4
+  DCAEVT1: 3
+  OST: 2
+  CBC: 1
+
+TZCLR:
+  offset: 0x2C
+  DCBEVT2: 6
+  DCBEVT1: 5
+  DCAEVT2: 4
+  DCAEVT1: 3
+  OST: 2
+  CBC: 1
+  INT: 0
+
+ETSEL:
+  offset: 0x30
+  SOCBEN: 15
+  SOCBSEL: 14-12
+  SOCAEN: 11
+  SOCASEL: 10-8
+  INTEN: 3
+  INTSEL: 2-0
+
+ETFLG:
+  offset: 0x34
+  SOCB: 3
+  SOCA: 2
+  INT: 0
+
+ETPS:
+  offset: 0x36
+  SOCBCNT: 15-14
+  SOCBPRD: 13-12
+  SOCACNT: 11-10
+  SOCAPRD: 9-8
+  INTCNT: 3-2
+  INTPRD: 1-0
+
+ETCLR:
+  offset: 0x3A
+  SOCB: 3
+  SOCA: 2
+  INT: 0
+
+--- # eCAP registers.
+name: ECAP
+base: 0xFCF79300
+stride: 0x100
+repeat: 6
+
+TSCTR:
+  offset: 0x00
+  TSCTR: 31-0
+
+CTRPHS:
+  offset: 0x04
+  CTRPHS: 31-0
+
+CAP1:
+  offset: 0x08
+  CAP1: 31-0
+
+CAP2:
+  offset: 0x0C
+  CAP2: 31-0
+
+CAP3:
+  offset: 0x10
+  CAP3: 31-0
+
+CAP4:
+  offset: 0x14
+  CAP4: 31-0
+
+ECCTL2:
+  offset: 0x28
+  width: 16
+  APWMPOL: 10
+  CAP_APWM: 9
+  SWSYNC: 8
+  SYNCO_SEL: 7-6
+  SYNCI_EN: 5
+  TSCTRSTOP: 4
+  REARM: 3
+  STOP_WRAP: 2-1
+  CONT_ONESHT: 0
+
+ECCTL1:
+  offset: 0x2A
+  width: 16
+  PRESCALE: 13-9
+  FREE_SOFT: 15-14
+  CAPLDEN: 8
+  CTRRST4: 7
+  CAP4POL: 6
+  CTRRST3: 5
+  CAP3POL: 4
+  CTRRST2: 3
+  CAP2POL: 2
+  CTRRST1: 1
+  CAP1POL: 0
+
+ECFLG:
+  offset: 0x2C
+  width: 16
+  CTR_CMP: 7
+  CTR_PRD: 6
+  CTROVF: 5
+  CEVT4: 4
+  CEVT3: 3
+  CEVT2: 2
+  CEVT1: 1
+  INT: 0
+
+ECEINT:
+  offset: 0x2E
+  width: 16
+  CTR_CMP: 7
+  CTR_PRD: 6
+  CTROVF: 5
+  CEVT4: 4
+  CEVT3: 3
+  CEVT2: 2
+  CEVT1: 1
+
+ECFRC:
+  offset: 0x30
+  width: 16
+  CTR_CMP: 7
+  CTR_PRD: 6
+  CTROVF: 5
+  CEVT4: 4
+  CEVT3: 3
+  CEVT2: 2
+  CEVT1: 1
+
+ECCLR:
+  offset: 0x32
+  width: 16
+  CTR_CMP: 7
+  CTR_PRD: 6
+  CTROVF: 5
+  CEVT4: 4
+  CEVT3: 3
+  CEVT2: 2
+  CEVT1: 1
+  INT: 0
+
+--- # I2C control registers.
+name: I2C
+base: 0xFFF7D400
+stride: 0x100
+
+OAR:
+  offset: 0x00
+  OA: 9-0
+
+STR:
+  offset: 0x08
+  SDIR: 14
+  NACKSNT: 13
+  BB: 12
+  RSFULL: 11
+  XSMT: 10
+  AAS: 9
+  AD0: 8
+  SCD: 5
+  TXRDY: 4
+  RXRDY: 3
+  ARDY: 2
+  NACK: 1
+  AL: 0
+
+CKL:
+  offset: 0x0C
+  CLKL: 15-0
+
+CKH:
+  offset: 0x10
+  CLKH: 15-0
+
+CNT:
+  offset: 0x14
+  CNT: 15-0
+
+DRR:
+  offset: 0x18
+  DATARX: 7-0
+
+SAR:
+  offset: 0x1C
+  SA: 9-0
+
+DXR:
+  offset: 0x20
+  DATATX: 7-0
+
+MDR:
+  offset: 0x24
+  NACKMOD: 15
+  FREE: 14
+  STT: 13
+  STP: 11
+  MST: 10
+  TRX: 9
+  XA: 8
+  RM: 7
+  DLB: 6
+  NIRS: 5
+  STB: 4
+  FDF: 3
+  BC: 2-0
+
+IVR:
+  offset: 0x28
+  INTCODE: 2-0
+
+PSC:
+  offset: 0x30
+  PSC: 7-0
+
+DMACR:
+  offset: 0x3C
+  TXDMAEN: 1
+  RXDMAEN: 0
+
+PFNC:
+  offset: 0x48
+  PINFUNC: 0
+
+PDIR:
+  offset: 0x4C
+  SDADIR: 1
+  SCLDIR: 0
+
+DIN:
+  offset: 0x50
+  SDAIN: 1
+  SCLIN: 0
+
+DOUT:
+  offset: 0x54
+  SDAOUT: 1
+  SCLOUT: 0
+
+DSET:
+  offset: 0x58
+  SDASET: 1
+  SCLSET: 0
+
+DCLR:
+  offset: 0x5C
+  SDACLR: 1
+  SCLCLR: 0
+
+PDR:
+  offset: 0x60
+  SDAPDR: 1
+  SCLPDR: 0
+
+PDIS:
+  offset: 0x64
+  SDAPDIS: 1
+  SCLPDIS: 0
+
+PSEL:
+  offset: 0x68
+  SDAPSEL: 1
+  SCLPSEL: 0
+
+--- # ESM registers.
+name: ESM
+base: 0xFFFFF500
+stride: 0x60
+
+EEPAPR1:
+  offset: 0x00
+  IEPSET: 31-0
+
+DEPAPR1:
+  offset: 0x04
+  IEPCLR: 31-0
+
+IESR1:
+  offset: 0x08
+  INTENSET: 31-0
+
+IECR1:
+  offset: 0x0C
+  INTENCLR: 31-0
+
+ILSR1:
+  offset: 0x10
+  INTLVLSET: 31-0
+
+ILCR1:
+  offset: 0x14
+  INTLVLCLR: 31-0
+
+SR1:
+  offset: 0x18
+  ESF: 31-0
+
+SR2:
+  offset: 0x1C
+  ESF: 31-0
+
+SR3:
+  offset: 0x20
+  ESF: 31-0
+
+EPSR:
+  offset: 0x24
+  EPSF: 0
+
+IOFFHR:
+  offset: 0x28
+  INTOFFH: 6-0
+
+IOFFLR:
+  offset: 0x2C
+  INTOFFL: 6-0
+
+LTCR:
+  offset: 0x30
+  LTC: 15-0
+
+LTCPR:
+  offset: 0x34
+  LTCP: 15-0
+
+EKR:
+  offset: 0x38
+  EKEY: 3-0
+
+SSR2:
+  offset: 0x3C
+  ESF: 31-0
+
+IEPSR4:
+  offset: 0x40
+  IEPSET: 31-0
+
+IEPCR4:
+  offset: 0x44
+  IEPCLR: 31-0
+
+IESR4:
+  offset: 0x48
+  INTENSET: 31-0
+
+IECR4:
+  offset: 0x4C
+  INTENCLR: 31-0
+
+ILSR4:
+  offset: 0x50
+  INTLVLSET: 31-0
+
+ILCR4:
+  offset: 0x54
+  INTLVLCLR: 31-0
+
+SR4:
+  offset: 0x58
+  ESF: 31-0
+
+--- # F021 flash control registers.
+name: FLASH
+base: 0xFFF87000
+stride: 0x1000
+
+FRDCNTL:
+  offset: 0x0
+  RWAIT: 11-8
+  ASWSTEN: 4
+  ENPIPE: 0
+
+FEDACCTRL1:
+  offset: 0x08
+  SUSP_IGNR: 24
+  EDACMODE: 19-16
+  EOFEN: 10
+  EZFEN: 9
+  EPEN: 8
+  EDACEN: 3-0
+
+FEDACCTRL2:
+  offset: 0x0C
+  SEC_THRESHOLD: 15-0
+
+FCOR_ERR_CNT:
+  offset: 0x10
+  FERRCNT: 15-0
+
+FCOR_ERR_ADD:
+  offset: 0x14
+
+FCOR_ERR_POS:
+  offset: 0x18
+  BUS2: 9
+  TYPE: 8
+  ERR_POS: 7-0
+
+FEDACSTATUS:
+  offset: 0x1C
+  FSM_DONE: 24
+  COMB2_MAL_G: 19
+  ECC_B2_MAL_ERR: 18
+  B2_UNC_ERR: 17
+  B2_COR_ERR: 16
+  D_UNC_ERR: 12
+  ADD_TAG_ERR: 11
+  ADD_PAR_ERR: 10
+  B1_UNC_ERR: 8
+  D_CORR_ERR: 3
+  ERR_ONE_FLG: 2
+  ERR_ZERO_FLG: 1
+  ERR_PRF_FLG: 0
+
+FUNC_ERR_ADD:
+  offset: 0x20
+  UNC_ERR_ADD: 31-3
+  B_OFF: 2-0
+
+FEDACSDIS:
+  offset: 0x24
+  BANKID1_INV: 31-29
+  SECTORID1_INV: 27-24
+  BANKID1: 23-21
+  SECTORID1: 19-16
+  BANKID0_INV: 15-13
+  SECTORID0_INV: 11-8
+  BANKID0: 7-5
+  SECTORID0: 3-0
+
+FPRIM_ADD_TAG:
+  offset: 0x28
+  PRIM_ADD_TAG: 31-4
+
+FDUP_ADD_TAG:
+  offset: 0x2C
+  DUP_ADD_TAG: 31-4
+
+FBPROT:
+  offset: 0x30
+  PROTL1DIS: 0
+
+FBSE:
+  offset: 0x34
+  BSE: 15-0
+
+FBBUSY:
+  offset: 0x38
+  BUSY: 7-0
+
+FBAC:
+  offset: 0x3C
+  OTPPROTDIS: 23-16
+  BAGP: 15-8
+  VREADST: 7-0
+
+FBFALLBACK:
+  offset: 0x40
+  BANKPWR7: 15-14
+  BANKPWR1: 3-2
+  BANKPWR0: 1-0
+
+FBPRDY:
+  offset: 0x44
+  BANKBUSY: 23-16
+  PUMPRDY: 15
+  BANKRDY: 7-0
+
+FPAC1:
+  offset: 0x48
+  PSLEEP: 26-16
+  PUMPPWR: 0
+
+FPAC2:
+  offset: 0x4C
+  PAGP: 15-0
+
+FMAC:
+  offset: 0x50
+  BANK: 2-0
+
+FMSTAT:
+  offset: 0x54
+  ILA: 14
+  PGV: 12
+  EV: 10
+  BUSY: 8
+  ERS: 7
+  PGM: 6
+  INV_DAT: 5
+  CSTAT: 4
+  VOLTSTAT: 3
+  ESUSP: 2
+  PSUSP: 1
+  SLOCK: 0
+
+FEMU_DMSW:
+  offset: 0x58
+  EMU_DMSW: 31-0
+
+FEMU_DLSW:
+  offset: 0x5C
+  EMU_DLSW: 31-0
+
+FEMU_ECC:
+  offset: 0x60
+  EMU_ECC: 7-0
+
+FEMU_ADDR:
+  offset: 0x68
+  EMU_ADDR: 21-16
+  EMU_ADDR: 15-3
+
+FDIAGCTRL:
+  offset: 0x6C
+  DIAG_TRIG: 24
+  DIAG_EN_KEY: 19-16
+  DIAG_ECC_SEL: 14-12
+  DIAG_BUF_SEL: 9-8
+  DIAGMODE: 2-0
+
+FRAW_DATAH:
+  offset: 0x70
+  RAW_DATA: 31-0
+
+FRAW_DATAL:
+  offset: 0x74
+  RAW_DATA: 31-0
+
+FRAW_ECC:
+  offset: 0x78
+  PIPE_BUF: 8
+  RAW_ECC: 7-0
+
+FPAR_OVR:
+  offset: 0x7C
+  BNK_INV_PAR: 16
+  BUS_PAR_DIS: 15-12
+  PAR_OVR_KEY: 11-9
+  ADD_INV_PAR: 8
+  DAT_INV_PAR: 7-0
+
+FEDACSDIS2:
+  offset: 0xC0
+  BANKID3_INV: 31-29
+  SECTORID3_INV: 27-24
+  BANKID3: 23-21
+  SECTORID3: 19-16
+  BANKID2_INV: 15-13
+  SECTORID2_INV: 11-8
+  BANKID2: 7-5
+  SECTORID2: 3-0
+
+FSM_WR_ENA:
+  offset: 0x288
+  WR_ENA: 2-0
+
+FSM_SECTOR:
+  offset: 0x2A4
+  SECT_ERASED: 31-16
+
+EEPROM_CONFIG:
+  offset: 0x2B8
+  EWAIT: 19-16
+  AUTOSUSP_EN: 8
+  AUTOSTART_GRACE: 7-0
+
+EE_CTRL1:
+  offset: 0x308
+  EE_EDACMODE: 19-16
+  EE_EOFEN: 10
+  EE_EZFEN: 9
+  EE_EPEN: 8
+  EE_ALL1_OK: 5
+  EE_ALL0_OK: 4
+  EE_EDACEN: 3-0
+
+EE_CTRL2:
+  offset: 0x30C
+  EE_SEC_THRESHOLD: 15-0
+
+EE_COR_ERR_CNT:
+  offset: 0x310
+  EE_ERRCNT: 15-0
+
+EE_COR_ERR_ADD:
+  offset: 0x314
+  COR_ERR_ADD: 31-16
+  COR_ERR_ADD: 15-3
+  B_OFF: 2-0
+
+EE_COR_ERR_POS:
+  offset: 0x318
+  TYPE: 8
+  EE_ERR_POS: 7-0
+
+EE_STATUS:
+  offset: 0x31C
+  EE_D_UNC_ERR: 12
+  EE_UNC_ERR: 8
+  EE_CMG: 6
+  EE_CME: 4
+  EE_D_CORR_ERR: 3
+  EE_ERR_ONE_FLG: 2
+  EE_ERR_ZERO_FLG: 1
+  EE_ERR_PRF_FLG: 0
+
+EE_UNC_ERR_ADD:
+  offset: 0x320
+  UNC_ERR_ADD: 31-3
+  B_OFF: 2-0
+
+FCFG_BANK:
+  offset: 0x400
+  EE_BANK_WIDTH: 31-20
+  MAIN_BANK_WIDTH: 15-4
+
+--- # GIO control registers.
+name: GIO
+base: 0xFFF7BC00
+stride: 0x200
+
+GCR0:
+  offset: 0x0
+  RESET: 0
+
+INTDET:
+  offset: 0x08
+  INTDETD7: 31
+  INTDETD6: 30
+  INTDETD5: 29
+  INTDETD4: 28
+  INTDETD3: 27
+  INTDETD2: 26
+  INTDETD1: 25
+  INTDETD0: 24
+  INTDETC7: 23
+  INTDETC6: 22
+  INTDETC5: 21
+  INTDETC4: 20
+  INTDETC3: 19
+  INTDETC2: 18
+  INTDETC1: 17
+  INTDETB0: 16
+  INTDETB7: 15
+  INTDETB6: 14
+  INTDETB5: 13
+  INTDETB4: 12
+  INTDETB3: 11
+  INTDETB2: 10
+  INTDETB1: 9
+  INTDETB0: 8
+  INTDETA7: 7
+  INTDETA6: 6
+  INTDETA5: 5
+  INTDETA4: 4
+  INTDETA3: 3
+  INTDETA2: 2
+  INTDETA1: 1
+  INTDETA0: 0
+
+POL:
+  offset: 0x0C
+  POLD7: 31
+  POLD6: 30
+  POLD5: 29
+  POLD4: 28
+  POLD3: 27
+  POLD2: 26
+  POLD1: 25
+  POLD0: 24
+  POLC7: 23
+  POLC6: 22
+  POLC5: 21
+  POLC4: 20
+  POLC3: 19
+  POLC2: 18
+  POLC1: 17
+  POLC0: 16
+  POLB7: 15
+  POLB6: 14
+  POLB5: 13
+  POLB4: 12
+  POLB3: 11
+  POLB2: 10
+  POLB1: 9
+  POLB0: 8
+  POLA7: 7
+  POLA6: 6
+  POLA5: 5
+  POLA4: 4
+  POLA3: 3
+  POLA2: 2
+  POLA1: 1
+  POLA0: 0
+
+ENASET:
+  offset: 0x10
+  ENASETD7: 31
+  ENASETD6: 30
+  ENASETD5: 29
+  ENASETD4: 28
+  ENASETD3: 27
+  ENASETD2: 26
+  ENASETD1: 25
+  ENASETD0: 24
+  ENASETC7: 23
+  ENASETC6: 22
+  ENASETC5: 21
+  ENASETC4: 20
+  ENASETC3: 19
+  ENASETC2: 18
+  ENASETC1: 17
+  ENASETC0: 16
+  ENASETB7: 15
+  ENASETB6: 14
+  ENASETB5: 13
+  ENASETB4: 12
+  ENASETB3: 11
+  ENASETB2: 10
+  ENASETB1: 9
+  ENASETB0: 8
+  ENASETA7: 7
+  ENASETA6: 6
+  ENASETA5: 5
+  ENASETA4: 4
+  ENASETA3: 3
+  ENASETA2: 2
+  ENASETA1: 1
+  ENASETA0: 0
+
+ENACLR:
+  offset: 0x14
+  ENACLRD7: 31
+  ENACLRD6: 30
+  ENACLRD5: 29
+  ENACLRD4: 28
+  ENACLRD3: 27
+  ENACLRD2: 26
+  ENACLRD1: 25
+  ENACLRD0: 24
+  ENACLRC7: 23
+  ENACLRC6: 22
+  ENACLRC5: 21
+  ENACLRC4: 20
+  ENACLRC3: 19
+  ENACLRC2: 18
+  ENACLRC1: 17
+  ENACLRC0: 16
+  ENACLRB7: 15
+  ENACLRB6: 14
+  ENACLRB5: 13
+  ENACLRB4: 12
+  ENACLRB3: 11
+  ENACLRB2: 10
+  ENACLRB1: 9
+  ENACLRB0: 8
+  ENACLRA7: 7
+  ENACLRA6: 6
+  ENACLRA5: 5
+  ENACLRA4: 4
+  ENACLRA3: 3
+  ENACLRA2: 2
+  ENACLRA1: 1
+  ENACLRA0: 0
+
+LVLSET:
+  offset: 0x18
+  LVLSETD7: 31
+  LVLSETD6: 30
+  LVLSETD5: 29
+  LVLSETD4: 28
+  LVLSETD3: 27
+  LVLSETD2: 26
+  LVLSETD1: 25
+  LVLSETD0: 24
+  LVLSETC7: 23
+  LVLSETC6: 22
+  LVLSETC5: 21
+  LVLSETC4: 20
+  LVLSETC3: 19
+  LVLSETC2: 18
+  LVLSETC1: 17
+  LVLSETC0: 16
+  LVLSETB7: 15
+  LVLSETB6: 14
+  LVLSETB5: 13
+  LVLSETB4: 12
+  LVLSETB3: 11
+  LVLSETB2: 10
+  LVLSETB1: 9
+  LVLSETB0: 8
+  LVLSETA7: 7
+  LVLSETA6: 6
+  LVLSETA5: 5
+  LVLSETA4: 4
+  LVLSETA3: 3
+  LVLSETA2: 2
+  LVLSETA1: 1
+  LVLSETA0: 0
+
+LVLCLR:
+  offset: 0x1C
+  LVLCLRD7: 31
+  LVLCLRD6: 30
+  LVLCLRD5: 29
+  LVLCLRD4: 28
+  LVLCLRD3: 27
+  LVLCLRD2: 26
+  LVLCLRD1: 25
+  LVLCLRD0: 24
+  LVLCLRC7: 23
+  LVLCLRC6: 22
+  LVLCLRC5: 21
+  LVLCLRC4: 20
+  LVLCLRC3: 19
+  LVLCLRC2: 18
+  LVLCLRC1: 17
+  LVLCLRC0: 16
+  LVLCLRB7: 15
+  LVLCLRB6: 14
+  LVLCLRB5: 13
+  LVLCLRB4: 12
+  LVLCLRB3: 11
+  LVLCLRB2: 10
+  LVLCLRB1: 9
+  LVLCLRB0: 8
+  LVLCLRA7: 7
+  LVLCLRA6: 6
+  LVLCLRA5: 5
+  LVLCLRA4: 4
+  LVLCLRA3: 3
+  LVLCLRA2: 2
+  LVLCLRA1: 1
+  LVLCLRA0: 0
+
+FLG:
+  offset: 0x20
+  FLGD7: 31
+  FLGD6: 30
+  FLGD5: 29
+  FLGD4: 28
+  FLGD3: 27
+  FLGD2: 26
+  FLGD1: 25
+  FLGD0: 24
+  FLGC7: 23
+  FLGC6: 22
+  FLGC5: 21
+  FLGC4: 20
+  FLGC3: 19
+  FLGC2: 18
+  FLGC1: 17
+  FLGC0: 16
+  FLGB7: 15
+  FLGB6: 14
+  FLGB5: 13
+  FLGB4: 12
+  FLGB3: 11
+  FLGB2: 10
+  FLGB1: 9
+  FLGB0: 8
+  FLGA7: 7
+  FLGA6: 6
+  FLGA5: 5
+  FLGA4: 4
+  FLGA3: 3
+  FLGA2: 2
+  FLGA1: 1
+  FLGA0: 0
+
+OFF1:
+  offset: 0x24
+  OFF1: 5-0
+
+OFF2:
+  offset: 0x28
+  OFF2: 5-0
+
+EMU1:
+  offset: 0x2C
+  EMU1: 5-0
+
+EMU2:
+  offset: 0x30
+  EMU2: 5-0
+
+DIRA:
+  offset: 0x34
+  DIR7: 7
+  DIR6: 6
+  DIR5: 5
+  DIR4: 4
+  DIR3: 3
+  DIR2: 2
+  DIR1: 1
+  DIR0: 0
+
+DINA:
+  offset: 0x38
+  DIN7: 7
+  DIN6: 6
+  DIN5: 5
+  DIN4: 4
+  DIN3: 3
+  DIN2: 2
+  DIN1: 1
+  DIN0: 0
+
+DOUTA:
+  offset: 0x3C
+  DOUT7: 7
+  DOUT6: 6
+  DOUT5: 5
+  DOUT4: 4
+  DOUT3: 3
+  DOUT2: 2
+  DOUT1: 1
+  DOUT0: 0
+
+DSETA:
+  offset: 0x40
+  DSET7: 7
+  DSET6: 6
+  DSET5: 5
+  DSET4: 4
+  DSET3: 3
+  DSET2: 2
+  DSET1: 1
+  DSET0: 0
+
+DCLRA:
+  offset: 0x44
+  DCLR7: 7
+  DCLR6: 6
+  DCLR5: 5
+  DCLR4: 4
+  DCLR3: 3
+  DCLR2: 2
+  DCLR1: 1
+  DCLR0: 0
+
+PDRA:
+  offset: 0x48
+  PDR7: 7
+  PDR6: 6
+  PDR5: 5
+  PDR4: 4
+  PDR3: 3
+  PDR2: 2
+  PDR1: 1
+  PDR0: 0
+
+PULDISA:
+  offset: 0x4C
+  PULDIS7: 7
+  PULDIS6: 6
+  PULDIS5: 5
+  PULDIS4: 4
+  PULDIS3: 3
+  PULDIS2: 2
+  PULDIS1: 1
+  PULDIS0: 0
+
+PSLA:
+  offset: 0x50
+  PSL7: 7
+  PSL6: 6
+  PSL5: 5
+  PSL4: 4
+  PSL3: 3
+  PSL2: 2
+  PSL1: 1
+  PSL0: 0
+
+DIRB:
+  offset: 0x54
+  DIR7: 7
+  DIR6: 6
+  DIR5: 5
+  DIR4: 4
+  DIR3: 3
+  DIR2: 2
+  DIR1: 1
+  DIR0: 0
+
+DINB:
+  offset: 0x58
+  DIN7: 7
+  DIN6: 6
+  DIN5: 5
+  DIN4: 4
+  DIN3: 3
+  DIN2: 2
+  DIN1: 1
+  DIN0: 0
+
+DOUTB:
+  offset: 0x5C
+  DOUT7: 7
+  DOUT6: 6
+  DOUT5: 5
+  DOUT4: 4
+  DOUT3: 3
+  DOUT2: 2
+  DOUT1: 1
+  DOUT0: 0
+
+DSETB:
+  offset: 0x60
+  DSET7: 7
+  DSET6: 6
+  DSET5: 5
+  DSET4: 4
+  DSET3: 3
+  DSET2: 2
+  DSET1: 1
+  DSET0: 0
+
+DCLRB:
+  offset: 0x64
+  DCLR7: 7
+  DCLR6: 6
+  DCLR5: 5
+  DCLR4: 4
+  DCLR3: 3
+  DCLR2: 2
+  DCLR1: 1
+  DCLR0: 0
+
+PDRB:
+  offset: 0x68
+  PDR7: 7
+  PDR6: 6
+  PDR5: 5
+  PDR4: 4
+  PDR3: 3
+  PDR2: 2
+  PDR1: 1
+  PDR0: 0
+
+PULDISB:
+  offset: 0x6C
+  PULDIS7: 7
+  PULDIS6: 6
+  PULDIS5: 5
+  PULDIS4: 4
+  PULDIS3: 3
+  PULDIS2: 2
+  PULDIS1: 1
+  PULDIS0: 0
+
+PSLB:
+  offset: 0x70
+  PSL7: 7
+  PSL6: 6
+  PSL5: 5
+  PSL4: 4
+  PSL3: 3
+  PSL2: 2
+  PSL1: 1
+  PSL0: 0
+
+--- # IOMM control registers.
+name: IOMM
+base: 0xFFFFEA00
+stride: 0x200
+
+KICK_REG0:
+  offset: 0x38
+  KICK0: 31-0
+
+KICK_REG1:
+  offset: 0x3C
+  KICK1: 31-0
+
+PINMMR:
+  offset: 0x110
+  repeat: 48
+  PINMMR31: 31
+  PINMMR30: 30
+  PINMMR29: 29
+  PINMMR28: 28
+  PINMMR27: 27
+  PINMMR26: 26
+  PINMMR25: 25
+  PINMMR24: 24
+  PINMMR23: 23
+  PINMMR22: 22
+  PINMMR21: 21
+  PINMMR20: 20
+  PINMMR19: 19
+  PINMMR18: 18
+  PINMMR17: 17
+  PINMMR16: 16
+  PINMMR15: 15
+  PINMMR14: 14
+  PINMMR13: 13
+  PINMMR12: 12
+  PINMMR11: 11
+  PINMMR10: 10
+  PINMMR9: 9
+  PINMMR8: 8
+  PINMMR7: 7
+  PINMMR6: 6
+  PINMMR5: 5
+  PINMMR4: 4
+  PINMMR3: 3
+  PINMMR2: 2
+  PINMMR1: 1
+  PINMMR0: 0
+
+--- # N2HET control registers.
+name: N2HET
+base: 0xFFF7B800
+stride: 0x100
+repeat: 2
+
+HETGCR:
+  offset: 0x0
+  HETPINENA: 24
+  MP: 22-21
+  PPF: 18
+  IS: 17
+  CMS: 16
+  TO: 0
+
+HETPFR:
+  offset: 0x4
+  LRPFC: 10-8
+  HRPFC: 5-0
+
+HETXOR:
+  offset: 0x38
+  XORSHARE_31_30: 15
+  XORSHARE_29_28: 14
+  XORSHARE_27_26: 13
+  XORSHARE_25_24: 12
+  XORSHARE_23_22: 11
+  XORSHARE_21_20: 10
+  XORSHARE_19_18: 9
+  XORSHARE_17_16: 8
+  XORSHARE_15_14: 7
+  XORSHARE_13_12: 6
+  XORSHARE_11_10: 5
+  XORSHARE_9_8: 4
+  XORSHARE_7_6: 3
+  XORSHARE_5_4: 2
+  XORSHARE_3_2: 1
+  XORSHARE_1_0: 0
+
+REQENS:
+  offset: 0x3C
+  REQENA7: 7
+  REQENA6: 6
+  REQENA5: 5
+  REQENA4: 4
+  REQENA3: 3
+  REQENA2: 2
+  REQENA1: 1
+  REQENA0: 0
+
+REQENC:
+  offset: 0x40
+  REQDIS7: 7
+  REQDIS6: 6
+  REQDIS5: 5
+  REQDIS4: 4
+  REQDIS3: 3
+  REQDIS2: 2
+  REQDIS1: 1
+  REQDIS0: 0
+
+REQDS:
+  offset: 0x44
+  TDBS7: 23
+  TDBS6: 22
+  TDBS5: 21
+  TDBS4: 20
+  TDBS3: 19
+  TDBS2: 18
+  TDBS1: 17
+  TDBS0: 16
+  TDS7: 7
+  TDS6: 6
+  TDS5: 5
+  TDS4: 4
+  TDS3: 3
+  TDS2: 2
+  TDS1: 1
+  TDS0: 0
+
+HETDIR:
+  offset: 0x4C
+  HETDIR31: 31
+  HETDIR30: 30
+  HETDIR29: 29
+  HETDIR28: 28
+  HETDIR27: 27
+  HETDIR26: 26
+  HETDIR25: 25
+  HETDIR24: 24
+  HETDIR23: 23
+  HETDIR22: 22
+  HETDIR21: 21
+  HETDIR20: 20
+  HETDIR19: 19
+  HETDIR18: 18
+  HETDIR17: 17
+  HETDIR16: 16
+  HETDIR15: 15
+  HETDIR14: 14
+  HETDIR13: 13
+  HETDIR12: 12
+  HETDIR11: 11
+  HETDIR10: 10
+  HETDIR9: 9
+  HETDIR8: 8
+  HETDIR7: 7
+  HETDIR6: 6
+  HETDIR5: 5
+  HETDIR4: 4
+  HETDIR3: 3
+  HETDIR2: 2
+  HETDIR1: 1
+  HETDIR0: 0
+
+HETDIN:
+  offset: 0x50
+  HETDIN31: 31
+  HETDIN30: 30
+  HETDIN29: 29
+  HETDIN28: 28
+  HETDIN27: 27
+  HETDIN26: 26
+  HETDIN25: 25
+  HETDIN24: 24
+  HETDIN23: 23
+  HETDIN22: 22
+  HETDIN21: 21
+  HETDIN20: 20
+  HETDIN19: 19
+  HETDIN18: 18
+  HETDIN17: 17
+  HETDIN16: 16
+  HETDIN15: 15
+  HETDIN14: 14
+  HETDIN13: 13
+  HETDIN12: 12
+  HETDIN11: 11
+  HETDIN10: 10
+  HETDIN9: 9
+  HETDIN8: 8
+  HETDIN7: 7
+  HETDIN6: 6
+  HETDIN5: 5
+  HETDIN4: 4
+  HETDIN3: 3
+  HETDIN2: 2
+  HETDIN1: 1
+  HETDIN0: 0
+
+HETDOUT:
+  offset: 0x54
+  HETDOUT31: 31
+  HETDOUT30: 30
+  HETDOUT29: 29
+  HETDOUT28: 28
+  HETDOUT27: 27
+  HETDOUT26: 26
+  HETDOUT25: 25
+  HETDOUT24: 24
+  HETDOUT23: 23
+  HETDOUT22: 22
+  HETDOUT21: 21
+  HETDOUT20: 20
+  HETDOUT19: 19
+  HETDOUT18: 18
+  HETDOUT17: 17
+  HETDOUT16: 16
+  HETDOUT15: 15
+  HETDOUT14: 14
+  HETDOUT13: 13
+  HETDOUT12: 12
+  HETDOUT11: 11
+  HETDOUT10: 10
+  HETDOUT9: 9
+  HETDOUT8: 8
+  HETDOUT7: 7
+  HETDOUT6: 6
+  HETDOUT5: 5
+  HETDOUT4: 4
+  HETDOUT3: 3
+  HETDOUT2: 2
+  HETDOUT1: 1
+  HETDOUT0: 0
+
+HETDSET:
+  offset: 0x58
+  HETDSET31: 31
+  HETDSET30: 30
+  HETDSET29: 29
+  HETDSET28: 28
+  HETDSET27: 27
+  HETDSET26: 26
+  HETDSET25: 25
+  HETDSET24: 24
+  HETDSET23: 23
+  HETDSET22: 22
+  HETDSET21: 21
+  HETDSET20: 20
+  HETDSET19: 19
+  HETDSET18: 18
+  HETDSET17: 17
+  HETDSET16: 16
+  HETDSET15: 15
+  HETDSET14: 14
+  HETDSET13: 13
+  HETDSET12: 12
+  HETDSET11: 11
+  HETDSET10: 10
+  HETDSET9: 9
+  HETDSET8: 8
+  HETDSET7: 7
+  HETDSET6: 6
+  HETDSET5: 5
+  HETDSET4: 4
+  HETDSET3: 3
+  HETDSET2: 2
+  HETDSET1: 1
+  HETDSET0: 0
+
+HETDCLR:
+  offset: 0x5C
+  # Read-modify-writes to this register clear entire bytes.
+  # HETDCLR31: 31
+  # HETDCLR30: 30
+  # HETDCLR29: 29
+  # HETDCLR28: 28
+  # HETDCLR27: 27
+  # HETDCLR26: 26
+  # HETDCLR25: 25
+  # HETDCLR24: 24
+  # HETDCLR23: 23
+  # HETDCLR22: 22
+  # HETDCLR21: 21
+  # HETDCLR20: 20
+  # HETDCLR19: 19
+  # HETDCLR18: 18
+  # HETDCLR17: 17
+  # HETDCLR16: 16
+  # HETDCLR15: 15
+  # HETDCLR14: 14
+  # HETDCLR13: 13
+  # HETDCLR12: 12
+  # HETDCLR11: 11
+  # HETDCLR10: 10
+  # HETDCLR9: 9
+  # HETDCLR8: 8
+  # HETDCLR7: 7
+  # HETDCLR6: 6
+  # HETDCLR5: 5
+  # HETDCLR4: 4
+  # HETDCLR3: 3
+  # HETDCLR2: 2
+  # HETDCLR1: 1
+  # HETDCLR0: 0
+
+HETPDR:
+  offset: 0x60
+  HETPDR31: 31
+  HETPDR30: 30
+  HETPDR29: 29
+  HETPDR28: 28
+  HETPDR27: 27
+  HETPDR26: 26
+  HETPDR25: 25
+  HETPDR24: 24
+  HETPDR23: 23
+  HETPDR22: 22
+  HETPDR21: 21
+  HETPDR20: 20
+  HETPDR19: 19
+  HETPDR18: 18
+  HETPDR17: 17
+  HETPDR16: 16
+  HETPDR15: 15
+  HETPDR14: 14
+  HETPDR13: 13
+  HETPDR12: 12
+  HETPDR11: 11
+  HETPDR10: 10
+  HETPDR9: 9
+  HETPDR8: 8
+  HETPDR7: 7
+  HETPDR6: 6
+  HETPDR5: 5
+  HETPDR4: 4
+  HETPDR3: 3
+  HETPDR2: 2
+  HETPDR1: 1
+  HETPDR0: 0
+
+HETPULDIS:
+  offset: 0x64
+  HETPULDIS31: 31
+  HETPULDIS30: 30
+  HETPULDIS29: 29
+  HETPULDIS28: 28
+  HETPULDIS27: 27
+  HETPULDIS26: 26
+  HETPULDIS25: 25
+  HETPULDIS24: 24
+  HETPULDIS23: 23
+  HETPULDIS22: 22
+  HETPULDIS21: 21
+  HETPULDIS20: 20
+  HETPULDIS19: 19
+  HETPULDIS18: 18
+  HETPULDIS17: 17
+  HETPULDIS16: 16
+  HETPULDIS15: 15
+  HETPULDIS14: 14
+  HETPULDIS13: 13
+  HETPULDIS12: 12
+  HETPULDIS11: 11
+  HETPULDIS10: 10
+  HETPULDIS9: 9
+  HETPULDIS8: 8
+  HETPULDIS7: 7
+  HETPULDIS6: 6
+  HETPULDIS5: 5
+  HETPULDIS4: 4
+  HETPULDIS3: 3
+  HETPULDIS2: 2
+  HETPULDIS1: 1
+  HETPULDIS0: 0
+
+HETPSL:
+  offset: 0x68
+  HETPSL31: 31
+  HETPSL30: 30
+  HETPSL29: 29
+  HETPSL28: 28
+  HETPSL27: 27
+  HETPSL26: 26
+  HETPSL25: 25
+  HETPSL24: 24
+  HETPSL23: 23
+  HETPSL22: 22
+  HETPSL21: 21
+  HETPSL20: 20
+  HETPSL19: 19
+  HETPSL18: 18
+  HETPSL17: 17
+  HETPSL16: 16
+  HETPSL15: 15
+  HETPSL14: 14
+  HETPSL13: 13
+  HETPSL12: 12
+  HETPSL11: 11
+  HETPSL10: 10
+  HETPSL9: 9
+  HETPSL8: 8
+  HETPSL7: 7
+  HETPSL6: 6
+  HETPSL5: 5
+  HETPSL4: 4
+  HETPSL3: 3
+  HETPSL2: 2
+  HETPSL1: 1
+  HETPSL0: 0
+
+HETPINDIS:
+  offset: 0x94
+  HETPINDIS31: 31
+  HETPINDIS30: 30
+  HETPINDIS29: 29
+  HETPINDIS28: 28
+  HETPINDIS27: 27
+  HETPINDIS26: 26
+  HETPINDIS25: 25
+  HETPINDIS24: 24
+  HETPINDIS23: 23
+  HETPINDIS22: 22
+  HETPINDIS21: 21
+  HETPINDIS20: 20
+  HETPINDIS19: 19
+  HETPINDIS18: 18
+  HETPINDIS17: 17
+  HETPINDIS16: 16
+  HETPINDIS15: 15
+  HETPINDIS14: 14
+  HETPINDIS13: 13
+  HETPINDIS12: 12
+  HETPINDIS11: 11
+  HETPINDIS10: 10
+  HETPINDIS9: 9
+  HETPINDIS8: 8
+  HETPINDIS7: 7
+  HETPINDIS6: 6
+  HETPINDIS5: 5
+  HETPINDIS4: 4
+  HETPINDIS3: 3
+  HETPINDIS2: 2
+  HETPINDIS1: 1
+  HETPINDIS0: 0
+
+--- # PBIST control registers.
+name: PBIST
+base: 0xFFFFE400
+stride: 0x200
+
+RAMT:
+  offset: 0x160
+  RGS: 31-24
+  RDS: 23-16
+  DWR: 15-8
+  SMS: 7-6
+  PLS: 5-2
+  RLS: 1-0
+
+DLR:
+  offset: 0x164
+  DLR4: 4
+  DLR2: 2
+
+PACT:
+  offset: 0x180
+  PACT1: 1
+  PACT0: 0
+
+PBISTID:
+  offset: 0x184
+  PBISTID: 7-0
+
+OVER:
+  offset: 0x188
+  OVER0: 0
+
+FSRF0:
+  offset: 0x190
+  FSRF0: 0
+
+FSRC0:
+  offset: 0x198
+  FSRC0: 7-0
+
+FSRC1:
+  offset: 0x19C
+  FSRC1: 7-0
+
+FSRA0:
+  offset: 0x1A0
+  FSRA0: 15-0
+
+FSRA1:
+  offset: 0x1A4
+  FSRA1: 15-0
+
+FSRDL0:
+  offset: 0x1A8
+  FSRDL0: 31-0
+
+FSRDL1:
+  offset: 0x1B0
+  FSRDL1: 13-0
+
+ROM:
+  offset: 0x1C0
+  ROM: 1-0
+
+ALGO:
+  offset: 0x1C4
+  ALGO3: 31-24
+  ALGO2: 23-16
+  ALGO1: 15-8
+  ALGO0: 7-0
+
+RINFOL:
+  offset: 0x1C8
+  RINFOL3: 31-24
+  RINFOL2: 23-16
+  RINFOL1: 15-8
+  RINFOL0: 7-0
+
+RINFOU:
+  offset: 0x1CC
+  RINFOU3: 31-24
+  RINFOU2: 23-16
+  RINFOU1: 15-8
+  RINFOU0: 7-0
+
+--- # PCR registers.
+name: PCR
+base: 0xFFFFE000
+stride: 0x100
+
+PCSPWRDWNSET:
+  offset: 0x60
+  repeat: 2
+
+PCSPWRDWNCLR:
+  offset: 0x70
+  repeat: 2
+
+PSPWRDWNSET:
+  offset: 0x80
+  repeat: 4
+
+PSPWRDWNCLR:
+  offset: 0xA0
+  repeat: 4
+
+--- # PMM control registers.
+name: PMM
+base: 0xFFFF0000
+stride: 0x200
+
+LOGICPDPWRCTRL0:
+  offset: 0x0
+  LOGICPDON0: 27-24
+  LOGICPDON1: 19-16
+  LOGICPDON2: 11-8
+  LOGICPDON3: 3-0
+
+MEMPDPWRCTRL0:
+  offset: 0x10
+  MEMPDON0: 27-24
+  MEMPDON1: 19-16
+
+PDCLKDIS:
+  offset: 0x20
+  PDCLK_DIS_3: 3
+  PDCLK_DIS_2: 2
+  PDCLK_DIS_1: 1
+  PDCLK_DIS_0: 0
+
+PDCLKDISSET:
+  offset: 0x24
+  PDCLK_DISSET_3: 3
+  PDCLK_DISSET_2: 2
+  PDCLK_DISSET_1: 1
+  PDCLK_DISSET_0: 0
+
+PDCLKDISCLR:
+  offset: 0x28
+  PDCLK_DISCLR_3: 3
+  PDCLK_DISCLR_2: 2
+  PDCLK_DISCLR_1: 1
+  PDCLK_DISCLR_0: 0
+
+LOGICPDPWRSTAT:
+  offset: 0x40
+  repeat: 4
+  LOGIC_IN_TRANS: 24
+  MEM_IN_TRANS: 16
+  DOMAIN_ON: 8
+  LOGICPDPWR_STAT: 1-0
+
+MEMPDPWRSTAT:
+  offset: 0x80
+  repeat: 2
+  LOGIC_IN_TRANS: 24
+  MEM_IN_TRANS: 16
+  DOMAIN_ON: 8
+  MEMPDPWR_STAT: 1-0
+
+PRCKEYREG:
+  offset: 0xAC
+  MKEY: 3-0
+
+MPDDCSTAT1:
+  offset: 0xB8
+  MCMPE_1_0: 17-16
+  MSTC_1_0: 1-0
+
+MPDDCSTAT2:
+  offset: 0xBC
+  MSTET_1_0: 17-16
+  MSTE_1_0: 1-0
+
+--- # RTI control registers.
+name: RTI
+base: 0xFFFFFC00
+stride: 0x100
+
+GCTRL:
+  offset: 0x00
+  NTUSEL: 19-16
+  COS: 15
+  CNT1EN: 1
+  CNT0EN: 0
+
+TBCTRL:
+  offset: 0x04
+  INC: 1
+  TBEXT: 0
+
+COMPCTRL:
+  offset: 0x0C
+  COMPSEL3: 12
+  COMPSEL2: 8
+  COMPSEL1: 4
+  COMPSEL0: 0
+
+FRC0:
+  offset: 0x10
+  FRC0: 31-0
+
+UC0:
+  offset: 0x14
+  UC0: 31-0
+
+CPUC0:
+  offset: 0x18
+  CPUC0: 31-0
+
+CAFRC0:
+  offset: 0x20
+  CAFRC0: 31-0
+
+CAUC0:
+  offset: 0x24
+  CAUC0: 31-0
+
+FRC1:
+  offset: 0x30
+  FRC1: 31-0
+
+UC1:
+  offset: 0x34
+  UC1: 31-0
+
+CPUC1:
+  offset: 0x38
+  CPUC1: 31-0
+
+CAFRC1:
+  offset: 0x40
+  CAFRC1: 31-0
+
+CAUC1:
+  offset: 0x44
+  CAUC1: 31-0
+
+COMP0:
+  offset: 0x50
+  COMP0: 31-0
+
+UDCP0:
+  offset: 0x54
+  UDCP0: 31-0
+
+COMP1:
+  offset: 0x58
+  COMP1: 31-0
+
+UDCP1:
+  offset: 0x5C
+  UDCP1: 31-0
+
+COMP2:
+  offset: 0x60
+  COMP2: 31-0
+
+UDCP2:
+  offset: 0x64
+  UDCP2: 31-0
+
+COMP3:
+  offset: 0x68
+  COMP3: 31-0
+
+UDCP3:
+  offset: 0x6C
+  UDCP3: 31-0
+
+SETINTENA:
+  offset: 0x80
+  SETOVL1INT: 18
+  SETOVL0INT: 17
+  SETTBINT: 16
+  SETDMA3: 11
+  SETDMA2: 10
+  SETDMA1: 9
+  SETDMA0: 8
+  SETINT3: 3
+  SETINT2: 2
+  SETINT1: 1
+  SETINT0: 0
+
+CLEARINTENA:
+  offset: 0x84
+  CLEAROVL1INT: 18
+  CLEAROVL0INT: 17
+  CLEARTBINT: 16
+  CLEARDMA3: 11
+  CLEARDMA2: 10
+  CLEARDMA1: 9
+  CLEARDMA0: 8
+  CLEARINT3: 3
+  CLEARINT2: 2
+  CLEARINT1: 1
+  CLEARINT0: 0
+
+INTFLAG:
+  offset: 0x88
+  OVL1INT: 18
+  OVL0INT: 17
+  TBINT: 16
+  INT3: 3
+  INT2: 2
+  INT1: 1
+  INT0: 0
+
+DWDCTRL:
+  offset: 0x90
+  DWDCTRL: 31-0
+
+DWDPRLD:
+  offset: 0x94
+  DWDPRLD: 15-0
+
+WDKEY:
+  offset: 0x9C
+  WDKEY: 15-0
+
+INTCLRENABLE:
+  offset: 0xAC
+  INTCLRENABLE3: 27-24
+  INTCLRENABLE2: 19-16
+  INTCLRENABLE1: 11-8
+  INTCLRENABLE0: 3-0
+
+CMP0CLR:
+  offset: 0xB0
+  CMP0CLR: 31-0
+
+CMP1CLR:
+  offset: 0xB4
+  CMP1CLR: 31-0
+
+CMP2CLR:
+  offset: 0xB8
+  CMP2CLR: 31-0
+
+CMP3CLR:
+  offset: 0xBC
+  CMP3CLR: 31-0
+
+--- # SCI control registers.
+# NOTE: LIN is not supported.
+name: SCI
+base: 0xFFF7E400
+stride: 0x100
+repeat: 2
+
+GCR0:
+  offset: 0x0
+  RESET: 0
+
+GCR1:
+  offset: 0x4
+  TXENA: 25
+  RXENA: 24
+  CONT: 17
+  LOOPBACK: 16
+  POWERDOWN: 9
+  SLEEP: 8
+  SWNRST: 7
+  CLOCK: 5
+  STOP: 4
+  PARITY: 3
+  PARITYENA: 2
+  TIMINGMODE: 1
+  COMMMODE: 0
+
+SETINT:
+  offset: 0x0C
+  SET_FE_INT: 26
+  SET_OE_INT: 25
+  SET_PE_INT: 24
+  SET_RX_DMA_ALL: 18
+  SET_RX_DMA: 17
+  SET_TX_DMA: 16
+  SET_RX_INT: 9
+  SET_TX_INT: 8
+  SET_WAKEUP_INT: 1
+  SET_BRKDT_INT: 0
+
+CLEARINT:
+  offset: 0x10
+  CLR_FE_INT: 26
+  CLR_OE_INT: 25
+  CLR_PE_INT: 24
+  CLR_RX_DMA_ALL: 18
+  CLR_RX_DMA: 17
+  CLR_TX_DMA: 16
+  CLR_RX_INT: 9
+  CLR_TX_INT: 8
+  CLR_WAKEUP_INT: 1
+  CLR_BRKDT_INT: 0
+
+SETINTLVL:
+  offset: 0x14
+  SET_FE_INT_LVL: 26
+  SET_OE_INT_LVL: 25
+  SET_PE_INT_LVL: 24
+  SET_RX_DMA_ALL_LVL: 18
+  SET_RX_INT_LVL: 9
+  SET_TX_INT_LVL: 8
+  SET_WAKEUP_INT_LVL: 1
+  SET_BRKDT_INT_LVL: 0
+
+CLEARINTLVL:
+  offset: 0x18
+  CLR_FE_INT_LVL: 26
+  CLR_OE_INT_LVL: 25
+  CLR_PE_INT_LVL: 24
+  CLR_RX_DMA_ALL_LVL: 18
+  CLR_RX_INT_LVL: 9
+  CLR_TX_INT_LVL: 8
+  CLR_WAKEUP_INT_LVL: 1
+  CLR_BRKDT_INT_LVL: 0
+
+FLR:
+  offset: 0x1C
+  FE: 26
+  OE: 25
+  PE: 24
+  RXWAKE: 12
+  TXEMPTY: 11
+  TXWAKE: 10
+  RXRDY: 9
+  TXRDY: 8
+  BUSY: 3
+  IDLE: 2
+  WAKEUP: 1
+  BRKDT: 0
+
+INTVECT0:
+  offset: 0x20
+  INTVECT0: 4-0
+
+INTVECT1:
+  offset: 0x24
+  INTVECT1: 4-0
+
+FORMAT:
+  offset: 0x28
+  CHAR: 2-0
+
+BRS:
+  offset: 0x2C
+  BAUD: 23-0
+
+RD:
+  offset: 0x34
+  RD: 7-0
+
+TD:
+  offset: 0x38
+  TD: 7-0
+
+PIO0:
+  offset: 0x3C
+  TXFUNC: 2
+  RXFUNC: 1
+
+PIO1:
+  offset: 0x40
+  TXDIR: 2
+  RXDIR: 1
+
+PIO2:
+  offset: 0x44
+  TXIN: 2
+  RXIN: 1
+
+PIO3:
+  offset: 0x48
+  TXOUT: 2
+  RXOUT: 1
+
+PIO4:
+  offset: 0x4C
+  TXSET: 2
+  RXSET: 1
+
+PIO5:
+  offset: 0x50
+  TXCLR: 2
+  RXCLR: 1
+
+PIO6:
+  offset: 0x54
+  TXPDR: 2
+  RXPDR: 1
+
+PIO7:
+  offset: 0x58
+  TXPD: 2
+  RXPD: 1
+
+PIO8:
+  offset: 0x5C
+  TXPSL: 2
+  RXPSL: 1
+
+--- # SPI control registers.
+# NOTE: Only the MibSPIs (1, 3, and 5) have MibSPI registers. The user
+# is responsible for not using MibSPI functionality on SPI2 and SPI4.
+name: SPI
+base: 0xFFF7F400
+stride: 0x200
+repeat: 5
+
+GCR0:
+  offset: 0x0
+  NRESET: 0
+
+GCR1:
+  offset: 0x4
+  SPIEN: 24
+  LOOPBACK: 16
+  POWERDOWN: 8
+  CLKMOD: 1
+  MASTER: 0
+
+FLG:
+  offset: 0x10
+  BUFINITACTIVE: 24
+  TXINTFLG: 9
+  RXINTFLG: 8
+  RXOVRNINTFLG: 6
+  BITERRFLG: 4
+  DESYNCFLG: 3
+  PARERRFLG: 2
+  TIMEOUTFLG: 1
+  DLENERRFLG: 0
+
+PC0:
+  offset: 0x14
+  SOMIFUN: 31-24
+  SIMOFUN: 23-16
+  SOMIFUN0: 11
+  SIMOFUN0: 10
+  CLKFUN: 9
+  ENAFUN: 8
+  SCSFUN: 7-0
+
+PC1:
+  offset: 0x18
+  SOMIDIR: 31-24
+  SIMODIR: 23-16
+  SOMIDIR0: 11
+  SIMODIR0: 10
+  CLKDIR: 9
+  ENADIR: 8
+  SCSDIR: 7-0
+
+PC2:
+  offset: 0x1C
+  SOMIDIN: 31-24
+  SIMODIN: 23-16
+  SOMIDIN0: 11
+  SIMODIN0: 10
+  CLKDIN: 9
+  ENADIN: 8
+  SCSDIN: 7-0
+
+PC3:
+  offset: 0x20
+  SOMIDOUT: 31-24
+  SIMODOUT: 23-16
+  SOMIDOUT0: 11
+  SIMODOUT0: 10
+  CLKDOUT: 9
+  ENADOUT: 8
+  SCSDOUT: 7-0
+
+PC4:
+  offset: 0x24
+  SOMISET: 31-24
+  SIMOSET: 23-16
+  SOMISET: 11
+  SIMOSET: 10
+  CLKSET: 9
+  ENASET: 8
+  SCSSET: 7-0
+
+PC5:
+  offset: 0x28
+  SOMICLR: 31-24
+  SIMOCLR: 23-16
+  SOMICLR: 11
+  SIMOCLR: 10
+  CLKCLR: 9
+  ENACLR: 8
+  SCSCLR: 7-0
+
+PC6:
+  offset: 0x2C
+  SOMIPDR: 31-24
+  SIMOPDR: 23-16
+  SOMIPDR0: 11
+  SIMOPDR0: 10
+  CLKPDR: 9
+  ENAPDR: 8
+  SCSPDR: 7-0
+
+PC7:
+  offset: 0x30
+  SOMIDIS: 31-24
+  SIMODIS: 23-16
+  SOMIPDIS0: 11
+  SIMOPDIS0: 10
+  CLKPDIS: 9
+  ENAPDIS: 8
+  SCSPDIS: 7-0
+
+PC8:
+  offset: 0x34
+  SOMIPSEL: 31-24
+  SIMOPSEL: 23-16
+  SOMIPSEL0: 11
+  SIMOPSEL0: 10
+  CLKPSEL: 9
+  ENAPSEL: 8
+  SCSPSEL: 7-0
+
+DAT1:
+  offset: 0x3C
+  CSHOLD: 28
+  WDEL: 26
+  DFSEL: 25-24
+  CSNR: 23-16
+  TXDATA: 15-0
+
+BUF:
+  offset: 0x40
+  RXEMPTY: 31
+  RXOVR: 30
+  TXFULL: 29
+  BITERR: 28
+  DESYNC: 27
+  PARITYERR: 26
+  TIMEOUT: 25
+  DLENERR: 24
+  LCSNR: 23-16
+  RXDATA: 15-0
+
+DELAY:
+  offset: 0x48
+  C2TDELAY: 31-24
+  T2CDELAY: 23-16
+  T2EDELAY: 15-8
+  C2EDELAY: 7-0
+
+FMT:
+  offset: 0x50
+  repeat: 4
+  WDELAY: 31-24
+  PARPOL: 23
+  PARITYENA: 22
+  WAITENA: 21
+  SHIFTDIR: 20
+  HDUPLEXENA: 19
+  DISCSTIMERS: 18
+  POLARITY: 17
+  PHASE: 16
+  PRESCALE: 15-8
+  CHARLEN: 4-0
+
+MIBSPIE:
+  offset: 0x70
+  RXRAMACCESS: 16
+  MSPIENA: 0
+
+TGITENST:
+  offset: 0x74
+  SETINTENRDY: 31-16
+  SETINTENSUS: 15-0
+
+TGITENCR:
+  offset: 0x78
+  CLRINTENRDY: 31-16
+  CLRINTENSUS: 15-0
+
+TGITLVST:
+  offset: 0x7C
+  SETINTLVLRDY: 31-16
+  SETINTLVLSUS: 15-0
+
+TGITLVCR:
+  offset: 0x80
+  CLRINTLVLRDY: 31-16
+  CLRINTLVLSUS: 15-0
+
+TGINTFLG:
+  offset: 0x84
+  INTFLGRDY: 31-16
+  INTFLGSUS: 15-0
+
+LTGPEND:
+  offset: 0x94
+  TGINSERVICE: 28-24
+  LPEND: 14-8
+
+TGCTRL:
+  offset: 0x98
+  repeat: 16
+  TGENA: 31
+  ONESHOT: 30
+  PRST: 29
+  TGTD: 28
+  TRIGEVT: 23-20
+  TRIGSRC: 19-16
+  PSTART: 14-8
+  PCURRENT: 6-0
+
+--- # SPI transmit/receive RAM.
+# NOTE: Only the MibSPIs (1, 3, and 5) have transmit/receive RAM. The
+# user is responsible for not using MibSPI functionality on SPI2 and SPI4.
+# NOTE: These are reversed in the memory map (i.e. MibSPI5 is at the
+# lowest address), so base points to MibSPI1's frame and stride is negative.
+name: SPIRAM
+base: 0xFF0E0000
+stride: -0x10000
+repeat: 5
+
+TXRAM:
+  offset: 0x0
+  repeat: 128
+  BUFMODE: 31-29
+  CSHOLD: 28
+  LOCK: 27
+  WDEL: 26
+  DFSEL: 25-24
+  CSNR: 23-16
+  TXDATA: 15-0
+
+RXRAM:
+  offset: 0x200
+  repeat: 128
+  RXEMPTY: 31
+  RXOVR: 30
+  TXFULL: 29
+  BITERR: 28
+  DESYNC: 27
+  PARITYERR: 26
+  TIMEOUT: 25
+  DLENERR: 24
+  LCSNR: 23-16
+  RXDATA: 15-0
+
+--- # STC registers.
+name: STC
+base: 0xFFFFE600
+stride: 0x100
+
+GCR0:
+  offset: 0x00
+  INTCOUNT: 31-16
+  RS_CNT: 0
+
+GCR1:
+  offset: 0x04
+  STC_ENA: 3-0
+
+TPR:
+  offset: 0x08
+  RTOD: 31-0
+
+CADDR:
+  offset: 0x0C
+  ADDR: 31-0
+
+CICR:
+  offset: 0x10
+  N: 15-0
+
+GSTAT:
+  offset: 0x14
+  TEST_FAIL: 1
+  TEST_DONE: 0
+
+FSTAT:
+  offset: 0x18
+  TO_ERR: 2
+  CPU2_FAIL: 1
+  CPU1_FAIL: 0
+
+SCSCR:
+  offset: 0x3C
+  FAULT_INS: 4
+  SELF_CHECK_KEY: 3-0
+
+--- # SYS registers.
+name: SYS
+base: 0xFFFFFF00
+stride: 0x100
+
+PC1:
+  offset: 0x00
+  ECPCLKFUN: 0
+
+PC2:
+  offset: 0x04
+  ECPCLKDIR: 0
+
+PC3:
+  offset: 0x08
+  ECPCLKDIN: 0
+
+PC4:
+  offset: 0x0C
+  ECPCLKDOUT: 0
+
+PC5:
+  offset: 0x10
+  ECPCLKSET: 0
+
+PC6:
+  offset: 0x14
+  ECPCLKCLR: 0
+
+SSWPLL1:
+  offset: 0x24
+
+SSWPLL2:
+  offset: 0x28
+
+SSWPLL3:
+  offset: 0x2C
+
+CSDIS:
+  offset: 0x30
+  CLKSR7OFF: 7
+  CLKSR6OFF: 6
+  CLKSR5OFF: 5
+  CLKSR4OFF: 4
+  CLKSR3OFF: 3
+  CLKSR1OFF: 1
+  CLKSR0OFF: 0
+
+CSDISSET:
+  offset: 0x34
+  SETCLKSR7OFF: 7
+  SETCLKSR6OFF: 6
+  SETCLKSR5OFF: 5
+  SETCLKSR4OFF: 4
+  SETCLKSR3OFF: 3
+  SETCLKSR1OFF: 1
+  SETCLKSR0OFF: 0
+
+CSDISCLR:
+  offset: 0x38
+  CLRCLKSR7OFF: 7
+  CLRCLKSR6OFF: 6
+  CLRCLKSR5OFF: 5
+  CLRCLKSR4OFF: 4
+  CLRCLKSR3OFF: 3
+  CLRCLKSR1OFF: 1
+  CLRCLKSR0OFF: 0
+
+CDDIS:
+  offset: 0x3C
+  VCLKA4OFF: 11
+  VCLKA3OFF: 10
+  VCLK3OFF: 8
+  RTICLK1OFF: 6
+  VCLKA2OFF: 5
+  VCLKA1OFF: 4
+  VCLK2OFF: 3
+  VCLKPOFF: 2
+  HCLKOFF: 1
+  GCLKOFF: 0
+
+CDDISSET:
+  offset: 0x40
+  SETVCLKA4OFF: 11
+  SETVCLKA3OFF: 10
+  SETVCLK3OFF: 8
+  SETRTICLK1OFF: 6
+  SETVCLKA2OFF: 5
+  SETVCLKA1OFF: 4
+  SETVCLK2OFF: 3
+  SETVCLKPOFF: 2
+  SETHCLKOFF: 1
+  SETGCLKOFF: 0
+
+CDDISCLR:
+  offset: 0x44
+  CLRVCLKA4OFF: 11
+  CLRVCLKA3OFF: 10
+  CLRVCLK3OFF: 8
+  CLRRTICLK1OFF: 6
+  CLRVCLKA2OFF: 5
+  CLRVCLKA1OFF: 4
+  CLRVCLK2OFF: 3
+  CLRVCLKPOFF: 2
+  CLRHCLKOFF: 1
+  CLRGCLKOFF: 0
+
+GHVSRC:
+  offset: 0x48
+  GHVWAKE: 27-24
+  HVLPM: 19-16
+  GHVSRC: 3-0
+
+VCLKASRC:
+  offset: 0x4C
+  VCLKA2S: 11-8
+  VCLKA1S: 3-0
+
+RCLKSRC:
+  offset: 0x50
+  RTI1DIV: 9-8
+  RTI1SRC: 3-0
+
+CSVSTAT:
+  offset: 0x54
+  CLKSR7V: 7
+  CLKSR6V: 6
+  CLKSR5V: 5
+  CLKSR4V: 4
+  CLKSR3V: 3
+  CLKSR1V: 1
+  CLKSR0V: 0
+
+MSTGCR:
+  offset: 0x58
+  MBIST_ALGSEL: 23-16
+  ROM_DIV: 9-8
+  MSTGENA: 3-0
+
+MINITGCR:
+  offset: 0x5C
+  MINITGENA: 3-0
+
+MSIENA:
+  offset: 0x60
+  MSIENA: 31-0
+
+MSTFAIL:
+  offset: 0x64
+  MSTF: 31-0
+
+MSTCGSTAT:
+  offset: 0x68
+  MINIDONE: 8
+  MSTDONE: 0
+
+MINISTAT:
+  offset: 0x6C
+  MIDONE: 31-0
+
+PLLCTL1:
+  offset: 0x70
+  ROS: 31
+  MASK_SLIP: 30-29
+  PLLDIV: 28-24
+  ROF: 23
+  REFCLKDIV: 21-16
+  PLLMUL: 15-0
+
+PLLCTL2:
+  offset: 0x74
+  FMENA: 31
+  SPREADINGRATE: 30-22
+  MULMOD: 20-12
+  ODPLL: 11-9
+  SPR_AMOUNT: 8-0
+
+LPOMONCTL:
+  offset: 0x88
+  BIAS_ENABLE: 24
+  OSCFRQCONFIGCNT: 16
+  HFTRIM: 12-8
+  LFTRIM: 4-0
+
+CLKTEST:
+  offset: 0x8C
+
+GPREG1:
+  offset: 0xA0
+
+SSIR1:
+  offset: 0xB0
+
+SSIR2:
+  offset: 0xB4
+
+SSIR3:
+  offset: 0xB8
+
+SSIR4:
+  offset: 0xBC
+
+CLKCNTL:
+  offset: 0xD0
+  VCLK2R: 27-24
+  VCLKR: 19-16
+  PENA: 8
+
+DEVCR1:
+  offset: 0xDC
+  DEVPARSEL: 3-0
+
+ECR:
+  offset: 0xE0
+  RESET: 15-14
+
+ESR:
+  offset: 0xE4
+  PORST: 15
+  OSCRST: 14
+  WDRST: 13
+  CPURST: 5
+  SWRST: 4
+  EXTRST: 3
+  MPMODE: 0
+
+GLBSTAT:
+  offset: 0xEC
+
+SSIVEC:
+  offset: 0xF4
+  SSIDATA: 15-8
+  SSIVECT: 7-0
+
+SSIF:
+  offset: 0xF8
+  SSI_FLAG4: 3
+  SSI_FLAG3: 2
+  SSI_FLAG2: 1
+  SSI_FLAG1: 0
+
+--- # SYS2 system registers.
+name: SYS2
+base: 0xFFFFE100
+stride: 0x100
+
+PLLCTL3:
+  offset: 0x0
+  ODPLL2: 31-29
+  PLLDIV2: 28-24
+  REFCLKDIV2: 21-16
+  PLLMUL2: 15-0
+
+STCLKDIV:
+  offset: 0x08
+  CLKDIV: 26-24
+
+CLK2CNTRL:
+  offset: 0x3C
+  VCLK3R: 3-0
+
+VCLKACON1:
+  offset: 0x40
+  VCLKA4R: 26-24
+  VCLKA4_DIV_CDDIS: 20
+  VCLKA4S: 19-16
+  VCLKA3R: 10-8
+  VCLKA3_DIV_CDDIS: 4
+  VCLKA3S: 3-0
+
+--- # TCRAM registers.
+name: TCRAM
+base: 0xFFFFF800
+stride: 0x100
+repeat: 2
+
+RAMCTRL:
+  offset: 0x00
+  EMU_TRACE_DIS: 30
+  ADDR_PARITY_OVERRIDE: 27-24
+  ADDR_PARITY_DISABLE: 19-16
+  ECC_WR_EN: 8
+  ECC_DETECT_EN: 3-0
+
+RAMTHRESHOLD:
+  offset: 0x04
+  THRESHOLD: 15-0
+
+--- # VIM registers.
+name: VIM
+base: 0xFFFFFD00
+stride: 0x200
+
+PARFLG:
+  offset: 0xEC
+  PARFLG: 0
+
+PARCTL:
+  offset: 0xF0
+  TEST: 8
+  PARENA: 3-0
+
+ADDERR:
+  offset: 0xF4
+  TABLE_OFFSET: 31-9
+  ADDERR: 8-2
+  WORD_OFFSET: 1-0
+
+FBPARERR:
+  offset: 0xF8
+  FBPARERR: 31-0
+
+IRQINDEX:
+  offset: 0x100
+  IRQINDEX: 7-0
+
+FIQINDEX:
+  offset: 0x104
+  FIQINDEX: 7-0
+
+FIRQPR:
+  offset: 0x110
+  repeat: 3
+  FIRQPR: 31-0
+
+INTREQ:
+  offset: 0x120
+  repeat: 3
+  INTREQ: 31-0
+
+REQENASET:
+  offset: 0x130
+  repeat: 3
+  REQENASET: 31-0
+
+REQENACLR:
+  offset: 0x140
+  repeat: 3
+  REQENACLR: 31-0
+
+WAKEENASET:
+  offset: 0x150
+  repeat: 3
+  WAKEENASET: 31-0
+
+WAKEENACLR:
+  offset: 0x160
+  repeat: 3
+  WAKEENACLR: 31-0
+
+IRQVECREG:
+  offset: 0x170
+  IRQVECREG: 31-0
+
+FIQVECREG:
+  offset: 0x174
+  FIQVECREG: 31-0
+
+CAPEVT:
+  offset: 0x178
+  CAPEVTSRC1: 22-16
+  CAPEVTSRC0: 6-0
+
+CHANCTRL:
+  offset: 0x180
+  repeat: 24
+
+--- # VIM RAM registers.
+name: VIM_RAM
+base: 0xFFF82000
+stride: 0x1000
+
+VECTOR:
+  offset: 0x0
+  repeat: 96

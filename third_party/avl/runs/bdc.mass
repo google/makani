@@ -1,0 +1,85 @@
+#
+#  Bubble Dancer
+#  Mass & Inertia breakdown
+#
+#  xyz is location of item's own CG
+#  Ixx.. are item's inertias about item's own CG
+#
+#   x back
+#   y right
+#   z up
+#
+#  x,y,z system here must have origin 
+#  at same location as AVL input file
+#
+Lunit = 0.0254 m
+Munit = 0.001 kg
+Tunit = 1.0 s
+
+g   = 9.81
+rho = 1.225
+
+#
+#  mass   x     y     z       Ixx     Iyy    Izz   [ Ixy  Ixz  Iyz ]
++   0.    3.4   0.    0.  
+  112.0  -5.0   0.0   0.0        0   4100   4100       ! pod
+   16.0  -8.0   0.0   0.0        0     80     80       ! hatch
+ 
+   34.0  -8.0   0.0   0.0        0     0       0       ! servos
+   91.0 -12.0   0.0   0.0        0     0       0       ! battery
+   28.0 -10.0   0.0   0.0        0     0       0       ! RX + wrap
+   20.0 -14.0   0.0   0.0        0     0       0       ! nose wt.
+ 
+   34.0  22.0   0.    0.         0  3800    3800        ! boom
+ 
+    9.0  15.0   0.    0.         0  1450    1450        ! pushrods
+ 
+   16.0  42.5   0.0   2.0      170   190      20        ! vert. tail       
+   21.0  37.0   0.0   1.2     1055   105    1155       ! hori. tail       
+    2.5  36.5   0.0   0.5        0     0       0       ! V-mount 
+ 
+   18.0   2.0   0.0   0.0     1944     0    1944       ! spoiler
+   13.0   1.5   0.    0.         0     0       0       ! bolt beam
+   17.0   2.2   0.    0.         0     0       0       ! spoiler servo
+   2.0    0.0   18.0  0.0        0     0       0       ! R glass
+   2.0    0.0  -18.0  0.0        0     0       0       ! L glass
+   85.0   0.0   0.0   0.0     9180     0    9180       ! C spar 
+   16.0   6.0   0.0   0.0     1728     0    1728       ! C TE 
+   57.0  -1.3   0.0   0.0     6156     0    6275       ! C LE
+   32.0   0.5   0.0   0.0     3460   300    3760       ! C ribs 
+   24.0   1.7   0.    0.0     2590   200    2790       ! C Oracover
+ 
+   15.0   0.0   18.0  0.0        0     0       0       ! R rod
+   15.0   0.0  -18.0  0.0        0     0       0       ! L rod   
+    7.0   0.0 -19.5   0.0        0     0       0       ! ML joiner
+    7.0   0.0  19.5   0.0        0     0       0       ! MR joiner
+   11.0   0.0   18.0  0.0        0     0       0       ! CR joiner
+   11.0   0.0  -18.0  0.0        0     0       0       ! CL joiner
+ 
+   26.0   0.0  28.5   2.0     1248     0    1248       ! MR spar 
+    5.0   5.5  28.5   2.0      240     0     240       ! MR TE 
+   17.0  -1.1  28.5   2.0      864     0     864       ! MR LE
+   14.0   0.5  28.5   2.0      670    95     765       ! MR ribs 
+   13.0   1.6  28.5   2.0      620    90     710       ! MR Oracover
+ 
+    7.0   0.0  50.0   7.0      190    20     210       ! TR spar 
+    2.0   5.5  50.0   7.0       55     0      55       ! TR TE 
+    7.0  -1.1  50.0   7.0      160     0     160       ! TR LE
+    4.0   0.5  50.0   7.0      110    10     120       ! TR ribs 
+    7.0   1.6  50.0   7.0      170    20     190       ! MR Oracover
+ 
+   26.0   0.0 -28.5   2.0     1248     0    1248       ! ML spar 
+    5.0   5.5 -28.5   2.0      240     0     240       ! ML TE 
+   17.0  -1.1 -28.5   2.0      864     0     864       ! ML LE
+   14.0   0.5 -28.5   2.0      670    95     765       ! ML ribs 
+   13.0   1.6 -28.5   2.0      620    90     710       ! ML Oracover
+ 
+    7.0   0.0 -50.0   7.0      190    20     210       ! TL spar 
+    2.0   5.5 -50.0   7.0       55     0      55       ! TL TE 
+    7.0  -1.1 -50.0   7.0      160     0     160       ! TL LE
+    4.0   0.5 -50.0   7.0      110    10     120       ! TL ribs 
+    7.0   1.6 -50.0   7.0      170    20     190       ! ML Oracover
+
+!   10.0   3.2 -60.0   9.0        0     0        0       ! tip weight
+!   10.0   3.2  60.0   9.0        0     0        0       ! tip weight
+

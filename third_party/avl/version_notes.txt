@@ -1,0 +1,481 @@
+
+
+***************************************************************************
+AVL V2.5, dated 8-5-96                HHY
+
+This source has been updated to match the Xplot10-4.3 plot library.
+
+This version has a number of fixes over older versions, including:
+
+  Bug fix on chord angles on tapered, twisted panels.
+
+  Bug fix on hinge line vector to make both real and image hinge rotations
+  in the same sense.
+
+  The user can specify a CL or CM with "cl" or "cm" rather than 999. or -999 
+
+  The Mach number is now a menu item (regenerates matrices for each new Mach)
+
+  The getvm.f module now dumps the shear (Vz) and moment Myy for each panel.
+
+This version does not include any drag polar interpolation or the INDRAG 
+drag calculation.  See avl-polartrp for these...
+
+
+
+
+***************************************************************************
+AVL 2.70, dated 2-24-97               HHY
+
+Massive rewrite of AVL:
+
+Completely new geometry plotting with many display options.
+  Fixes to hidden line routines.
+  Eliminated old lame loading plots
+  Updated Trefftz plane plots
+
+Auto-image generation in main Option menu that generates an image half 
+for cases with IYsym=1.
+
+Matrix solution completely revised to take full advantage of symmetry for 4x
+increase in speed for symmetric cases where the image side is generated with 
+the auto-image option.
+
+Section viscous drag can now be included and summed into forces.
+A CD(CL) polar can be defined for each section based on 6 pairs of CL,CD
+points in the polar.
+
+Angular rates can be specified in either Stabilty axes or Body axes.
+
+Forces can be resolved in NASA Stability axes or Geometric Stability axes.
+Options are added to select the axes used for rates and forces.
+
+Comments starting with ! are recognized in the input deck to make datasets
+more self documenting.
+
+The ambiguity of what SREF refers to is resolved by making SREF refer to both 
+sides of a symmetric configuration (IYsym=1) rather than half the total area
+as used in previous AVL versions.  NOTE THAT YOU WILL HAVE TO DOUBLE THE SREF
+FOR OLDER DATASETS with IYSYM=1.
+
+
+***************************************************************************
+AVL 2.76, dated 5-4-98               HHY
+
+Fixes and changes motivated by Ming Chang @ LMSW 
+  Added CMLE for strip to get hinge moments
+  changes to output routines for printed data FS strip,FT total,FE element
+  updated selection menu for surfaces
+  fixed CDvisc linearization with dCDv/dCL term from CDCL routine
+
+
+***************************************************************************
+AVL 2.77, dated 5-22-98               HHY
+
+Several problems were noted with winglets and the displayed surface forces
+in local reference coordinates.  This prompted a bunch of changes and updates:
+
+Rehash of forces calculation in AERO 
+  started going to calculating body axes forces and then transforming to
+    local systems using direction dot products (less confusing)
+  added locally referenced surface CL,CD,CMLE
+  new treatment for calculating local CL,CD for strips & surfaces
+  Changed surface CMLE calculation 
+  fixed (properly) strip CN,CA to properly reflect X chordline (may want to 
+    add incidence to the axial direction eventually)
+  strip CD(CL) fixed to use proper local CL rather than CL component 
+    in global system (affected winglets and dihedraled surfaces)
+
+New output routine to separate surface by surface forces listing from 
+the total forces output.  Added print flags for controling output print from
+these new options. 
+
+Added option of displaying current hinge settings using ? input on command
+line when entering hinge data.
+
+Biggish changes to aplotccl.f to plot Trefftz data vs either Y or Z
+  added user-specified plot limits
+  fixed bug for -Y scale on plotting (axis was improperly shifted)
+
+Changed colors a bit in aplotvl.f to accentuate loadings better in plots.
+
+Note that there appears to be compiler bug using g77-0.5.21 on hidden.f, you 
+might want to use f2c to compile this routine to avoid this bug (which appears
+as random line segments appearing in foreground surfaces from background 
+lines.  None of the other compilers appear to have this problem...
+
+
+***************************************************************************
+AVL 2.78, dated 7-5-98               MD
+
+Fixed a bug in the stability-derivative calculation.
+
+Hinge angles can now be changed either directly as before, or indirectly
+by perturbing the control variables...
+
+ delta_a     delta_t
+ delta_e     delta_a
+ delta_r     delta_f
+
+which influence the hinge angles via the new "CONTROL" keyword
+declaration for a surface.  See the avl.doc manual for details.
+
+Eliminated the SLOPE keyword capability, which has never been 
+used as far as I can tell.
+
+Added control-deflection derivatives to the stability-derivative output,
+so that quantities like Cmde = d(Cm)/d(delta_e) are displayed.
+It is no longer necessary to generate these by manually perturbing
+each control surface and finite-differencing the forces.
+
+Added design variables, which currently represent virtual twists
+added to one or more sections.  Sensitivities of CL, CD, etc
+to these design variables can be displayed.  The intent is to
+give some guidance to span load optimization.
+
+Added hot-key rotation capability to the Geometry plot menu.
+
+
+***************************************************************************
+AVL 2.81   7 June 03                MD
+
+Major revisions for new 2.8x series...
+
+Changed CONTROL definitions to be associated with sections.
+These modify the camberline via control variables defined
+entirely by the used.  The built-in control variables delta_a,
+delta_e, etc., have been eliminated.  The user specifies the
+name of each control variable.
+
+General trimming capability has been added, including the ability
+to drive control variables to achieve trim.  Constraints are
+selected from a general sub-menu.
+
+Hinge stuff has been removed, since it's somewhat redundant
+with the new control stuff -- putting the control hingeline 
+at 0% chord will rotate the whole surface just like the previous
+hinge feature.
+
+Design parameters are now input one per DESIGN declaration,
+and the user can specify the design parameter name.
+
+---------------------------------
+AVL 2.82  (minor tweaks on 2.81)    13 Jun 03              MD
+
+Re-organized some of the menus.
+
+Fixed a few typos in the menus, the user manual, and the session.txt file.
+
+
+***************************************************************************
+AVL 3.00   22 Sep 03                MD
+
+Very major revision for 3.0x series...
+
+Added finite core radius option to mostly eliminate hassles 
+with alignment of trailing vortices with downstream surface paneling.
+
+Forces are computed not only on the bound vortex legs, but also
+on the parts of trailing legs which lie on the physical surface.
+This mainly affects the rolling moment due to sideslip.
+
+Added body modeling via source+doublet lines.  These affect
+the vortex lattice circulations via their volume velocity fields.
+They also see direct forces and moments via slender-body theory.
+It's not yet clear how useful this modeling capability will be.
+
+Errors in the input file will now produce much better diagnostic
+messages than before.  The offending line and line number are displayed.
+
+Added general operating state calculation interface.
+Variables consisting of alpha, beta, rotation rates, and control deflections
+can be either imposed explicitly, or computed implicitly via imposed force
+or moment coefficients.  Trim states can thus be easily computed.
+
+Multiple operating run cases can be defined and saved to a file
+for later recall.  This allows easy re-running of cases 
+after a geometry modification, say.
+
+Geometry plot has been improved, with x,y,z space axes added.
+
+
+------------------------------------------
+AVL 3.01  10 Jan 04              MD
+
+Added a flight dynamics mode calculation and display module.
+This requires mass and inertia data, which is read from a file,
+or input manually.  Using the mass file also provides other 
+necessary dimensional data, such as the air density and the 
+gravitational acceleration, and allows declaration of working
+units which can differ from those used to define the geometry 
+and masses.
+
+------------------------------------------
+AVL 3.11  6 May 04                MD
+
+OPER now allows easy setup of trim states in level or banked 
+horizontal flight (C1 sub-menu), or in planar looping flight 
+(C2 sub-menu).
+
+Added multiple-case parameter input capability to the C1,C2 sub-menus
+in OPER, and the M sub-menu in MODE.  Multiple cases are targeted
+by typing the parameter command twice (see manual).
+
+Additional parameters can be varied in root-locus sweeps, in particular
+the reference (CG) location, and the mass and inertias.
+
+Added camera pan/no-pan option to the eigenmode viewer in MODE.
+
+------------------------------------------
+AVL 3.13  21 May 04                MD
+
+Added the optional CLAF surface-section parameter, which
+allows changing the effective section dcl/da to something
+other than 2 pi to better represent thick airfoils.
+
+------------------------------------------
+AVL 3.15  8 Oct 04                 HY, MD
+
+Changed subroutine name GETLOG to GETLGV to avoid intrinsic-function
+name conflict on some compilers.
+
+Changed subroutine name SECOND to TSECOND to avoid intrinsic-function
+name conflict on some compilers.
+
+Added commented-out code which calls SECNDS function rather than
+the current call to the CLOCKX subroutine  (at bottom of aplotmd.f).
+The SECNDS function is used on some Fortran implementations.
+
+Fixed a minor bug in the a.i.c. Jacobian calculation
+(no perceivable effect on solution).
+
+Fixed some filename parsing problems at top level.
+
+------------------------------------------
+AVL 3.16  10 Mar 05               MD
+
+Fixed minor problem with handling of nonzero specified yaw moment (hardly used)
+
+Moved force evaluation points on bound vortices from the midpoints 
+to the uniform/cosine/sine/ interpolation points.  This makes the 
+near-field and Trefftz-Plane drags nearly identical.
+
+The force evaluation points are now plotted along with the control points
+in the Geometry plot submenu in OPER.
+
+------------------------------------------
+AVL 3.18  22 Aug 05               MD
+
+Fixed a program-flow logic bug:  When a new .avl file was LOADed, 
+its velocity-influence coefficients used for force calculations 
+were not being properly recalculated.
+
+Fixed bug in the design-variable implementation.  Assigned values
+weren't being properly incorporated into the calculation.
+
+Added a CY (sideforce) constraint to the list of available constraints.
+This might be used to constraint beta in a knife-edge flight situation.
+
+Added note to avl_doc.txt on vortex spacing refinement and accuracy.
+Item 4) in "Vortex Lattice Spacing Distributions" section.
+
+------------------------------------------
+AVL 3.19  7 Sep 05                MD
+
+Fixed a minor bug in the Trefftz forces for y-symmetric cases.
+The Y-force CYTOT wasn't zeroed out like it should be.
+
+------------------------------------------
+AVL 3.20  24 Oct 05                MD
+
+Fixed error in printout of r'b/2V value.
+Its transformation to stability axes wasn't correct.
+There was no effect on the other displayed quantities.
+
+
+------------------------------------------
+AVL 3.21  25 Oct 05                MD
+
+Fixed error in printout of Cl,Cn moments for large alpha values.
+The transformation to stability axes wasn't correct.
+
+
+------------------------------------------
+AVL 3.22  12 Nov 05                MD
+
+Stability matrix outputs have been clarified. 
+There is now a clear distinction between stability-axis
+and body-axis forces and moments.  Previously, the
+ST command gave a mixed-axis stability derivate matrix.
+
+Made alpha,beta application order consistent with the standard sense
+(alpha, then beta). 
+
+Added cl_norm output to strip force listing.  
+This is the cl_norm that's plotted on the Trefftz-Plane plot.
+
+Added CINI command to allow clearing of run cases if necessary
+
+
+------------------------------------------
+AVL 3.23  30 Nov 05                MD
+
+Added non-existent airfoil file check to the input file parser.
+If a section airfoil file (after AFIL keyword) is not found, 
+a default zero-camber airfoil will be used.
+
+
+------------------------------------------
+AVL 3.24  20 Dec 05                MD
+
+Added Pan and Expand hot keys to Keystroke Viewer
+in the Geometry plot function.
+
+
+------------------------------------------
+AVL 3.25  18 Mar 06                MD
+
+Set default printnames for run-case parameter units.
+Previously these were undefined.
+
+
+------------------------------------------
+AVL 3.26  29 Apr 06                MD
+
+Added freestream-referenced cl to Trefftz-Plane plot (in yellow),
+in addition to the wing-perpendicular referenced plot.
+Wing-perpendicular cl plot can now be turned off by toggle,
+like the downwash angle plot.
+
+Fixed hinge-moment calculation for leading-edge flaps.
+
+Fixed Hardcopy and Annotate functions in the keystroke viewer.   15 Sep 06
+
+ 
+------------------------------------------
+AVL 3.27  23 May 08                MD
+
+The small green xyz axes in the perspective plots are now "3D".
+This makes is easier to see the orientation of the airplane.
+
+Fixed the CL_u,CM_u input in the parameter modify submenu (M command)
+
+Changed the cl(y) line plot from yellow to orange, for better contrast 
+on white paper hardcopy.
+
+Removed the small influence of CLAF on the zero-lift angle.
+This wasn't quite right for symmetric airfoils.  This will
+influence only the trimmed control positions, not the trimmed
+forces or stability derivatives.
+
+All printout commands (FN,FT,ST,etc) now have the option 
+of printing to the screen, or to a file.
+
+Fixed the mode-movie stuff in MODE for single precision.
+This should now work properly with g77.
+
+Added the clock-wait toggle (W hot key) in the mode-movie menu.
+
+Made separate clock subroutine files second_g77.f and second_ifc.f 
+One of these should work with most Fortran compilers.  The appropriate
+one is selected as variable SECOND in the Makefile.
+ 
+------------------------------------------
+AVL 3.28  10 Jan 09                HHY/MD
+
+Added input keyword COMPONENT as equivalent to INDEX for grouping surfaces 
+(mostly done to avoid problems with vortex core radius screwing up velocity 
+influences).  COMPONENT is more descriptive of this function.
+
+Plotting bug fixed for body geometry when loading plotting is enabled.  Line 
+thickness and color for bodies was not properly initialized.
+
+Forces for bodies (from sources/doublets on centerlines) are now saved for 
+post-processing and printout. Added calculation of body length, surface area 
+and volume to amake.f.  These quantities are displayed with the FB printout 
+command.
+
+New print command FB added for body forces, similar to FN surface forces, 
+available from OPER menu.
+
+Fixed a subtle scaling error in the profile-drag contribution 
+to the total drag force.  Each chord strip's Cd had an extra
+c/c_ref factor which shouldn't have been there.  This factor
+typically averages out to unity over the wing, so the influence
+will be very small in most cases.
+
+Psuedo-bug fixed for filenames (in AFILE or BFILE) that have embedded blanks
+(a bad practice but in Windows you may not have a choice!).  New scheme
+uses double quotes around the "pathnamefilenamestring" to delimit filename.  
+Old filename inputs without double quotes work as before.
+
+Updates made to avl_doc.txt and README.
+
+------------------------------------------
+AVL 3.30    20 Aug 10                  MD
+
+Added the following optional keyword declarations for a SURFACE:
+NOWAKE
+NOALBE
+NOLOAD
+
+These allow modeling of a new wide variety of situations:
+- Fuselage without wake shedding (moments only, no net forces).
+- Formation flight effects on trim.
+- Formation flight effects on flight dynamics.
+- Ground effect over uneven ground.
+- Wind tunnel wall interference.
+
+Wing tunnel  example case:  d81t.avl
+Equivalent no-tunnel case:  d81.avl
+
+Partial-shedding fuselage example using NOWAKE:  b737.avl
+
+
+------------------------------------------
+AVL 3.31    5 Dec 10                   MD
+
+- Fixed an almost imperceptible bug in the force calculation on a BODY.
+  The X- and Y-force derivatives on a BODY were not summed correctly.
+  This had no effect on a configuration without a BODY object.
+
+------------------------------------------
+AVL 3.32   15 Jan 11                   MD
+
+- Fixed the post-processing calculation of the strip center of pressure, 
+  labeled "C.P.x/c", in the strip-force output (FS command in OPER).  
+  It was not correct for sections with significant sweep or dihedral.  
+
+------------------------------------------
+AVL 3.33   21 Feb 13                   MD
+
+- Fixed printout of length unit of X_cg,Y_cg,Z_cg in .run file.
+  This did not affect the results, or any other output.
+
+------------------------------------------
+AVL 3.34    7 Jun 13                   MD
+
+- Added capability do dump a multi-page PS file, to make an animated GIF
+
+------------------------------------------
+AVL 3.35   29 Nov 13                   MD
+
+- Added second-order righthand sides to the VL system, proportional
+  to both the unit translation+rotation velocities, and to control deflections.
+  The general superposition for the h.v. strengths is then:
+
+    Gam_i = Gam_ik Uk + U_k Gam_ikl delta_l    (new)
+
+  Previously only the U_1 (x-velocity) control-influence vector was present:
+
+    Gam_i = Gam_ik Uk +     Gam_il  delta_l    (old, second term assumes Uk = 1,0,0,0,0,0)
+
+  This improves convergence to the trim condition.
+  It also gives the correct eigenmode solutions even for large trim control deflections,
+  because the new derivatives w.r.t. translations and rotations are:
+
+    dGam_i/dU_k  =  Gam_ik  +  Gam_ikl delta_l    (new)
+
+  The previous form ignored the second term with trim control deflections:
+
+    dGam_i/dU_k  =  Gam_ik                        (old)

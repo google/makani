@@ -1,0 +1,14 @@
+README for runs/ducted directory
+
+Hal Youngren 5/02
+
+This directory contains input files for XROTOR examples. 
+
+Files are:
+
+duct.prop   ducted rotor input file 
+            6-blade, 16000RPM, 160N thrust, SL
+
+
+
+

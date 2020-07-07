@@ -1,0 +1,210 @@
+/**
+ * Copyright 2020 Makani Technologies LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.major_row {
+  white-space: nowrap;
+}
+
+.score_table {
+  display: inline-block;
+}
+
+#main_section {
+  text-align: center;
+}
+
+#report_metadata {
+  display: inline-block;
+  text-align: left;
+}
+
+#results_chart {
+  display: inline-block;
+  text-align: center;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#scores_chart {
+  display: inline-block;
+  text-align: center;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#batch_score {
+  display: inline-block;
+  text-align: center;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#input_cutoff {
+  position: relative;
+  left: -60px;
+  top: -210px;
+}
+
+#legend {
+  display: inline-block;
+  margin-top: 1rem;
+}
+
+#job_summary {
+  position: fixed;
+  top: 1rem;
+  right: 2rem;
+  background-color: rgba(0, 0, 0, 1);
+  color: white;
+  z-index: 10;
+  padding: 1rem 1rem 1rem 1rem;
+  overflow: auto;
+  display: inline-block;
+  opacity: 0;
+  pointer-events: none;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #FFFFFF;
+  overflow-x: hidden;
+  white-space: nowrap;
+  border-style: solid;
+  box-shadow: 4px 4px 3px rgba(120, 120, 120, 1);
+}
+
+.pull_tab{
+  position: fixed;
+  top: 20;
+  left: 0;
+  z-index: 2;
+  background-color: #000000;
+  color: #FFFFFF;
+  padding: 0.4rem 0.4rem 0.4rem 0.4rem;
+  font-weight: 600;
+  box-shadow: 4px 4px 3px rgba(120, 120, 120, 1);
+  cursor: pointer;
+}
+
+div.selectorBox {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.switch {
+  vertical-align: middle;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+}
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.c3 text {
+  font-size: 15px;
+}
+
+.c3-axis-x-label {
+  font-weight: 600;
+}
+
+.c3-axis-x .tick {
+  font-weight: 500;
+}
+.c3-axis-y .tick {
+  display: none;
+}
+
+.c3-title {
+  font-weight: 600;
+}
+.c3-chart-arcs-gauge-max,
+.c3-chart-arcs-gauge-min,
+.c3-chart-arcs-gauge,
+.c3-chart-arcs-background{
+  display: none;
+}
+
+.c3-gauge-value {
+  font-size: 28px !important;
+  font-weight: 600;
+}
+
+.column {
+    float: left;
+    width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#all_charts {
+    text-align: center;
+}
+

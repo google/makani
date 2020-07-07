@@ -1,0 +1,48 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+common: &COMMON !FcSerialParams
+  serial_number: ""
+  part_name: "Flight Computer"
+  part_number: ""
+  hardware_revision: -1
+  date_of_manufacture: 0
+
+rev_ab: !FcSerialParams
+  TEMPLATE: *COMMON
+  part_number: "AVCC00000AB"
+  hardware_revision: RevAb
+
+rev_ba: !FcSerialParams
+  TEMPLATE: *COMMON
+  part_number: "AVCC00000BA"
+  hardware_revision: RevBa
+
+rev_bb: !FcSerialParams
+  TEMPLATE: *COMMON
+  part_number: "650-00540-01"
+  hardware_revision: RevBb
+  date_of_manufacture: 0x20151008
+
+rev_bc: !FcSerialParams
+  TEMPLATE: *COMMON
+  part_number: "650-00540-01"
+  hardware_revision: RevBc
+  date_of_manufacture: 0x20160314
+
+rev_bd: !FcSerialParams
+  TEMPLATE: *COMMON
+  part_number: "650-00540-02"
+  hardware_revision: RevBd
+  date_of_manufacture: 0x20180510

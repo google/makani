@@ -1,0 +1,116 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# gsv2_01 calibration performed by Dean Levy on 2019-11-26.
+
+gsv2_01_a: !DrumConfigParams
+  gsg_azi:
+    type: Rha507Single
+    channel: 1
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: -0.61589     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  gsg_ele:
+    # We define GSG elevation to be zero when horizontal, and increase
+    # when moved upwards.
+    type: Rha507Single
+    channel: 0
+    scale_factor:  7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: -0.45636      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  tether_detwist:
+    # BROKEN, see b/134199149.
+    type: MagA300
+    channel: 2
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: 0.79087      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+gsv2_01_b: !DrumConfigParams
+  gsg_azi:
+    type: Rha507Single
+    channel: 1
+    scale_factor:  7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position: -0.12502     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  gsg_ele:
+    type: Rha507Single
+    channel: 0
+    scale_factor: -7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position: -1.13668     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  tether_detwist:
+    # BROKEN, see b/134199149.
+    type: MagA300
+    channel: 2
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: 3.00430      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+# gsv2_02 detwist encoders calibrated on 2019-06-02.
+# gsv2_02 gsg encoders calibrated on 2019-07-22.
+
+gsv2_02_a: !DrumConfigParams
+  gsg_azi:
+    type: Rha507Single
+    channel: 1
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: 1.93895      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  gsg_ele:
+    # We define GSG elevation to be zero when horizontal, and increase
+    # when moved upwards.
+    type: Rha507Single
+    channel: 0
+    scale_factor:  7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position:  2.84553     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  tether_detwist:
+    type: MagA300               # Not installed.
+    channel: 2
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position: -1.49793     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+
+gsv2_02_b: !DrumConfigParams
+  gsg_azi:
+    type: Rha507Single
+    channel: 1
+    scale_factor:  7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position:  -1.21952    # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  gsg_ele:
+    type: Rha507Single
+    channel: 0
+    scale_factor: -7.6699e-04   # -2 * pi / 8192.0 [rad/#].
+    zero_position: 2.49732      # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]
+  tether_detwist:
+    type: MagA300               # Not installed.
+    channel: 2
+    scale_factor: -7.6699e-04   # 2 * pi / 8192.0 [rad/#].
+    zero_position:  1.43658     # [rad]
+    min_encoder_value: 0        # [counts]
+    max_encoder_value: 8192     # [counts]

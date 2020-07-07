@@ -1,0 +1,144 @@
+// The ranges to check against during dryrun.
+//
+// Several criteria are possible:
+// normal_ranges: A list of range bounds or scalars that the value should fall
+//     within or be equal to, in order to be regarded as normal.
+//     The value can be "any", indicating that we don't have a judgment
+//     and any value is fine. This will show as white in the monitor,
+//     acting as the placeholder for future checks.
+// warning_ranges: Values that fall out of `normal_ranges` and within
+//     `warning_ranges` raise warnings. Anything that even falls out of the
+//     `warning_ranges` raises errors.
+// normal_std_dev_ranges: Same as `normal_ranges`, but applied to calculated
+//     standard deviations.
+// warning_std_dev_ranges: Same as `warning_ranges`, but applied to calculated
+//     standard deviations.
+// normal_norm_ranges: Same as `normal_ranges`, but applied to the norm
+//     calculated using multiple
+// callback: String pointing to the callback function to preprocess the value.
+//     The format is: <module_label>.<function_name>
+// callback_args: Additional constants to be passed to the callback function.
+// name: The specified name of the check.
+
+{
+    "imports": {
+        "motor_thermal_types":
+            "makani.avionics.common.motor_thermal_types"
+    },
+    "checks": {
+        "MotorStatus": {
+            "(Motor.*)": {
+                "bus_voltage": {
+                    "normal_ranges": [[1, 200], [820, 900]],
+                    "name": "Voltage (V)"
+                },
+                "temps[motor_thermal_types.kMotorThermalChannelBoard]": {
+                    "normal_ranges": [[-10.0, 65.0]],
+                    "name": "Board Temperature (C)"
+                },
+                "temps[motor_thermal_types.kMotorThermalChannelRotor]": {
+                    "normal_ranges": [[-10.0, 65.0]],
+                    "name": "Rotor Temperature (C)"
+                }
+            }
+        },
+        "Loadcell": {
+            "(Loadcell.*1)": {
+                // TODO: Add checks for loadcell temperatures.
+                "loadcell_data": {
+                    "strain[0]": {
+                        "value": {
+                            "normal_ranges": [[-600, 300]],
+                            // The loadcells can handle up to 29KN.
+                            // We raise an error if it goes outside of +/- 12.5KN.
+                            "warning_ranges": [[-12500, 12500]],
+                            "normal_std_dev_ranges": [[1e-6, 250], [-250, -1e-6]],
+                            "name": "Pin-X (N)"
+                        }
+                    },
+                    "strain[1]": {
+                        "value": {
+                            "normal_ranges": [[-300, 600]],
+                            "warning_ranges": [[-12500, 12500]],
+                            "normal_std_dev_ranges": [[1e-6, 250], [-250, -1e-6]],
+                            "name": "Pin-YZ (N)"
+                        }
+                    }
+                }
+            }
+        },
+        // TODO: Add checks for servo temperatures.
+        // TODO: Add checks for cs temperatures.
+        // TODO: Add checks for recorder temperatures.
+        "FlightComputerImu": {
+            "(.*)": {
+                // TODO: Add checks for fc temperatures.
+                "raw": {
+                    "acc": { // m/s^2
+                        "normal_norm_ranges": [[8.0, 12.0]],
+                        "normal_std_dev_ranges": [[0, 0.015]],
+                        "name": "Accelerometer [m/s^2]"
+                    },
+                    "gyro": { // rad/s [0, 0.00087]
+                        "normal_norm_ranges": [[-0.05236, 0.05236]],
+                        "warning_norm_ranges": "any",
+                        "name": "Gyroscope [rad/s]"
+                    }
+                },
+                "error": {
+                    "normal_ranges": [0],
+                    "warning_ranges": [],
+                    "name": "Sensor Errors"
+                }
+            }
+        },
+        "FlightComputerSensor": {
+            "(.*)": {
+                "aux": {
+                    "mag": { // gauss. [-2.5, 2.5], norm: [0.4, 0.54]
+                        "normal_std_dev_ranges": [[0, 0.01]],
+                        "normal_ranges": [[-0.6, 0.6]],
+                        "normal_norm_ranges": [[0.4, 0.55]],
+                        "warning_norm_ranges": "any",
+                        "warning_ranges": "any",
+                        "name": "Magnetic [gauss]"
+                    },
+                    "pressure": {
+                        // Ambient pressure [bar] inside the box [bar].
+                        "normal_ranges": [[0.90, 1.03]],
+                        "warning_ranges": [[0.87, 1.065]],
+                        "name": "Pressure [bar]"
+                    },
+                    "temp": { // C
+                        "normal_ranges": [[null, 75.0]],
+                        "warning_ranges": [[null, 80.0]],
+                        "name": "IMU Board Temperature [C]"
+                    }
+                },
+                "pitot": {
+                    "altitude": {
+                        // Static pressure [Pa]. Same limits as "pressure", above, except units.
+                        "normal_ranges": [[900e2, 1030e2]],
+                        "warning_ranges": [[870e2, 1065e2]],
+                        "name": "Pitot Static Pressure [Pa]"
+                    },
+                    "latency_usec": {
+                        "normal_ranges": [[0, 200]],
+                        "warning_ranges": [[0, 1000]],
+                        "name": "Pitot Latency [us]"
+                    }
+                }
+            }
+        },
+        "NovAtelSolution": {
+            "(.*)": {
+                "best_xyz_latency": {
+                    // GPS solution latency [us].
+                    "normal_ranges": [[0.0, 1e5]],
+                    "warning_ranges": [[0.0, 1e6]],
+                    "name": "GPS Solution Latency [us]"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,157 @@
+!***************************************
+!AVL dataset for Elliptical chord wing
+!Straight LE, elliptical chord distrib.
+!***************************************
+Tandem Elliptical Wing  
+!Mach
+ 0.0    
+!IYsym   IZsym   Zsym
+ 1       0       0.0
+!Sref    Cref    Bref
+0.15708  0.07854  2.0
+!Xref    Yref    Zref
+0.025    0.0      0.0
+!
+!
+SURFACE 
+WING 1a
+!Nchordwise  Space
+1            -2.0 24  0
+INDEX 
+1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.000  0.000   0.1000   0.    2         0.0  
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.131  0.000   0.0991   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.259  0.000   0.0966   0.    2         0.0 
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.383  0.000   0.0924   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.500  0.000   0.0866   0.    2         0.0
+NACA
+0000
+
+SURFACE 
+WING 1b
+!Nchordwise  Space
+1            1.0  48  0
+INDEX 
+1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.500  0.000   0.0866   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.609  0.000   0.0793   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.707  0.000   0.0707   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.793  0.000   0.0609   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.866  0.000   0.0500   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.924  0.000   0.0383   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.966  0.000   0.0259   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.991  0.000   0.0131   0.    2         0.0
+NACA
+0000
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   1.000  0.000   0.0044   0.    2         0.0
+NACA
+0000
+
+SURFACE 
+Rear WING 
+!Nchordwise  Space
+1            -2.0   24  0
+INDEX
+1
+TRANSLATE  
+5.0  0. 0.
+
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.000  0.000   0.1000   0.    2         0.0  
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.131  0.000   0.09651  0.    2         0.0
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.259  0.000   0.08554  0.    2         0.0 
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.383  0.000   0.06428  0.    2         0.0
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.4415 0.000   0.04694  0.    2         0.0
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.4708 0.000   0.03370  0.    2         0.0
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1
+SECTION
+!Xle    Yle    Zle     Chord   Ainc  Nspanwise  Space
+0.000   0.500  0.000   0.0044   0.    2         0.0
+NACA
+0000
+CONTROL
+flap1  1.000 0.000  0. 1. 0.  +1

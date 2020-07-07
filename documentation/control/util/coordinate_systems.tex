@@ -1,0 +1,24 @@
+\newcommand{\DrawCoordinateSystem}[4] {
+  \begin{scope}[#1]
+    \draw[dashed, ->] (0, 0) -- (-1, 0) node[below] {#2};
+    \draw[dashed, ->] (0, 0) -- (0, -1) node[right] {#4};
+    \draw (0, 0) node[below right] {#3};
+    \begin{scope}[rotate=45, scale=0.1]
+      \draw (0, 0) circle (1);
+      \draw (-1, 0) -- (1, 0);
+      \draw (0, -1) -- (0, 1);
+    \end{scope}
+  \end{scope}
+}
+
+\newcommand{\DrawCoordinateSystemDot}[4] {
+  \begin{scope}[#1]
+    \draw[dashed, ->] (0, 0) -- (-1, 0) node[below] {#2};
+    \draw[dashed, ->] (0, 0) -- (0, -1) node[right] {#4};
+    \draw (0, 0) node[below right] {#3};
+    \begin{scope}[rotate=45, scale=0.1]
+      \draw (0, 0) circle (1);
+      \draw[black, fill=black] (0, 0) circle (0.33);
+    \end{scope}
+  \end{scope}
+}

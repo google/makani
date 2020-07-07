@@ -1,0 +1,8 @@
+ftnchek -common=1 -novice=4 -notruncation \
+-include=../plotlib \
+jplot.f \
+xutils.f jputil.f userio.f \
+../plotlib/plt_base.f \
+../plotlib/plt_font.f \
+../plotlib/plt_color.f \
+../plotlib/plt_util.f

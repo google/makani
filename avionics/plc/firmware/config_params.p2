@@ -1,0 +1,10 @@
+enum32 PlcType {
+  Winch = 0,  // Gs01.
+  Detwist = 1,  // Tophat.
+  Gs02 = 2,
+}
+
+param PlcConfigParams {
+  PlcType plc_type;
+  string[16] plc_mac;
+}

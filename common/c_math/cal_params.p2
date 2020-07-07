@@ -1,0 +1,5 @@
+struct CalParams32 {
+  float32 scale;
+  float32 bias;
+  int32 bias_count;
+}

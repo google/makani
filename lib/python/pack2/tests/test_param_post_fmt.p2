@@ -1,0 +1,54 @@
+// Comments are allowed at the top of files.  They should not be indented
+// by two spaces.
+
+include "lib/python/pack2/tests/test_param.p2";
+
+enum8 TestFmtEnum {
+  kValue0 = 0,
+  kValue1 = 1,
+
+  kValue2 = 2,
+  kValue3 = 3,
+  kValue4 = 4,
+
+  kValue5 = 5,
+  kValue6 = 6,
+}
+
+// Out of place comment.
+struct FmtThrityTwoBitStruct {
+  uint32 uint32_field;
+  int32 int32_field;
+}
+
+// Multi
+// line
+// comment.
+param TestFmtConfigParams {
+  // Comment at top.
+  TestFmtEnum enum_field;  // Well formed comment.
+
+  uint8 uint8_field;  // Too little space before.
+  int8 int8_field;  // Too much space before.
+
+  uint16 uint16_field;  // Too little space after.
+  int16 int16_field;  // Too much space after.
+
+  // Comment following an extra line.
+  FmtThrityTwoBitStruct struct32_field;
+
+  // Extra line after comment.
+
+  float32 float32_field;
+
+  // Comment following two extra lines.
+  string[17] string_field;
+
+  date date_field;
+
+  // Extra line at the end.
+}
+
+param BadWhitespaceBeforeConfigParams {
+  int16 int16_field;
+}

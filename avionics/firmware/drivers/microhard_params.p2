@@ -1,0 +1,62 @@
+// These enum values below are chosen so that they align with the Microhard's
+// AT interface.
+enum8 MicrohardEnable {
+  Off = 0,
+  On = 1,
+}
+
+enum8 MicrohardCompatibilityMode {
+  Pddl = 0,
+}
+
+// These parameters require firmware version 1019-12 or later.
+enum8 MicrohardTxPower {
+  Dbm0 = 0,
+  Dbm20 = 20,
+  Dbm21 = 21,
+  Dbm22 = 22,
+  Dbm23 = 23,
+  Dbm24 = 24,
+  Dbm25 = 25,
+  Dbm26 = 26,
+  Dbm27 = 27,
+  Dbm28 = 28,
+  Dbm29 = 29,
+  Dbm30 = 30,
+}
+
+enum8 MicrohardBandwidth {
+  Mhz8 = 0,
+  Mhz4 = 1,
+  Mhz2 = 2,
+  Mhz1 = 3,
+}
+
+enum8 MicrohardMode {
+  Master = 0,
+  Slave = 1,
+}
+
+enum8 MicrohardTx {
+  RateAuto = 0,
+  Rate64Qam5_6Fec = 1,
+  Rate64Qam3_4Fec = 2,
+  Rate64Qam2_3Fec = 3,
+  Rate16Qam3_4Fec = 4,
+  Rate16Qam1_2Fec = 5,
+  RateQpskFec3_4 = 6,
+  RateQpskFec1_2 = 7,
+}
+
+struct MicrohardParams {
+  MicrohardEnable enabled;
+  MicrohardTxPower tx_power;
+  uint16 distance;  // [m]
+  MicrohardBandwidth bandwidth;
+  uint16 freq;  // [Hz]
+  MicrohardEnable rx_diversity;
+  MicrohardMode mode;
+  MicrohardTx tx_rate;
+  MicrohardEnable extended_addressing;
+  string[32] network_id;
+}

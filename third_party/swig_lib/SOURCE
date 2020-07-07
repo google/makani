@@ -1,0 +1,2 @@
+numpy.i:
+  https://github.com/numpy/numpy/blob/v1.14.3/tools/swig/numpy.i

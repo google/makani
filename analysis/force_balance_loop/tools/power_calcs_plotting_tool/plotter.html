@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<head>
+  <script>	//window.location.reload(true) </script>
+  <script src="plotly-latest.min.js"></script>
+  <script src="jquery-3.1.1.min.js"></script>
+  <script src="plotly-latest.min.js"></script>
+  <script src="d3.v3.min.js"></script>
+  <input id="file-selector" type="file">
+</head>
+
+<body>
+  <div>
+    <button onclick="javascript:startAnimation();" style="margin-top:20px; margin-bottom:10px">Animate!</button>
+  </div>
+  <form action="javascript:startAnimation()">
+    Animation time multiplier: <input type="text" id="anim_mult" value="1.0"><br>
+    0.0 is as fast as possible, 1.0 is real time plus compute time ~5 sec.<br><br>
+    Animation number of loops: <input type="text" id="anim_loops" value="1"><br>
+  </form>
+  <div id="info_string"></div>
+</body>
+
+<script>
+  var layout = {autosize: true, title: 'Vector Plotter', margin: {pad: 20, r: 30, b: 30, l: 30, t: 30},
+                annotations: {xref: 'x', arrowhead: 7, yref: 'y', text: 'dict Text',
+                              ay: -40, ax: 0, y: 5, x: 2, showarrow: true},
+                scene: {camera: {eye: {x: -0.25, y: 1.8, z: 0.25},
+                                 center: {x: null, y: null, z: null},
+                                 up: {x: 0, y: 0, z: -1}
+                                }}};
+  
+  var d3 = Plotly.d3;
+
+  var WIDTH_IN_PERCENT_OF_PARENT = 85,
+      HEIGHT_IN_PERCENT_OF_PARENT = 85;
+
+  var gd3 = d3.select('body')
+    .append('div')
+    .style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+
+        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+        'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+    });
+
+var gd = gd3.node();
+  
+  function createStuff(contents, layout) {
+    if('frames' in contents){
+      
+      document.data = contents
+      
+      buttons = [];
+      for(ii=0; ii<contents.frames.length; ii++){
+        var d = {method: 'animate', args: [[contents.frames[ii].name]], label: contents.frames[ii].name}
+        buttons = buttons.concat(d)
+      };
+      console.log(contents.frames)
+      
+      Object.assign(layout, {updatemenus: [{buttons: buttons}]})
+      Plotly.plot(gd, contents.frames[0].data, layout);
+      Plotly.addFrames(gd, contents.frames)
+    }
+    else{
+      Plotly.plot(gd, contents, layout);
+      };
+  }
+  
+  function startAnimation(){
+    var anim_mult = parseFloat(document.getElementById("anim_mult").value);
+    
+    anim_info = {frame: [],
+                 transition: []};
+      
+    for(ii=0; ii < document.data.times.length; ii++) {
+      anim_info.frame.push({duration: document.data.times[ii] * anim_mult,
+                            redraw: false});
+      anim_info.transition.push({duration: document.data.times[ii] * anim_mult,
+                                 easing: 'linear'});
+    }
+    
+    loop_count = parseInt(document.getElementById("anim_loops").value);
+    var frame_names = [];
+    for (var ii=0; ii < loop_count; ii++) {
+      for (var jj=0; jj < document.data.frames.length; jj++) {
+        frame_names.push(document.data.frames[jj].name)
+      };
+    };
+
+    Plotly.animate(gd, frame_names, anim_info);
+  }
+  
+  switch(window.location.protocol) {
+    case 'http:':
+    case 'https:':
+    case 'localhost:':
+      loadReport("plot_loop_poses.json");
+  }
+  
+  function loadReport(filename) {
+        d3.json(filename, function(error, contents) {
+          if (error) {
+            console.log(String.format("Didn't find file %s.", filename));
+            return;
+          }
+          createStuff(contents, layout);
+        })
+      }
+
+  $("#file-selector").change(function() {
+    renderDataFromSelector(this.files[0]);
+  });
+
+  function renderDataFromSelector(file) {
+    var reader = new FileReader();
+      reader.onload = function(event) {
+        var data_text = event.target.result;
+        var data = JSON.parse(data_text);
+        createStuff(data, layout);
+    }
+    reader.readAsText(file);
+  }
+</script>

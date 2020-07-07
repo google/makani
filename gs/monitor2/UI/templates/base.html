@@ -1,0 +1,267 @@
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta charset="utf-8"></meta>
+    <link rel="stylesheet" href="{{STATIC_URL}}respgrid/css/html5reset.css" media="all">
+    <link rel="stylesheet" href="{{STATIC_URL}}respgrid/css/responsivegridsystem.css" media="all">
+    <link rel="stylesheet" href="{{STATIC_URL}}css/column_layout.css" media="all">
+    <link rel="stylesheet" href="{{STATIC_URL}}css/adjustments.css" media="all">
+    <script type="text/javascript" src="{{STATIC_URL}}jquery/jquery.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}string_format/index.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}scripts/visuals/utils_common.js"></script>
+
+
+    {% block head_style %}
+    {% endblock %}
+
+    {% block head_plot_js %}
+    {% endblock %}
+
+    {% block head_js %}
+    {% endblock %}
+
+    <style>
+      body {
+        font-family: monospace;
+        font-size: {% if default_font_size %}{{default_font_size}}{% else %}14{% endif %}px
+      }
+    </style>
+  </head>
+
+  <body>
+    {% block body_head %}
+    {% endblock %}
+
+    {% block left_panel %}
+      <div class="col span_4_of_{{canvas_cols}}">
+        {% block console_top %}
+          <br/>
+          <br/>
+          <button id="id_btn_update_message_types" style="width:100%">Raw Messages</button>
+          <div id="id_message_options"></div>
+          <hr>
+        {% endblock %}
+
+        {% block console %}
+          <h3>Quick Log Plots</h3><br/>
+          <div align="left">
+            <select id="id_select_workspace" style="font-size:20px;width:100%" onchange="onChangeLogPath()">
+              <option value="makani" selected="selected">${MAKANI_HOME}/logs</option>
+              <option value="abspath">Absolute local path</option>
+              <option value="abspath_cloud">Absolute cloud path</option>
+              <option value="M600A">M600A logs</option>
+              <option value="M600A_recorder">M600A recorder logs</option>
+              <option value="YM600_02">YM600-02 logs</option>
+              <option value="YM600_02_recorder">YM600-02 recorder logs</option>
+              <option value="makani_rel">Reliability</option>
+              <option value="iron_bird">Iron bird logs</option>
+              <option value="w7">W7 cloud logs</option>
+            </select>
+            <br/><br/>
+            <span id="id_prefix" style="align:left;font-size:16px;width:100%"></span>
+            <input type="text" id="id_text_ls" style="align:left;font-size:16px;width:75%" placeholder="Path">
+            <br/><br/>
+            <button id="id_btn_ls" class="col span_{% widthratio canvas_cols 2 1 %}_of_{{canvas_cols}}">List</button>
+            <button id="id_btn_view_logs" class="col span_6_of_{{canvas_cols}}">Show</button>
+            <textarea id="id_target_logs" style="width:100%;font-size:12px"
+                rows="8" placeholder='List of logs delimited by ";". File names wrapped around by parenthese are regarded as regular expressions. E.g. 20151010-123456.h5; (20151011-14.*\\.h5)'></textarea>
+            <button id="id_btn_select_all">Select All</button>
+            <div id="id_console_ls" align="left" style="font-size:14px;width:100%"></div>
+          </div>
+        {% endblock %}
+      </div>
+    {% endblock %}
+
+    <div
+      {% if not content_width %}
+        class="col span_{{canvas_cols|add:-4}}_of_{{canvas_cols}}"
+      {% else %}
+        class="col span_{{content_width}}_of_{{canvas_cols}}"
+      {% endif %}
+    >
+      <div style="color:red">{{message}}</div>
+      {% block main_content %}
+      {% endblock %}
+    </div>
+
+    {% block body_tail_include %}
+    {% endblock %}
+
+    {% block body_tail %}
+    {% endblock %}
+
+    <script type="text/javascript">
+
+      {% block body_tail_js %}
+      {% endblock %}
+
+      $(document).ready(function(){
+        {% block ready_js %}
+        {% endblock %}
+      });
+
+      function getLogPrefix(workspace) {
+        switch(workspace) {
+          case "abspath":
+            return "";
+          case "makani":
+            return "${MAKANI_HOME}/logs/";
+          case "M600A":
+            return "gs://m600_testing_logs/M600A/";
+          case "M600A_recorder":
+            return "gs://m600_testing_logs/M600A/wing_recorder_logs/";
+          case "YM600_02":
+            return "gs://m600_testing_logs/YM600-02/";
+          case "YM600_02_recorder":
+            return "gs://m600_testing_logs/YM600-02/wing_recorder_logs/";
+          case "makani_rel":
+            return "gs://makani_rel/";
+          case "iron_bird":
+            return "gs://m600_testing_logs/iron_bird/";
+          case "w7":
+            return "gs://w7_testing_logs/";
+          case "abspath_cloud":
+            return "gs://";
+          default:
+            return "";
+        }
+      }
+
+      function getLogPlaceholder(workspace) {
+        // The placeholder dates are selected according to log availability.
+        switch (workspace) {
+          case "abspath":
+            return "$HOME/makani/logs";
+          case "makani":
+            return "m600a/";
+          case "abspath_cloud":
+            return "m600_testing_logs/M600A/logs/201607";
+          case "makani_rel":
+            return "";
+          case "M600A":
+            return "20160718";
+          case "M600A_recorder":
+            return "20160729";
+          case "YM600_02":
+            return "20160809";
+          case "YM600_02_recorder":
+            return "20160729";
+          case "iron_bird":
+            return "2015";
+          case "w7":
+            return "2014";
+          default:
+            return "";
+        }
+      }
+
+      function onChangeLogPath() {
+        var workspace = $("#id_select_workspace").val();
+        $("#id_prefix").text(getLogPrefix(workspace));
+        $("#id_text_ls").val(getLogPlaceholder(workspace));
+      }
+
+      function onListFiles(path) {
+        function updateUponResp(data, textStatus, jqXHR) {
+          $("#id_console_ls").html(data);
+        };
+        if (!isString(path)) {
+          var workspace = $("#id_select_workspace").val();
+          path = getLogPrefix(workspace) + $("#id_text_ls").val();
+        }
+        $("#id_console_ls").text("Searching for files...");
+        targetUrl = "/dashboard/console/ls/" + encodeURIComponent(path);
+        $.get(targetUrl, updateUponResp);
+      }
+
+      function onSelectAllLogs() {
+        function updateUponResp(data, textStatus, jqXHR) {
+          $('#id_target_logs').val(data);
+        };
+        targetUrl = "/dashboard/select_logs/";
+        $.get(targetUrl, updateUponResp);
+      }
+
+      function onAddLog(path) {
+        var logPaths = $.trim($('#id_target_logs').val());
+        if (path.length) {
+          $('#id_target_logs').val(logPaths+'\n'+path+';');
+        } else {
+          $('#id_target_logs').val(path);
+        }
+      }
+
+      function onViewLogs() {
+        var logPaths = $.trim($('#id_target_logs').val());
+        if (!logPaths.length) {
+          alert("Please select one or multiple logs.");
+        } else {
+          var targetUrl = "/dashboard/log/structure/" +
+                          encodeURIComponent(logPaths);
+          window.open(targetUrl);
+        }
+      }
+
+      var gMsgTypes = {};
+
+      function updateMessageOptions(resp) {
+        var options = '<select id="id_select_message" style="width:100%" ' +
+                      'onchange="onChangeSelectMessage()">';
+        gMsgTypes = resp;
+        var messageEnums = Object.keys(resp);
+        // Add an invalid option.
+        options += '<option value="-1"></option>'
+        for (i = 0; i < messageEnums.length; i++) {
+          options += '<option value=' + messageEnums[i] + '>' +
+                            gMsgTypes[messageEnums[i]] + '</option>';
+        }
+        options += '</select>';
+        $('#id_message_options').html(options);
+      }
+
+      function updateMessageTypes() {
+        var elem = $(this);
+        function updateUponResp(data, textStatus, jqXHR) {
+          var messageTypes = JSON.parse(data);
+          updateMessageOptions(messageTypes);
+        };
+        var targetUrl = '/dashboard/update_message_options/{{client_id}}';
+        $.get(targetUrl, updateUponResp);
+      }
+
+      function onChangeSelectMessage() {
+        var signal = $('#id_select_message').val();
+        if (signal >= 0) {
+          window.open('/dashboard/view_message_type/{{client_id}}/' +
+                      gMsgTypes[signal] + '/');
+        }
+      }
+
+      onChangeLogPath();
+
+      $("#id_btn_ls").click(onListFiles);
+
+      $("#id_btn_view_logs").click(onViewLogs);
+
+      $("#id_btn_select_all").click(onSelectAllLogs);
+
+      $('#id_btn_update_message_types').click(updateMessageTypes);
+    </script>
+  </body>
+</html>

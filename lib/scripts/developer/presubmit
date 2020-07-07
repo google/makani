@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+lint && \
+  bbuild_x86 --compiler clang --copt -Werror && \
+  bbuild_all --copt -Werror && \
+  bbuild_test --copt -Werror && \
+  btest_all

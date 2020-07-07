@@ -1,0 +1,48 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+imu_no_filter: &IMU_NO_FILTER
+  fir_coefs: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+imu_filter: &IMU_FILTER
+  fir_coefs: [-9.9714231e-03, -3.1008695e-03, -3.4960783e-03, -3.8000850e-03,
+              -4.0736911e-03, -4.2256946e-03, -4.2864960e-03, -4.2256946e-03,
+              -4.0128897e-03, -3.6480818e-03, -3.0704688e-03, -2.3408525e-03,
+              -1.3984314e-03, -2.4320545e-04, 1.0944245e-03, 2.6752600e-03,
+              4.4384995e-03, 6.4145438e-03, 8.5425917e-03, 1.0853043e-02,
+              1.3285098e-02, 1.5808353e-02, 1.8422812e-02, 2.1098072e-02,
+              2.3773333e-02, 2.6418192e-02, 2.8971849e-02, 3.1464703e-02,
+              3.3775158e-02, 3.5933606e-02, 3.7879247e-02, 3.9581686e-02,
+              4.1010518e-02, 4.2165745e-02, 4.2986564e-02, 4.3472975e-02,
+              4.3655377e-02, 4.3472975e-02, 4.2986564e-02, 4.2165745e-02,
+              4.1010518e-02, 3.9581686e-02, 3.7879247e-02, 3.5933606e-02,
+              3.3775158e-02, 3.1464703e-02, 2.8971849e-02, 2.6418192e-02,
+              2.3773333e-02, 2.1098072e-02, 1.8422812e-02, 1.5808353e-02,
+              1.3285098e-02, 1.0853043e-02, 8.5425917e-03, 6.4145438e-03,
+              4.4384995e-03, 2.6752600e-03, 1.0944245e-03, -2.4320545e-04,
+              -1.3984314e-03, -2.3408525e-03, -3.0704688e-03, -3.6480818e-03,
+              -4.0128897e-03, -4.2256946e-03, -4.2864960e-03, -4.2256946e-03,
+              -4.0736911e-03, -3.8000850e-03, -3.4960783e-03, -3.1008695e-03,
+              -9.9714231e-03, 0, 0, 0, 0, 0, 0, 0]
+
+novatel: !GpsConfigParams
+  gps_receiver: NovAtel
+  imu: *IMU_FILTER
+
+septentrio: !GpsConfigParams
+  gps_receiver: Septentrio
+  imu: *IMU_FILTER

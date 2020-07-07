@@ -1,0 +1,96 @@
+#!/bin/bash -e
+#
+# Synchronize software on command center computers.
+#
+# Usage: ./sync_command_center <list_of_targets>
+# Valid targets are: monitor, monitor2, and logger.
+#
+# Example: ./sync_command_center monitor logger
+#
+# If no targets are specified, all possible targets will be synchronized.
+
+source "${MAKANI_HOME}/lib/scripts/mbash.sh"
+source "${MAKANI_HOME}/lib/scripts/network_config.sh"
+
+cd "${MAKANI_HOME}"
+
+if [[ "$(git status --porcelain)" ]]; then
+  echo 'Uncommitted files exist: cannot synchronize command center computers.'
+  exit 1
+fi
+
+readonly HEAD_HASH="$(git rev-parse HEAD)"
+readonly BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "${BRANCH_NAME}" = HEAD ]]; then
+  echo 'You cannot synchronize a detached head (run git-branch).'
+  exit 1
+fi
+
+# Start AIO network.
+if [[ -z "$(ifconfig | grep MULTICAST)" ]] || \
+   [[ -z "$(ifconfig | grep ${M600_HOST_SIM})" ]]; then
+  echo 'Please start the AIO network as host first.'
+  exit 1
+fi
+
+# Obtain the list of targets to synchronize.
+if [[ "$#" = 0 ]]; then
+  readonly TARGETS=('logger_a' 'logger_b' 'flight_spare' 'webmonitor')
+  echo "Synchronize all targets: ${TARGETS[@]}."
+else
+  readonly TARGETS=("$@")
+fi
+
+# Synchronize with other machines.
+for target in "${TARGETS[@]}"; do
+  if [[ "${target}" = 'logger_a' ]]; then
+    MACHINE="${M600_LOGGER_A}"
+  elif [[ "${target}" = 'logger_b' ]]; then
+    MACHINE="${M600_LOGGER_B}"
+  elif [[ "${target}" = 'flight_spare' ]]; then
+    MACHINE="${M600_FLIGHT_SPARE}"
+  elif [[ "${target}" = 'webmonitor' ]]; then
+    MACHINE="${M600_WEBMONITOR}"
+  else
+    echo "Invalid target \"${target}\"."
+    continue
+  fi
+
+  if ping -c 1 ${MACHINE} | grep -q from; then
+    ssh makani@"${MACHINE}" \
+      "export MAKANI_HOME=\$(/bin/bash -i <(echo echo '"'"'\${MAKANI_HOME}'"'"') 2>/dev/null);
+       source \"\${MAKANI_HOME}/lib/scripts/mbash.sh\";
+       cd \"\${MAKANI_HOME}\";
+
+       if [[ \"\$(git status --porcelain)\" ]]; then
+         echo 'Uncommitted files exist: cannot synchronize ${target} at ${MACHINE}.';
+         exit;
+       fi
+
+       git remote add host \"ssh://${M600_HOST_SIM}${MAKANI_HOME}\" 2>/dev/null;
+       git remote update host > /dev/null 2>&1 || \
+         mbash::die 'ERROR: Remote update failed.';
+
+       if [[ -n \"\$(git branch --list ${BRANCH_NAME})\" ]]; then
+         git checkout --detach > /dev/null 2>&1;
+         git branch -D ${BRANCH_NAME} > /dev/null 2>&1;
+       fi
+       git checkout -b ${BRANCH_NAME} host/${BRANCH_NAME} > /dev/null 2>&1;
+
+       readonly HEAD_HASH=\"\$(git rev-parse HEAD)\";
+       if [[ \"\${HEAD_HASH}\" != ${HEAD_HASH} ]]; then
+         echo \"ERROR: ${target} at ${MACHINE} is not synchronized: HEAD hash is wrong.\";
+         exit;
+       fi
+
+       readonly BRANCH_NAME=\"\$(git rev-parse --abbrev-ref HEAD)\";
+       if [[ \"\${BRANCH_NAME}\" != ${BRANCH_NAME} ]]; then
+         echo \"ERROR: ${target} at ${MACHINE} is not synchronized: Branch name is wrong\";
+         exit;
+       fi
+       echo \"${target} at ${MACHINE} is synchronized.\";" || \
+      echo "ERROR: Failed to synchronize ${target} at ${MACHINE}."
+  else
+    echo "ERROR: Cannot connect to ${target} at ${MACHINE}."
+  fi
+done

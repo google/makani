@@ -1,0 +1,71 @@
+/*  GRID OF NINE   ============================================================================= */
+
+
+.span_9_of_9 {
+	width: 100%;
+}
+
+.span_8_of_9 {
+	width: 88.71%;
+}
+
+.span_7_of_9 {
+	width: 77.42%; 
+}
+
+.span_6_of_9 {
+	width: 66.13%; 
+}
+
+.span_5_of_9 {
+	width: 54.84%; 
+}
+
+.span_4_of_9 {
+	width: 43.55%; 
+}
+
+.span_3_of_9 {
+	width: 32.26%;
+}
+
+.span_2_of_9 {
+	width: 20.97%; 
+}
+
+.span_1_of_9 {
+	width: 9.68%; 
+}
+
+
+/*  GO FULL WIDTH AT LESS THAN 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+	.span_9_of_9 {
+		width: 100%; 
+	}
+	.span_8_of_9 {
+		width: 100%; 
+	}
+	.span_7_of_9 {
+		width: 100%; 
+	}
+	.span_6_of_9 {
+		width: 100%; 
+	}
+	.span_5_of_9 {
+		width: 100%; 
+	}
+	.span_4_of_9 {
+		width: 100%; 
+	}
+	.span_3_of_9 {
+		width: 100%; 
+	}
+	.span_2_of_9 {
+		width: 100%; 
+	}
+	.span_1_of_9 {
+		width: 100%; 
+	}
+}

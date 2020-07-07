@@ -1,0 +1,15 @@
+// This file needs to kept up to date with Jenkins.
+// TODO: Figure out how to get Jenkins to read this file
+// directly.
+parallel (
+  {build("makani_presubmit_test", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_test_opt", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_lint_style_checker", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_lint_rest", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_build_x86", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_build_rest", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_valgrind", COMMIT: params["COMMIT"])},
+  {build("makani_presubmit_run_sim", COMMIT: params["COMMIT"])},
+  {ignore(FAILURE) {build("makani_regression_m600",
+                          COMMIT: params["COMMIT"])}}
+)

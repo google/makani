@@ -1,0 +1,5 @@
+# Ignore all the files except the ones needed to run install_packages.sh
+**
+!/lib/scripts/install/*
+!/lib/scripts/mbash.sh
+!/lib/scripts/system.sh

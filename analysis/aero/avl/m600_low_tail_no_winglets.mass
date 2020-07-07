@@ -1,0 +1,70 @@
+# M600_SN2_xwind.mass
+#
+Lunit = 1.0 m
+Munit = 1.0 kg
+Tunit = 1.0 s
+#
+#-------------------------
+g   = 9.81
+rho = 1.225
+#
+#-------------------------
+#  Mass & Inertia breakdown.
+#  x y z  is location of item's own CG.
+#  Ixx... are item's inertias about item's own CG.
+#
+#  x,y,z system here must be exactly the same one used in the .avl input file
+#     (same orientation, same origin location, same length units)
+#
+#  mass    x       y       z       Ixx     Iyy     Izz
+*  1.      1.      1.      1.      1.      1.      1.
++  0.      0.      0.      0.      0.      0.      0.
+   510.6   0.266   0.204   0.090   19810   88.81   19870   ! wing
+   31.1    0.791   0.      -0.326  1.68    6.57    7.18    ! tub
+   50.7    3.966   0.      -0.213  2.52    119.0   119.0   ! fuse
+   35.2    7.136   -0.003  0.849   36.43   61.55   26.33   ! fin
+   1.8     6.818   0.      -0.817  0.0     0.0     0.0     ! horn
+   11.6    6.718   0.017   -0.817  0.0     0.0     0.0     ! yoke
+   26.2    6.836   0.012   -0.815  38.50   1.730   39.89   ! elevator
+   18.4    -1.200  0.000   -0.338  0.054   19.90   19.84   ! mass balance tube
+   55.4    -0.829  -3.793  -0.162  49.69   66.13   17.02   ! pylon1
+   55.4    -0.829  -1.367  -0.162  49.69   66.13   17.02   ! pylon2
+   55.4    -0.829  1.060   -0.162  49.69   66.13   17.02   ! pylon3
+   55.4    -0.829  3.486   -0.162  49.69   66.13   17.02   ! pylon4
+   8.0     -1.515  -3.639  -1.593  1.20    0.000   0.06    ! port bottom outer prop
+   8.0     -1.515  -1.213  -1.593  1.20    0.000   0.06    ! port bottom inner prop
+   8.0     -1.515  1.213   -1.593  1.20    0.000   0.06    ! starboard bottom inner prop
+   8.0     -1.515  3.640   -1.593  1.20    0.000   0.06    ! starboard bottom outer prop
+   8.0     -1.861  3.640   1.221   1.20    0.000   0.06    ! starboard top outer prop
+   8.0     -1.861  1.213   1.221   1.20    0.000   0.06    ! starboard top inner prop
+   8.0     -1.861  -1.213  1.221   1.20    0.000   0.06    ! port top inner prop
+   8.0     -1.861  -3.639  1.221   1.20    0.000   0.06    ! port top outer prop
+   51.4    -1.359  -3.639  -1.593  0.000   0.000   0.000   ! port bottom outer g&c
+   51.4    -1.359  -1.213  -1.593  0.000   0.000   0.000   ! port bottom inner g&c
+   51.4    -1.359  1.213   -1.593  0.000   0.000   0.000   ! starboard bottom inner g&c
+   51.4    -1.359  3.640   -1.593  0.000   0.000   0.000   ! starboard bottom outer g&c
+   51.4    -1.711  3.640   1.221   0.000   0.000   0.000   ! starboard top outer g&c
+   51.4    -1.711  1.213   1.221   0.000   0.000   0.000   ! starboard top inner g&c
+   51.4    -1.711  -1.213  1.221   0.000   0.000   0.000   ! port top inner g&c
+   51.4    -1.711  -3.639  1.221   0.000   0.000   0.000   ! port top outer g&c
+   5.2     6.666   -0.276  3.603   0.000   0.000   0.000   ! elevator port servo
+   5.2     6.698   0.335   3.603   0.000   0.000   0.000   ! elevator starboard servo
+   10.4    7.130   0.000   -0.044  0.000   0.000   0.000   ! rudder servos
+   3.1     7.130   0.000   -0.044  0.000   0.000   0.000   ! rudder servos frame
+   12.3    0.135   -6.030  0.005   0.000   0.000   0.000   ! Port bridle hardpoint
+   12.3    0.135   6.025   0.012   0.000   0.000   0.000   ! Starboard bridle hardpoint
+   5.3     0.623   -9.590  0.122   0.000   0.000   0.000   ! wing servo A1
+   5.3     0.870   -6.510  -0.135  0.000   0.000   0.000   ! wing servo A2
+   5.3     0.875   -3.353  -0.141  0.000   0.000   0.000   ! wing servo A3
+   5.3     0.875   3.353   -0.141  0.000   0.000   0.000   ! wing servo A4
+   5.3     0.870   6.510   -0.135  0.000   0.000   0.000   ! wing servo A5
+   5.3     0.623   9.590   0.122   0.000   0.000   0.000   ! wing servo A6
+   9.9     0.758   -7.313  -0.130  0.000   0.000   0.000   ! container henge peg port
+   9.9     0.758   7.313   -0.130  0.000   0.000   0.000   ! container henge peg starboard
+   18.9    -0.880  -2.374  -1.299  0.000   0.000   0.000   ! port landing gear
+   18.9    -0.880  2.374   -1.299  0.000   0.000   0.000   ! starboard landing gear
+   5.8     8.050   -0.020  -0.101  0.000   0.000   0.000   ! tail spike
+   16.0   -0.390   0.000   -0.438  0.000   0.000   0.000   ! FCUs (x2), nose fairing
+   1.9    -1.500   0.000   -0.432  0.000   0.000   0.000   ! GPS, pitot
+   7.2    -0.767   1.073   -0.214  0.000   0.000   0.000   ! MV/LV battery
+   9.5    -0.767   3.499   -0.214  0.000   0.000   0.000   ! Pylon 4 DAQ

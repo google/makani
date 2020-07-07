@@ -1,0 +1,120 @@
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base_layout.html" %}
+
+{% block head_js %}
+  <script type="text/javascript" src="{{STATIC_URL}}hammer/hammer.min.js">
+  </script>
+  <script type="text/javascript"
+    src="{{STATIC_URL}}modernizr/modernizr.touch.min.js"></script>
+  <script type="text/javascript">
+    var graph_height={{graph_height}}, graph_width={{graph_width}};
+    var frame_height={{frame_height}};
+    var json = {{skeleton|safe}};
+  </script>
+  <script type="text/javascript" src="{{STATIC_URL}}d3/libs/dnd_tree.js">
+  </script>
+{% endblock %}
+
+
+{% block pre_content %}
+  <div class="col span_6_of_12">
+    <div id="frame" class="d3_frame" style="height:{{frame_height}}px;">
+      <div style="display:block;" id="dndtree"></div>
+    </div>
+  </div>
+  <div class="col span_5_of_12">
+    <div>
+      <h3>Fields to plot:</h3>
+      <h4>Examples:</h4>
+      <span>messages.kAioNodeMotorPbi.kMessageTypeMotorStatus.message.omega[4000:-2000]</span><br/>
+      <span>messages.kAioNodeControllerA.kMessageTypeControllerCommand.message.servo_angle[:,2]</span><br/>
+      <textarea id="id_signals" rows="12" style="width:100%">
+      </textarea>
+      <button id="id_btn_compare_signals">Plot Signals (Compare Logs)</button>
+      <button id="id_btn_merge_signals">Plot Signals (Merge Logs)</button>
+      <button id="id_btn_get_raw_data">Get Raw Data</button>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block layout_tail_js %}
+  /** Add the field path to the "signals to plot" field. */
+  function clickLeaf(d) {
+    if (d.path) {
+      var signals = $.trim($('#id_signals').val());
+      if (signals.length) {
+        $('#id_signals').val(signals+'\n'+d.path);
+      } else {
+        $('#id_signals').val(d.path);
+      }
+    }
+  }
+
+  /** Send Ajax call to plot the signals. */
+  function plotSignals(mode) {
+    var signals = $('#id_signals').val();
+    target_url = "/dashboard/log/data/" + mode + "/" +
+        encodeURIComponent(signals);
+    $.ajax({
+      url: target_url,
+      success: function(response) {
+        try {
+          var resp_obj = JSON.parse(response);
+        } catch(err) {
+          return;
+        }
+        // Update the plotting widgets defined in a base template.
+        var resetUponUpdate = true;
+        update(resp_obj, resetUponUpdate);
+      }
+    });
+  }
+
+  function getRawData() {
+    var signals = $('#id_signals').val();
+    target_url = "/dashboard/log/raw/" + encodeURIComponent(signals);
+    window.open(target_url);
+  }
+
+  function plotSignalsToCompare() {
+    return plotSignals('compare');
+  }
+
+  function plotSignalsToMerge() {
+    return plotSignals('merge');
+  }
+
+  $("#id_btn_compare_signals").click(plotSignalsToCompare);
+
+  $("#id_btn_merge_signals").click(plotSignalsToMerge);
+
+  $("#id_btn_get_raw_data").click(getRawData);
+
+{% endblock %}
+
+
+{% block post_initialize_js %}
+  // draw dndTree
+  dndTree(json);
+  var myDiv = $("#frame");
+  var scrolltoH = Math.max(0, (graph_height-myDiv.height())/2);
+  var scrolltoW = Math.max(0, (graph_width-myDiv.width())/2);
+  myDiv.animate({ scrollTop:  scrolltoH, scrollLeft: scrolltoW});
+{% endblock %}
+

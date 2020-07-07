@@ -1,0 +1,4 @@
+param ServoCalibParams {
+  float32 resolver_zero;  // [rad]
+  int32 direction;  // [1 = CCW, -1 = CW]
+}

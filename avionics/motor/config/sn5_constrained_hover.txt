@@ -1,0 +1,37 @@
+# SN5 motor controller parameters for constrained flight.
+
+# Open up limits to allow full power operation with some extra margin.
+set_param all phase_current_limit 320
+set_param all bus_current_limit 200
+set_param all v_bus_upper_limit 1600
+
+# Bus current command limits for the full stack of motors (i.e. tether current).
+set_param all ibus_upper_limit 260
+set_param all ibus_lower_limit -240
+
+# Quadrature current command limits.
+set_param all iq_upper_limit 250
+set_param all iq_lower_limit -250
+
+# Explicitly enable the stacking controller.
+set_param all stacking_enable 1
+
+# Prevent motors from turning off if they throw a warning.
+set_param all shutdown_on_warning_enable 0
+
+# Revert the motor status message rate to 10 Hz.
+set_param all motor_status_message_period 0.1
+
+# Early Yasa 2.3 motors are missing stator temperature sensors.
+set_param PBI thermal_limits[kMotorThermalChannelStatorCore] 1e6
+set_param PBI thermal_limits[kMotorThermalChannelStatorCoil] 1e6
+set_param PTI thermal_limits[kMotorThermalChannelStatorCore] 1e6
+set_param PTI thermal_limits[kMotorThermalChannelStatorCoil] 1e6
+set_param STO thermal_limits[kMotorThermalChannelStatorCore] 1e6
+set_param STO thermal_limits[kMotorThermalChannelStatorCoil] 1e6
+
+# Disable defective module temperature sensors.
+set_param PBO thermal_limits[kMotorThermalChannelHt3000B] 1e6
+set_param PTI thermal_limits[kMotorThermalChannelHt3000B] 1e6
+set_param SBO thermal_limits[kMotorThermalChannelHt3000B] 1e6
+set_param STO thermal_limits[kMotorThermalChannelHt3000B] 1e6

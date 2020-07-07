@@ -1,0 +1,191 @@
+<!--
+ Copyright 2020 Makani Technologies LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base_layout.html" %}
+
+{% block title %}
+{{layout_name}}
+{% endblock %}
+
+{% block post_content %}
+  <div align="left"  class="col span_{{canvas_cols}}_of_{{canvas_cols}}">
+    &nbsp;
+    <span id="id_fps"></span>
+    <button id="id_btn_toggle_receiver" style="background-color:lightgray;color:black">Shutdown</button>
+    <a href="{% url 'home' %}"><button type="button">Back to Home Page</button></a>
+    <hr>
+    <input id="id_debug" type="text" placeholder="Optional name"/>
+    <button id="id_btn_get_snapshot">Get Message Snapshot</button>
+  </div>
+{% endblock %}
+
+
+{% block layout_tail_js %}
+  function currentTime() {
+    return new Date().getTime();
+  }
+
+  function updateFrame(response, pollManager) {
+    try {
+      var respObj = JSON.parse(response);
+    } catch(err) {
+      return;
+    }
+    pollManager.historicFrameTimestamps.push(currentTime());
+    if (pollManager.historicFrameTimestamps.length >
+        pollManager.fpsFrameCount)
+      pollManager.historicFrameTimestamps.shift();
+    var historyLen = pollManager.historicFrameTimestamps.length;
+    if (historyLen > 1) {
+      var fps = 1000.0 * (historyLen - 1) /
+                (pollManager.historicFrameTimestamps[historyLen - 1] -
+                 pollManager.historicFrameTimestamps[0]);
+      $('#id_fps').html('Frames per second: ' + toFixed(fps, 0).padLeft(4));
+    }
+    // Update the figures.
+    var resetUponUpdate = false;
+    update(respObj, resetUponUpdate);
+    // Show debug messages.
+    if (respObj.__message__) {
+      $('#id_message').html(respObj.__message__);
+    }
+    pollManager.scheduled = false;
+  }
+
+  function PollManager() {
+    this.requested = false;
+    this.scheduled = false;
+    this.timeout = 10000; // Milliseconds.
+    var targetFps = 20;
+    this.fpsFrameCount = 20;
+    this.lastTrigger = 0;
+    this.targetIntervalMs = 1000.0 / targetFps;
+    this.historicFrameTimestamps = [];
+  }
+
+  PollManager.prototype.start = function() {
+    this.requested = true;
+    if (!this.scheduled) {
+      this.scheduled = true;
+      this.poll();
+    }
+  }
+
+  PollManager.prototype.stop = function() {
+    this.requested = false;
+  }
+
+  /**
+   * Repeatedly ask the server for updated data.
+   *
+   * Update the plots once data is received. The function also computes
+   * the frames per second.
+   */
+  PollManager.prototype.poll = function() {
+    if (this.scheduled) {
+      this.lastTrigger = currentTime();
+      var pollManager = this;
+      $.ajax({
+        url: '{{periodic_url}}',
+        timeout: pollManager.timeout,
+        success: function(response) {
+          updateFrame(response, pollManager);
+        },
+        error: function() {
+          updateFrame('{}', pollManager);
+        },
+        complete: function() {
+          // Schedule the next request when the current one completes.
+          if (pollManager.requested && !pollManager.scheduled) {
+            var elapsedMs = currentTime() - pollManager.lastTrigger;
+            var remainingMs = Math.max(
+                0, pollManager.targetIntervalMs - elapsedMs);
+            pollManager.scheduled = true;
+            setTimeout(Poll, remainingMs);
+          }
+        }
+      });
+    }
+  }
+
+  var gPollManager = new PollManager();
+
+  function Poll() {
+    gPollManager.poll();
+  }
+
+  function toggleReceiver() {
+    // referring to http://stackoverflow.com/questions/939032/jquery-pass-more-parameters-into-callback
+    if (typeof toggleReceiver.isOn == 'undefined') {
+      toggleReceiver.isOn = false;
+    }
+    var elem = $(this);
+    var updateUponResp = function() {
+      return function(data, textStatus, jqXHR) {
+        if (data == 'receiver_on') {
+          toggleReceiver.isOn = true;
+        } else if (data == 'receiver_off') {
+          toggleReceiver.isOn = false;
+        } else {
+          // An error message.
+          $('#id_message').html(data);
+        }
+        if (toggleReceiver.isOn) {
+          // Start periodic timeout handler.
+          gPollManager.start();
+          elem.attr('style', 'background-color:lightgray;color:black');
+          elem.html('Shutdown');
+        } else {
+          gPollManager.stop();
+          elem.attr('style', 'background-color:gray;color:white');
+          elem.html('Start Receiver');
+        }
+      };
+    };
+    var targetUrl = '';
+    if (toggleReceiver.isOn) {
+      {% if receiver_type == 'log' %}
+        targetUrl = "{% url 'stop_log' client_id %}";
+      {% else %}
+        targetUrl = "{% url 'stop_aio' client_id %}";
+      {% endif %}
+    } else {
+      {% if receiver_type == 'log' %}
+        targetUrl =
+            "{% url 'start_log' client_id message_type
+                message_source log_path %}";
+      {% else %}
+        targetUrl = "{% url 'start_aio' client_id %}";
+      {% endif %}
+    }
+    $.get(targetUrl, updateUponResp());
+  }
+
+  function getMessageSnapshot() {
+    var name = $('#id_debug').val();
+    if (!name) {
+      name = 'unnamed';
+    }
+    var target_url = '/dashboard/debug/snapshot/{{client_id}}/' + name;
+    window.open(target_url);
+  }
+
+  $('#id_btn_toggle_receiver').click(toggleReceiver);
+
+  $("#id_btn_get_snapshot").click(getMessageSnapshot);
+
+  toggleReceiver();
+{% endblock %}

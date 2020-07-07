@@ -1,0 +1,206 @@
+
+    Typical XFOIL session keyboard inputs.
+    All commands can be in lowercase.
+    Blank lines below are only for easier reading -- they are not Return's!
+    A command with its argument(s) ommitted will result in an input prompt.
+    Some files in ./runs are used here.
+
+    Note: The Eppler 387 coordinates are not smooth, so the Cp plots will 
+          appear "noisy".  Xfoil's results will not be affected noticably 
+          by such cosmetic defects, unless they are very severe.
+
+
+LOAD e387.dat   ( or:  NACA 4410
+
+GDES              (enter GDES menu)        |
+CADD              (add points at corners)  |  These commands are optional,
+<return>          (accept default input)   |  and are recommended only for
+<return>          (accept default input)   |  Eppler and Selig airfoils   
+<return>          (accept default input)   |  to give smoother LE shapes  
+<return>          (return to Top Level)    |
+
+PANEL           (regenerate paneling since better panel node spacing is needed)
+
+OPER            (enter OPER menu)
+ALFA 5.0
+ASEQ 0.0 6.0 2.0
+
+VISC 1.0e5      (set viscous mode, with argument anticipating Re prompt)
+CL 0.78
+CREF
+CPX
+BL              (plot boundary layer profiles)
+cp_100_040.387
+CREF
+
+INIT            (force initialization of viscous solution for big alpha change)
+ALFA -2.5
+!               (keep iterating on this difficult case)
+
+PACC            (set up for new polar 1)
+<return>        (decline writing to polar save file)
+<return>        (decline writing to polar dump file)
+ASEQ -2.5 -2.0 0.05    (small steps when bottom transition is moving fast)
+ASEQ -1.5  8.0 0.5     (bigger steps OK over most of polar)
+ASEQ  8.2  9.0 0.2     (small steps when close to stall is more reliable)
+PPLOT
+PACC            (turn off polar 1 accumulation)
+
+PPAX
+<return>        (default alpha axis OK)
+<return>        (default CL axis OK)
+0.0 0.04 0.02   (better  CD axis)
+<return>        (default CM axis OK)
+PPLOT
+
+RGET polref_100.387    (read in experimental polar data)
+PPLOT
+
+VPAR            (enter viscous parameter menu)
+N 11.0          (set new lower turbulence level)
+<return>        (back to OPER)
+
+INIT
+ALFA -2.5
+PACC            (set up for new polar 2)
+<return>        (decline writing to polar save file)
+<return>        (decline writing to polar dump file)
+ASEQ -2.5 -2.0 0.05    (small steps when bottom transition is moving fast)
+ASEQ -1.5  8.0 0.5     (bigger steps OK over most of polar)
+ASEQ  8.2  9.0 0.2     (small steps when close to stall is more reliable)
+PPLOT           (both polars compared to experimental polar)
+PACC
+VISC
+
+PWRT 1          (write polar 1 to save file)
+e387_09.100     (filename indicates Eppler 387, Ncrit=9, Re=100K)
+
+ALFA 4.0        (set inviscid solution for MDES design operations)
+<return>        (exit OPER)
+
+MDES
+AQ 0.0 4.0 8.0
+RESE
+BLOW            (zoom in on region of interest, undo with RESE)
+MODI            (modify some segment of one of the q(s) curves with cursor)
+MODI            (repeat if necessary to modify further...)
+MODI
+.
+.
+EXEC
+<return>
+PANEL
+OPER
+CL 0.5
+  etc....
+<return>
+GDES
+GSET
+CAMB
+INPC
+0.0 0.0
+0.5 0.03
+1.0 0.0
+ADD
+<return>
+PLOT
+TCPL            (turn off camber/thickness plotting activated in CAMB)
+FLAP 0.70 0.04 -5.0
+PLOT
+EXEC
+<return>
+OPER
+ALFA 5.0
+  etc....
+
+
+
+=========================================================================
+
+  Typical XFOIL session to generate and plot two polars.
+  All commands can be in lowercase.
+  Blank lines below are only for easier reading -- they are not Return's!
+  A command with its argument(s) ommitted will result in an input prompt.
+
+
+LOAD  airfoil_file.dat
+                                         
+GDES              (enter GDES menu)        |
+CADD              (add points at corners)  |  These commands are optional,
+<return>          (accept default input)   |  and are recommended only for
+<return>          (accept default input)   |  Eppler and Selig airfoils   
+<return>          (accept default input)   |  to give smoother LE shapes  
+<return>          (return to Top Level)    |
+
+PANE            (optional: use if input airfoil_file.dat has inadequate points)
+
+OPER            (enter OPER menu)
+VISC 2e5        (toggle viscous mode, with Re = 200000)
+TYPE 2          (optional: use if constant-lift polars are to be used)
+
+ALFA -2         (specify minimum alpha (must give CL>0 for Type 2 polar))
+PACC            (toggle auto accumulation on for new polar 1)
+polar1_file     (choose polar save filename, or <return> for no file writing)
+<return>        (decline dump file writing)
+ASEQ -2  8 0.2  (compute alpha sequence to generate polar)
+PPLO            (optional: plot the polar we have so far)
+ASEQ 8.2 9 0.2  (compute additional points if needed)
+PPLO
+PACC            (toggle auto accumulation off)
+
+RE 1.5e5        (set new Re = 150k, still using Type 2 CL dependence)
+INIT            (current alpha=9, so re-initialize for very different alpha)
+
+ALFA -2
+PACC            (toggle auto accumulation on for new polar 2)
+polar2_file     (choose polar save filename, or <return> for no file writing)
+<return>        (decline dump file writing)
+ASEQ -2  9 0.2  (compute alpha sequence to generate polar)
+PACC            (toggle auto accumulation off)
+
+PPLO              (plot all two polars currently stored)
+PGET polar3_file  (optional: read previously-generated polar save file)
+PPLO              (plot all three polars currently stored)
+HARD              (make Postscript file of current polar plot)
+
+<return>
+QUIT
+
+
+
+Notes:
+
+1) Sometimes you may not want to automatically write the polar to a file.
+In this case the PACC command is followed by a <return> rather than a filename:
+
+PACC
+<return>
+
+You can later use PWRT if you decide to write out the polar after all:
+
+PWRT           (will display all stored polars available for writing)
+2              (choose polar 2 for writing)
+polar2_file    (specify output filename)
+
+This approach is "dangerous" in that if XFOIL crashes, the stored polars 
+are lost.  This may or may not be a big deal, depending on how many polar
+points you have.  XFOIL doesn't crash very easily, but it can happen.
+A common cause is accidental specification of a silly flow condition, e.g.
+
+ALFA 90
+
+In viscous mode this will produce all sorts of numerical fireworks,
+and possibly an arithmetic fault.
+
+
+2) Saved polar files can be plotted with the separate PPLOT program.
+Or you can use XFOIL itself, by reading in each polar file via PGET,
+and then plotting them via PPLO.  PDEL, PSUM, etc. can also be used
+to set up a list of polars that you want to plot.  PPAX can be used 
+to change the polar plot axis limits.
+
+
+3) It is sometimes necessary to change the airfoil name in the polar save file.
+This can be easily done with a text editor.  But do not change the other
+information headers, since this might confuse the polar file read routine.
+

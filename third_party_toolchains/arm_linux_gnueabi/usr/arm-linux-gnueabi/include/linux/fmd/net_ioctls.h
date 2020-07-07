@@ -1,0 +1,383 @@
+/* Copyright (c) 2008-2011 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Freescale Semiconductor nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ *
+ * ALTERNATIVELY, this software may be distributed under the terms of the
+ * GNU General Public License ("GPL") as published by the Free Software
+ * Foundation, either version 2 of that License or (at your option) any
+ * later version.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**************************************************************************//**
+ @File          net_ioctls.h
+
+ @Description   This file contains common and general netcomm headers definitions.
+*//***************************************************************************/
+#ifndef __NET_IOCTLS_H
+#define __NET_IOCTLS_H
+
+#include "ioctls.h"
+
+
+typedef uint8_t ioc_header_field_ppp_t;
+
+#define IOC_NET_HEADER_FIELD_PPP_PID                        (1)
+#define IOC_NET_HEADER_FIELD_PPP_COMPRESSED                 (IOC_NET_HEADER_FIELD_PPP_PID << 1)
+#define IOC_NET_HEADER_FIELD_PPP_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_PPP_PID << 2) - 1)
+
+
+typedef uint8_t ioc_header_field_pppoe_t;
+
+#define IOC_NET_HEADER_FIELD_PPPoE_VER                      (1)
+#define IOC_NET_HEADER_FIELD_PPPoE_TYPE                     (IOC_NET_HEADER_FIELD_PPPoE_VER << 1)
+#define IOC_NET_HEADER_FIELD_PPPoE_CODE                     (IOC_NET_HEADER_FIELD_PPPoE_VER << 2)
+#define IOC_NET_HEADER_FIELD_PPPoE_SID                      (IOC_NET_HEADER_FIELD_PPPoE_VER << 3)
+#define IOC_NET_HEADER_FIELD_PPPoE_LEN                      (IOC_NET_HEADER_FIELD_PPPoE_VER << 4)
+#define IOC_NET_HEADER_FIELD_PPPoE_SESSION                  (IOC_NET_HEADER_FIELD_PPPoE_VER << 5)
+#define IOC_NET_HEADER_FIELD_PPPoE_PID                      (IOC_NET_HEADER_FIELD_PPPoE_VER << 6)
+#define IOC_NET_HEADER_FIELD_PPPoE_ALL_FIELDS               ((IOC_NET_HEADER_FIELD_PPPoE_VER << 7) - 1)
+
+#define IOC_NET_HEADER_FIELD_PPPMUX_PID                     (1)
+#define IOC_NET_HEADER_FIELD_PPPMUX_CKSUM                   (IOC_NET_HEADER_FIELD_PPPMUX_PID << 1)
+#define IOC_NET_HEADER_FIELD_PPPMUX_COMPRESSED              (IOC_NET_HEADER_FIELD_PPPMUX_PID << 2)
+#define IOC_NET_HEADER_FIELD_PPPMUX_ALL_FIELDS              ((IOC_NET_HEADER_FIELD_PPPMUX_PID << 3) - 1)
+
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF            (1)
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_LXT            (IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF << 1)
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_LEN            (IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF << 2)
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PID            (IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF << 3)
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_USE_PID        (IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF << 4)
+#define IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_ALL_FIELDS     ((IOC_NET_HEADER_FIELD_PPPMUX_SUBFRAME_PFF << 5) - 1)
+
+
+typedef uint8_t ioc_header_field_eth_t;
+
+#define IOC_NET_HEADER_FIELD_ETH_DA                         (1)
+#define IOC_NET_HEADER_FIELD_ETH_SA                         (IOC_NET_HEADER_FIELD_ETH_DA << 1)
+#define IOC_NET_HEADER_FIELD_ETH_LENGTH                     (IOC_NET_HEADER_FIELD_ETH_DA << 2)
+#define IOC_NET_HEADER_FIELD_ETH_TYPE                       (IOC_NET_HEADER_FIELD_ETH_DA << 3)
+#define IOC_NET_HEADER_FIELD_ETH_FINAL_CKSUM                (IOC_NET_HEADER_FIELD_ETH_DA << 4)
+#define IOC_NET_HEADER_FIELD_ETH_PADDING                    (IOC_NET_HEADER_FIELD_ETH_DA << 5)
+#define IOC_NET_HEADER_FIELD_ETH_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_ETH_DA << 6) - 1)
+
+
+typedef uint16_t ioc_header_field_ipv4_t;
+
+#define IOC_NET_HEADER_FIELD_IPv4_VER                       (1)
+#define IOC_NET_HEADER_FIELD_IPv4_HDR_LEN                   (IOC_NET_HEADER_FIELD_IPv4_VER << 1)
+#define IOC_NET_HEADER_FIELD_IPv4_TOS                       (IOC_NET_HEADER_FIELD_IPv4_VER << 2)
+#define IOC_NET_HEADER_FIELD_IPv4_TOTAL_LEN                 (IOC_NET_HEADER_FIELD_IPv4_VER << 3)
+#define IOC_NET_HEADER_FIELD_IPv4_ID                        (IOC_NET_HEADER_FIELD_IPv4_VER << 4)
+#define IOC_NET_HEADER_FIELD_IPv4_FLAG_D                    (IOC_NET_HEADER_FIELD_IPv4_VER << 5)
+#define IOC_NET_HEADER_FIELD_IPv4_FLAG_M                    (IOC_NET_HEADER_FIELD_IPv4_VER << 6)
+#define IOC_NET_HEADER_FIELD_IPv4_OFFSET                    (IOC_NET_HEADER_FIELD_IPv4_VER << 7)
+#define IOC_NET_HEADER_FIELD_IPv4_TTL                       (IOC_NET_HEADER_FIELD_IPv4_VER << 8)
+#define IOC_NET_HEADER_FIELD_IPv4_PROTO                     (IOC_NET_HEADER_FIELD_IPv4_VER << 9)
+#define IOC_NET_HEADER_FIELD_IPv4_CKSUM                     (IOC_NET_HEADER_FIELD_IPv4_VER << 10)
+#define IOC_NET_HEADER_FIELD_IPv4_SRC_IP                    (IOC_NET_HEADER_FIELD_IPv4_VER << 11)
+#define IOC_NET_HEADER_FIELD_IPv4_DST_IP                    (IOC_NET_HEADER_FIELD_IPv4_VER << 12)
+#define IOC_NET_HEADER_FIELD_IPv4_OPTS                      (IOC_NET_HEADER_FIELD_IPv4_VER << 13)
+#define IOC_NET_HEADER_FIELD_IPv4_OPTS_COUNT                (IOC_NET_HEADER_FIELD_IPv4_VER << 14)
+#define IOC_NET_HEADER_FIELD_IPv4_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_IPv4_VER << 15) - 1)
+
+
+typedef uint8_t ioc_header_field_ipv6_t;
+
+#define IOC_NET_HEADER_FIELD_IPv6_VER                       (1)
+#define IOC_NET_HEADER_FIELD_IPv6_TC                        (IOC_NET_HEADER_FIELD_IPv6_VER << 1)
+#define IOC_NET_HEADER_FIELD_IPv6_SRC_IP                    (IOC_NET_HEADER_FIELD_IPv6_VER << 2)
+#define IOC_NET_HEADER_FIELD_IPv6_DST_IP                    (IOC_NET_HEADER_FIELD_IPv6_VER << 3)
+#define IOC_NET_HEADER_FIELD_IPv6_NEXT_HDR                  (IOC_NET_HEADER_FIELD_IPv6_VER << 4)
+#define IOC_NET_HEADER_FIELD_IPv6_FL                        (IOC_NET_HEADER_FIELD_IPv6_VER << 5)
+#define IOC_NET_HEADER_FIELD_IPv6_HOP_LIMIT                 (IOC_NET_HEADER_FIELD_IPv6_VER << 6)
+#define IOC_NET_HEADER_FIELD_IPv6_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_IPv6_VER << 7) - 1)
+
+#define IOC_NET_HEADER_FIELD_ICMP_TYPE                      (1)
+#define IOC_NET_HEADER_FIELD_ICMP_CODE                      (IOC_NET_HEADER_FIELD_ICMP_TYPE << 1)
+#define IOC_NET_HEADER_FIELD_ICMP_CKSUM                     (IOC_NET_HEADER_FIELD_ICMP_TYPE << 2)
+#define IOC_NET_HEADER_FIELD_ICMP_ID                        (IOC_NET_HEADER_FIELD_ICMP_TYPE << 3)
+#define IOC_NET_HEADER_FIELD_ICMP_SQ_NUM                    (IOC_NET_HEADER_FIELD_ICMP_TYPE << 4)
+#define IOC_NET_HEADER_FIELD_ICMP_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_ICMP_TYPE << 5) - 1)
+
+#define IOC_NET_HEADER_FIELD_IGMP_VERSION                   (1)
+#define IOC_NET_HEADER_FIELD_IGMP_TYPE                      (IOC_NET_HEADER_FIELD_IGMP_VERSION << 1)
+#define IOC_NET_HEADER_FIELD_IGMP_CKSUM                     (IOC_NET_HEADER_FIELD_IGMP_VERSION << 2)
+#define IOC_NET_HEADER_FIELD_IGMP_DATA                      (IOC_NET_HEADER_FIELD_IGMP_VERSION << 3)
+#define IOC_NET_HEADER_FIELD_IGMP_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_IGMP_VERSION << 4) - 1)
+
+
+typedef uint16_t ioc_header_field_tcp_t;
+
+#define IOC_NET_HEADER_FIELD_TCP_PORT_SRC                   (1)
+#define IOC_NET_HEADER_FIELD_TCP_PORT_DST                   (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 1)
+#define IOC_NET_HEADER_FIELD_TCP_SEQ                        (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 2)
+#define IOC_NET_HEADER_FIELD_TCP_ACK                        (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 3)
+#define IOC_NET_HEADER_FIELD_TCP_OFFSET                     (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 4)
+#define IOC_NET_HEADER_FIELD_TCP_FLAGS                      (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 5)
+#define IOC_NET_HEADER_FIELD_TCP_WINDOW                     (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 6)
+#define IOC_NET_HEADER_FIELD_TCP_CKSUM                      (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 7)
+#define IOC_NET_HEADER_FIELD_TCP_URGPTR                     (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 8)
+#define IOC_NET_HEADER_FIELD_TCP_OPTS                       (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 9)
+#define IOC_NET_HEADER_FIELD_TCP_OPTS_COUNT                 (IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 10)
+#define IOC_NET_HEADER_FIELD_TCP_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_TCP_PORT_SRC << 11) - 1)
+
+
+typedef uint8_t ioc_header_field_sctp_t;
+
+#define IOC_NET_HEADER_FIELD_SCTP_PORT_SRC                  (1)
+#define IOC_NET_HEADER_FIELD_SCTP_PORT_DST                  (IOC_NET_HEADER_FIELD_SCTP_PORT_SRC << 1)
+#define IOC_NET_HEADER_FIELD_SCTP_VER_TAG                   (IOC_NET_HEADER_FIELD_SCTP_PORT_SRC << 2)
+#define IOC_NET_HEADER_FIELD_SCTP_CKSUM                     (IOC_NET_HEADER_FIELD_SCTP_PORT_SRC << 3)
+#define IOC_NET_HEADER_FIELD_SCTP_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_SCTP_PORT_SRC << 4) - 1)
+
+
+typedef uint8_t ioc_header_field_dccp_t;
+
+#define IOC_NET_HEADER_FIELD_DCCP_PORT_SRC                  (1)
+#define IOC_NET_HEADER_FIELD_DCCP_PORT_DST                  (IOC_NET_HEADER_FIELD_DCCP_PORT_SRC << 1)
+#define IOC_NET_HEADER_FIELD_DCCP_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_DCCP_PORT_SRC << 2) - 1)
+
+
+typedef uint8_t ioc_header_field_udp_t;
+
+#define IOC_NET_HEADER_FIELD_UDP_PORT_SRC                   (1)
+#define IOC_NET_HEADER_FIELD_UDP_PORT_DST                   (IOC_NET_HEADER_FIELD_UDP_PORT_SRC << 1)
+#define IOC_NET_HEADER_FIELD_UDP_LEN                        (IOC_NET_HEADER_FIELD_UDP_PORT_SRC << 2)
+#define IOC_NET_HEADER_FIELD_UDP_CKSUM                      (IOC_NET_HEADER_FIELD_UDP_PORT_SRC << 3)
+#define IOC_NET_HEADER_FIELD_UDP_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_UDP_PORT_SRC << 4) - 1)
+
+typedef uint8_t ioc_header_field_udp_encap_esp_t;
+
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC         (1)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_DST         (NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 1)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_LEN              (NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 2)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_CKSUM            (NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 3)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_SPI              (NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 4)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_SEQUENCE_NUM     (NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 5)
+#define IOC_NET_HEADER_FIELD_UDP_ENCAP_ESP_ALL_FIELDS       ((NET_HEADER_FIELD_UDP_ENCAP_ESP_PORT_SRC << 6) - 1)
+
+#define IOC_NET_HEADER_FIELD_IPHC_CID                       (1)
+#define IOC_NET_HEADER_FIELD_IPHC_CID_TYPE                  (IOC_NET_HEADER_FIELD_IPHC_CID << 1)
+#define IOC_NET_HEADER_FIELD_IPHC_HCINDEX                   (IOC_NET_HEADER_FIELD_IPHC_CID << 2)
+#define IOC_NET_HEADER_FIELD_IPHC_GEN                       (IOC_NET_HEADER_FIELD_IPHC_CID << 3)
+#define IOC_NET_HEADER_FIELD_IPHC_D_BIT                     (IOC_NET_HEADER_FIELD_IPHC_CID << 4)
+#define IOC_NET_HEADER_FIELD_IPHC_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_IPHC_CID << 5) - 1)
+
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE           (1)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_FLAGS          (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 1)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_LENGTH         (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 2)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TSN            (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 3)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_STREAM_ID      (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 4)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_STREAM_SQN     (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 5)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_PAYLOAD_PID    (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 6)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_UNORDERED      (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 7)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_BEGGINING      (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 8)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_END            (IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 9)
+#define IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_ALL_FIELDS     ((IOC_NET_HEADER_FIELD_SCTP_CHUNK_DATA_TYPE << 10) - 1)
+
+#define IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT                (1)
+#define IOC_NET_HEADER_FIELD_L2TPv2_LENGTH_BIT              (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 1)
+#define IOC_NET_HEADER_FIELD_L2TPv2_SEQUENCE_BIT            (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 2)
+#define IOC_NET_HEADER_FIELD_L2TPv2_OFFSET_BIT              (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 3)
+#define IOC_NET_HEADER_FIELD_L2TPv2_PRIORITY_BIT            (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 4)
+#define IOC_NET_HEADER_FIELD_L2TPv2_VERSION                 (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 5)
+#define IOC_NET_HEADER_FIELD_L2TPv2_LEN                     (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 6)
+#define IOC_NET_HEADER_FIELD_L2TPv2_TUNNEL_ID               (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 7)
+#define IOC_NET_HEADER_FIELD_L2TPv2_SESSION_ID              (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 8)
+#define IOC_NET_HEADER_FIELD_L2TPv2_NS                      (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 9)
+#define IOC_NET_HEADER_FIELD_L2TPv2_NR                      (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 10)
+#define IOC_NET_HEADER_FIELD_L2TPv2_OFFSET_SIZE             (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 11)
+#define IOC_NET_HEADER_FIELD_L2TPv2_FIRST_BYTE              (IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 12)
+#define IOC_NET_HEADER_FIELD_L2TPv2_ALL_FIELDS              ((IOC_NET_HEADER_FIELD_L2TPv2_TYPE_BIT << 13) - 1)
+
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT           (1)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_LENGTH_BIT         (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 1)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_SEQUENCE_BIT       (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 2)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_VERSION            (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 3)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_LENGTH             (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 4)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_CONTROL            (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 5)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_SENT               (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 6)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_RECV               (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 7)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_FIRST_BYTE         (IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 8)
+#define IOC_NET_HEADER_FIELD_L2TPv3_CTRL_ALL_FIELDS         ((IOC_NET_HEADER_FIELD_L2TPv3_CTRL_TYPE_BIT << 9) - 1)
+
+#define IOC_NET_HEADER_FIELD_L2TPv3_SESS_TYPE_BIT           (1)
+#define IOC_NET_HEADER_FIELD_L2TPv3_SESS_VERSION            (IOC_NET_HEADER_FIELD_L2TPv3_SESS_TYPE_BIT << 1)
+#define IOC_NET_HEADER_FIELD_L2TPv3_SESS_ID                 (IOC_NET_HEADER_FIELD_L2TPv3_SESS_TYPE_BIT << 2)
+#define IOC_NET_HEADER_FIELD_L2TPv3_SESS_COOKIE             (IOC_NET_HEADER_FIELD_L2TPv3_SESS_TYPE_BIT << 3)
+#define IOC_NET_HEADER_FIELD_L2TPv3_SESS_ALL_FIELDS         ((IOC_NET_HEADER_FIELD_L2TPv3_SESS_TYPE_BIT << 4) - 1)
+
+
+typedef uint8_t ioc_header_field_vlan_t;
+
+#define IOC_NET_HEADER_FIELD_VLAN_VPRI                      (1)
+#define IOC_NET_HEADER_FIELD_VLAN_CFI                       (IOC_NET_HEADER_FIELD_VLAN_VPRI << 1)
+#define IOC_NET_HEADER_FIELD_VLAN_VID                       (IOC_NET_HEADER_FIELD_VLAN_VPRI << 2)
+#define IOC_NET_HEADER_FIELD_VLAN_LENGTH                    (IOC_NET_HEADER_FIELD_VLAN_VPRI << 3)
+#define IOC_NET_HEADER_FIELD_VLAN_TYPE                      (IOC_NET_HEADER_FIELD_VLAN_VPRI << 4)
+#define IOC_NET_HEADER_FIELD_VLAN_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_VLAN_VPRI << 5) - 1)
+
+
+typedef uint8_t ioc_header_field_llc_t;
+
+#define IOC_NET_HEADER_FIELD_LLC_DSAP                       (1)
+#define IOC_NET_HEADER_FIELD_LLC_SSAP                       (IOC_NET_HEADER_FIELD_LLC_DSAP << 1)
+#define IOC_NET_HEADER_FIELD_LLC_CTRL                       (IOC_NET_HEADER_FIELD_LLC_DSAP << 2)
+#define IOC_NET_HEADER_FIELD_LLC_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_LLC_DSAP << 3) - 1)
+
+#define IOC_NET_HEADER_FIELD_NLPID_NLPID                    (1)
+#define IOC_NET_HEADER_FIELD_NLPID_ALL_FIELDS               ((IOC_NET_HEADER_FIELD_NLPID_NLPID << 1) - 1)
+
+
+typedef uint8_t ioc_header_field_snap_t;
+
+#define IOC_NET_HEADER_FIELD_SNAP_OUI                       (1)
+#define IOC_NET_HEADER_FIELD_SNAP_PID                       (IOC_NET_HEADER_FIELD_SNAP_OUI << 1)
+#define IOC_NET_HEADER_FIELD_SNAP_ALL_FIELDS                ((IOC_NET_HEADER_FIELD_SNAP_OUI << 2) - 1)
+
+
+typedef uint8_t ioc_header_field_llc_snap_t;
+
+#define IOC_NET_HEADER_FIELD_LLC_SNAP_TYPE                  (1)
+#define IOC_NET_HEADER_FIELD_LLC_SNAP_ALL_FIELDS            ((IOC_NET_HEADER_FIELD_LLC_SNAP_TYPE << 1) - 1)
+
+#define IOC_NET_HEADER_FIELD_ARP_HTYPE                      (1)
+#define IOC_NET_HEADER_FIELD_ARP_PTYPE                      (IOC_NET_HEADER_FIELD_ARP_HTYPE << 1)
+#define IOC_NET_HEADER_FIELD_ARP_HLEN                       (IOC_NET_HEADER_FIELD_ARP_HTYPE << 2)
+#define IOC_NET_HEADER_FIELD_ARP_PLEN                       (IOC_NET_HEADER_FIELD_ARP_HTYPE << 3)
+#define IOC_NET_HEADER_FIELD_ARP_OPER                       (IOC_NET_HEADER_FIELD_ARP_HTYPE << 4)
+#define IOC_NET_HEADER_FIELD_ARP_SHA                        (IOC_NET_HEADER_FIELD_ARP_HTYPE << 5)
+#define IOC_NET_HEADER_FIELD_ARP_SPA                        (IOC_NET_HEADER_FIELD_ARP_HTYPE << 6)
+#define IOC_NET_HEADER_FIELD_ARP_THA                        (IOC_NET_HEADER_FIELD_ARP_HTYPE << 7)
+#define IOC_NET_HEADER_FIELD_ARP_TPA                        (IOC_NET_HEADER_FIELD_ARP_HTYPE << 8)
+#define IOC_NET_HEADER_FIELD_ARP_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_ARP_HTYPE << 9) - 1)
+
+#define IOC_NET_HEADER_FIELD_RFC2684_LLC                    (1)
+#define IOC_NET_HEADER_FIELD_RFC2684_NLPID                  (IOC_NET_HEADER_FIELD_RFC2684_LLC << 1)
+#define IOC_NET_HEADER_FIELD_RFC2684_OUI                    (IOC_NET_HEADER_FIELD_RFC2684_LLC << 2)
+#define IOC_NET_HEADER_FIELD_RFC2684_PID                    (IOC_NET_HEADER_FIELD_RFC2684_LLC << 3)
+#define IOC_NET_HEADER_FIELD_RFC2684_VPN_OUI                (IOC_NET_HEADER_FIELD_RFC2684_LLC << 4)
+#define IOC_NET_HEADER_FIELD_RFC2684_VPN_IDX                (IOC_NET_HEADER_FIELD_RFC2684_LLC << 5)
+#define IOC_NET_HEADER_FIELD_RFC2684_ALL_FIELDS             ((IOC_NET_HEADER_FIELD_RFC2684_LLC << 6) - 1)
+
+#define IOC_NET_HEADER_FIELD_USER_DEFINED_SRCPORT           (1)
+#define IOC_NET_HEADER_FIELD_USER_DEFINED_PCDID             (IOC_NET_HEADER_FIELD_USER_DEFINED_SRCPORT << 1)
+#define IOC_NET_HEADER_FIELD_USER_DEFINED_ALL_FIELDS        ((IOC_NET_HEADER_FIELD_USER_DEFINED_SRCPORT << 2) - 1)
+
+#define IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER                 (1)
+#define IOC_NET_HEADER_FIELD_PAYLOAD_SIZE                   (IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 1)
+#define IOC_NET_HEADER_FIELD_MAX_FRM_SIZE                   (IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 2)
+#define IOC_NET_HEADER_FIELD_MIN_FRM_SIZE                   (IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 3)
+#define IOC_NET_HEADER_FIELD_PAYLOAD_TYPE                   (IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 4)
+#define IOC_NET_HEADER_FIELD_FRAME_SIZE                     (IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 5)
+#define IOC_NET_HEADER_FIELD_PAYLOAD_ALL_FIELDS             ((IOC_NET_HEADER_FIELD_PAYLOAD_BUFFER << 6) - 1)
+
+
+typedef uint8_t ioc_header_field_gre_t;
+
+#define IOC_NET_HEADER_FIELD_GRE_TYPE                       (1)
+#define IOC_NET_HEADER_FIELD_GRE_ALL_FIELDS                 ((IOC_NET_HEADER_FIELD_GRE_TYPE << 1) - 1)
+
+
+typedef uint8_t ioc_header_field_minencap_t;
+
+#define IOC_NET_HEADER_FIELD_MINENCAP_SRC_IP                (1)
+#define IOC_NET_HEADER_FIELD_MINENCAP_DST_IP                (IOC_NET_HEADER_FIELD_MINENCAP_SRC_IP << 1)
+#define IOC_NET_HEADER_FIELD_MINENCAP_TYPE                  (IOC_NET_HEADER_FIELD_MINENCAP_SRC_IP << 2)
+#define IOC_NET_HEADER_FIELD_MINENCAP_ALL_FIELDS            ((IOC_NET_HEADER_FIELD_MINENCAP_SRC_IP << 3) - 1)
+
+
+typedef uint8_t ioc_header_field_ipsec_ah_t;
+
+#define IOC_NET_HEADER_FIELD_IPSEC_AH_SPI                   (1)
+#define IOC_NET_HEADER_FIELD_IPSEC_AH_NH                    (IOC_NET_HEADER_FIELD_IPSEC_AH_SPI << 1)
+#define IOC_NET_HEADER_FIELD_IPSEC_AH_ALL_FIELDS               ((IOC_NET_HEADER_FIELD_IPSEC_AH_SPI << 2) - 1)
+
+
+typedef uint8_t ioc_header_field_ipsec_esp_t;
+
+#define IOC_NET_HEADER_FIELD_IPSEC_ESP_SPI                   (1)
+#define IOC_NET_HEADER_FIELD_IPSEC_ESP_SEQUENCE_NUM          (IOC_NET_HEADER_FIELD_IPSEC_ESP_SPI << 1)
+#define IOC_NET_HEADER_FIELD_IPSEC_ESP_ALL_FIELDS            ((IOC_NET_HEADER_FIELD_IPSEC_ESP_SPI << 2) - 1)
+
+
+typedef uint8_t ioc_header_field_mpls_t;
+
+#define IOC_NET_HEADER_FIELD_MPLS_LABEL_STACK               (1)
+#define IOC_NET_HEADER_FIELD_MPLS_LABEL_STACK_ALL_FIELDS    ((IOC_NET_HEADER_FIELD_MPLS_LABEL_STACK << 1) - 1)
+
+
+typedef uint8_t ioc_header_field_macsec_t;
+
+#define IOC_NET_HEADER_FIELD_MACSEC_SECTAG                  (1)
+#define IOC_NET_HEADER_FIELD_MACSEC_ALL_FIELDS              ((IOC_NET_HEADER_FIELD_MACSEC_SECTAG << 1) - 1)
+
+typedef enum {
+    e_IOC_NET_HEADER_TYPE_NONE = 0,
+    e_IOC_NET_HEADER_TYPE_PAYLOAD,
+    e_IOC_NET_HEADER_TYPE_ETH,
+    e_IOC_NET_HEADER_TYPE_VLAN,
+    e_IOC_NET_HEADER_TYPE_IPv4,
+    e_IOC_NET_HEADER_TYPE_IPv6,
+    e_IOC_NET_HEADER_TYPE_TCP,
+    e_IOC_NET_HEADER_TYPE_UDP,
+    e_IOC_NET_HEADER_TYPE_IPHC,
+    e_IOC_NET_HEADER_TYPE_SCTP,
+    e_IOC_NET_HEADER_TYPE_SCTP_CHUNK_DATA,
+    e_IOC_NET_HEADER_TYPE_PPPoE,
+    e_IOC_NET_HEADER_TYPE_PPP,
+    e_IOC_NET_HEADER_TYPE_PPPMUX,
+    e_IOC_NET_HEADER_TYPE_PPPMUX_SUBFRAME,
+    e_IOC_NET_HEADER_TYPE_L2TPv2,
+    e_IOC_NET_HEADER_TYPE_L2TPv3_CTRL,
+    e_IOC_NET_HEADER_TYPE_L2TPv3_SESS,
+    e_IOC_NET_HEADER_TYPE_LLC,
+    e_IOC_NET_HEADER_TYPE_LLC_SNAP,
+    e_IOC_NET_HEADER_TYPE_NLPID,
+    e_IOC_NET_HEADER_TYPE_SNAP,
+    e_IOC_NET_HEADER_TYPE_MPLS,
+    e_IOC_NET_HEADER_TYPE_IPSEC_AH,
+    e_IOC_NET_HEADER_TYPE_IPSEC_ESP,
+    e_IOC_NET_HEADER_TYPE_UDP_ENCAP_ESP, /* RFC 3948 */
+    e_IOC_NET_HEADER_TYPE_MACSEC,        /* moved */
+    e_IOC_NET_HEADER_TYPE_GRE,
+    e_IOC_NET_HEADER_TYPE_MINENCAP,
+    e_IOC_NET_HEADER_TYPE_DCCP,
+    e_IOC_NET_HEADER_TYPE_ICMP,
+    e_IOC_NET_HEADER_TYPE_IGMP,
+    e_IOC_NET_HEADER_TYPE_ARP,
+    e_IOC_NET_HEADER_TYPE_CAPWAP,         /* new */
+    e_IOC_NET_HEADER_TYPE_CAPWAP_DTLS,    /* new */
+    e_IOC_NET_HEADER_TYPE_RFC2684,
+    e_IOC_NET_HEADER_TYPE_USER_DEFINED_L2,
+    e_IOC_NET_HEADER_TYPE_USER_DEFINED_L3,
+    e_IOC_NET_HEADER_TYPE_USER_DEFINED_L4,
+    e_IOC_NET_HEADER_TYPE_USER_DEFINED_SHIM1,
+    e_IOC_NET_HEADER_TYPE_USER_DEFINED_SHIM2,
+    e_IOC_NET_MAX_HEADER_TYPE_COUNT
+} ioc_net_header_type;
+
+
+#endif /* __NET_IOCTLS_H */

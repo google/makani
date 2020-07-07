@@ -1,0 +1,9 @@
+include "avionics/firmware/serial/serial_params.p2";
+
+enum32 MvlvHardware {
+  SyncRectRevA1 = 0,
+}
+
+specialize(SerialParams) MvlvSerialParams {
+  MvlvHardware hardware_revision;
+}

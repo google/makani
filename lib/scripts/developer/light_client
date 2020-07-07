@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname $(readlink -f $0))/../../../bazel-out/k8-py2-fastbuild/bin/avionics/light/light_client" "$@"

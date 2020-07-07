@@ -1,0 +1,17 @@
+struct LoadcellPinCalib {
+  float32 strain_0_scale;  // Newtons/count.
+  float32 strain_1_scale;  // Newtons/count.
+  int32 strain_0_zero;  // Counts.
+  int32 strain_1_zero;  // Counts.
+}
+
+struct BridleJuncCalib {
+  float32 loadcell_zero;  // Newtons.
+  float32 encoder_pi_over_2_port;  // Radians.
+  float32 encoder_pi_over_2_stbd;  // Radians.
+}
+
+param LoadcellCalibParams {
+  LoadcellPinCalib pin_calib;
+  BridleJuncCalib bridle_calib;
+}

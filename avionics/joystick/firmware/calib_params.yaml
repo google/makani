@@ -1,0 +1,47 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+futaba_t7c: !JoystickCalibParams
+  roll:
+    index: 0
+    offset: -8.963200e+04
+    gain: 3.030487e-05
+    min: -1.000000
+    max: 1.000000
+  pitch:
+    index: 1
+    offset: -8.967200e+04
+    gain: 3.026818e-05
+    min: -1.000000
+    max: 1.000000
+  yaw:
+    index: 3
+    offset: -8.951200e+04
+    gain: 3.039698e-05
+    min: -1.000000
+    max: 1.000000
+  throttle:
+    index: 2
+    offset: -1.212710e+05
+    gain: -1.533836e-05
+    min: 0.000000
+    max: 1.000000
+  tri_switch:
+    index: 6
+    min: 0x0000B103
+    max: 0x00020AC5
+  momentary_switch:
+    index: 4
+    min: 0x0000B103
+    max: 0x00020AC5

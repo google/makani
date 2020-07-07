@@ -1,0 +1,46 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{ar}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+
+\begin{document}
+
+\section{Simulator}
+
+\begin{eqnarray}
+\dot{\mathbf{x}} &=& f(t, \mathbf{x}, \mathbf{u}) \\
+\mathbf{y} &=& h(t, \mathbf{x}, \mathbf{u})
+\end{eqnarray}
+
+\begin{equation}
+\mathbf{x}_{\mathrm{wing}} = [\vec{x}_g, \vec{v}_b, \vec{q}, \vec{\omega}]^T
+\end{equation}
+
+\begin{equation}
+\mathbf{u}_{\mathrm{wing}} = [\vec{v}_{\mathrm{wind}}, \vec{\delta}, \vec{f}_{\mathrm{ext.}}]^T
+\end{equation}
+
+\begin{equation}
+\mathbf{y}_{\mathrm{wing}} = [\phi, \theta, \psi]^T
+\end{equation}
+
+\begin{eqnarray}
+\mathbf{x}_{n+1} &=& f(\mathbf{x}_n, \mathbf{u}_n) \\
+\mathbf{y}_{n+1} &=& h(\mathbf{x}_n, \mathbf{u}_n)
+\end{eqnarray}
+
+
+\section{Wind}
+
+\begin{equation}
+v(h) = v_0 \left( \frac{h}{h_0} \right)^{\alpha}
+\end{equation}
+
+
+
+\end{document}

@@ -1,0 +1,138 @@
+Release notes for
+*************************************************
+GNU Tools for ARM Embedded Processors 4.9
+                               - Q3 2015
+*************************************************
+
+This release includes the following items:
+* Bare metal EABI pre-built binaries for running on a Windows host
+* Bare metal EABI pre-built binaries for running on a Linux host
+* Bare metal EABI pre-built binaries for running on a Mac OS X host
+* Source code package (together with build scripts and instructions to setup
+  build environment), composed of:
+  * gcc : ARM/embedded-4_9-branch revision 227977
+    http://gcc.gnu.org/svn/gcc/branches/ARM/embedded-4_9-branch/
+
+  * binutils : 2.24 with mainline backports
+    git://sourceware.org/git/binutils-gdb.git commit 136a940ac535e464d2a7a86880ce1f1a5554c484
+
+  * newlib and newlib-nano :
+    git://sourceware.org/git/newlib-cygwin.git commit 36da3f961ce7f1b209842b8d883bf1c018466fe8
+
+  * gdb : 7.8 with mainline backport/without target sim support
+    git://sourceware.org/git/binutils-gdb.git commit c9792faa1e25cb54edf55ffce93582370c99e4ac
+
+  * cloog 0.18.0 : 
+    ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-0.18.0.tar.gz
+
+  * expat 2.0.1 :
+    http://jaist.dl.sourceforge.net/project/expat/expat/2.0.1/expat-2.0.1.tar.gz
+
+  * gmp 4.3.2 : ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
+
+  * libelf 0.8.13 : http://www.mr511.de/software/libelf-0.8.13.tar.gz
+
+  * libiconv 1.14 :
+    http://ftp.gnu.org/gnu/libiconv/libiconv-1.14.tar.gz
+
+  * mpc 0.8.1 : ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
+
+  * mpfr 2.4.2 : ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.2.tar.bz2
+
+  * isl 0.11.1 : ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-0.11.1.tar.bz2
+
+  * zlib 1.2.8
+    http://sourceforge.net/projects/libpng/files/zlib/1.2.8/zlib-1.2.8.tar.gz/download 
+
+Supported hosts:
+* Windows 7 32/64 bits (with installer and alternative zip package)
+* Linux 32/64 bits
+  - Ubuntu 8.x or later (tarball)
+  - Ubuntu LTS 10.04 and later (PPA)
+  - RHEL 4/5/6 (tarball)
+* Mac OS X 10.7.3 and newer 64 bits (tarball)
+
+Supported target OS:
+* Bare metal EABI only
+
+Features:
+* All GCC 4.9 features, plus latest mainline features
+  - Cortex-M7 support
+  - Small multiply support with options:
+    . -mcpu=cortex-m1.small-multiply
+    . -mcpu=cortex-m0.small-multiply
+    . -mcpu=cortex-m0plus.small-multiply
+* Dedicated multilib for Cortex-M7
+  - cortex-m7
+  - cortex-m7/fpu/fpv5-d16
+  - cortex-m7/fpu/fpv5-sp-d16
+  - cortex-m7/softfp/fpv5-d16
+  - cortex-m7/softfp/fpv5-sp-d16
+* Define aeabi_memcpy and aeabi_memcpy4 routines in newlib.
+* Define aeabi_memmove, aeabi_memset and aeabi_memclr routines in newlib.
+* Thumb-1 library optimizations.
+* Additional code size optimizations.
+* Add gdb python build (arm-none-eabi-gdb-py).
+* Object file without attribute section can be linked with any
+  others.
+* The options -mapcs, -mapcs-frame, -mtpcs-frame and -mtpcs-leaf-frame
+  will be deprecated in gcc 5.0, hence recommend to avoid them.
+
+Tests:
+* Tested on a variety of Cortex-M0/M0+/M3/M4/M7/A9 boards
+* Tested on Qemu
+
+Important bugs fixed in 4.9 update 3 release:
+* Newlib format specifier mismatch fix.
+  https://answers.launchpad.net/gcc-arm-embedded/+question/269083
+* Newlib macro mismatch fix.
+  https://answers.launchpad.net/gcc-arm-embedded/+question/269177
+* Assembler encoding bug fix.
+  https://sourceware.org/ml/binutils/2015-08/msg00028.html
+
+Important bugs fixed in 4.9 update 2 release:
+* Updated some inline assembly code in Newlib to work with old targets
+  https://www.sourceware.org/ml/newlib/2015/msg00386.html
+* Avoid wastage caused by section size promotion
+  https://answers.launchpad.net/gcc-arm-embedded/+question/262160
+* Local register variables don't work correctly with inline asm operands
+  https://bugs.launchpad.net/gcc-arm-embedded/+bug/1411655
+
+Important bugs fixed in 4.9 update 1 release:
+* LD backport to keep zero length section in final axf file
+  https://bugs.launchpad.net/gcc-arm-embedded/+bug/1412384
+* Fix GDB crash caused by discarding the grouped debug sections
+  https://sourceware.org/ml/binutils/2015-01/msg00007.html
+* Add a Thumb1 insn pattern to legalize the instruction that
+  moves pc to low register
+  https://gcc.gnu.org/ml/gcc-patches/2015-01/msg00458.html
+* Update GCC to generate Tag_ABI_HardFP_use per the latest EABI doc
+  https://gcc.gnu.org/ml/gcc-patches/2015-01/msg00991.html
+* Live high register not saved in function prolog with -Os
+  https://gcc.gnu.org/ml/gcc-patches/2015-01/msg00998.html
+* --var-info-path-expression fails for nested structs
+  https://sourceware.org/bugzilla/show_bug.cgi?id=16084
+
+Important bugs fixed in 4.9 major release:
+* LTO ignores -fno-short-enums
+  https://bugs.launchpad.net/gcc-arm-embedded/+bug/1315810
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61123
+* Incorrect folding of bitfield in a union on big endian targets
+  https://bugs.launchpad.net/gcc-arm-embedded/+bug/1330388
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=62103
+* newlib-nano printf("%.*s",moo) walks off the end of string
+  https://bugs.launchpad.net/gcc-arm-embedded/+bug/1385829
+
+Known Changes:
+* We now use a gcc pass to implement the function of the plugin mentioned in
+  http://gcc.gnu.org/ml/gcc-patches/2013-05/msg00667.html.
+  Such pass only exists in embedded-4_9-branch branch and not in upstream
+  mainline.  A new option -ftree-switch-shortcut can be used to turn on/off
+  this pass.  By default it is off.
+
+Known Issues:
+* Thumb1 code size regression due to new register allocation:
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61578
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59535
+  A workaround is to disable it by option -mno-lra.
+

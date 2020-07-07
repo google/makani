@@ -1,0 +1,15 @@
+To setup local multicast**, edit /etc/network/interfaces.  Find the line:
+
+iface lo inet loopback
+
+and below that line add:
+
+  post-up route add -net 239.0.0.0 netmask 255.0.0.0 dev lo
+
+and restart.  To temporarily enable local multicast routes run:
+
+sudo route add -net 239.0.0.0 netmask 255.0.0.0 dev lo
+
+
+** Do not setup local multicast if you are planning on running HITLs on
+   this machine.

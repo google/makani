@@ -1,0 +1,76 @@
+
+    Typical AVL session keyboard inputs.
+
+    All commands can be in lowercase.
+
+    Blank lines below are for clarity.  They are NOT Returns!
+
+    Indentation in the command listing below indicates 
+    the menu level to help navigation.
+
+    A command in quotes, e.g "L", means that the letter
+    is typed when the cursor is in the plot window rather
+    than the text window.
+
+
+    Start AVL with an input-file argument, such as the Bubble Dancer RC glider.
+    This command will read the bd.avl, bd.mass, bd.run files.  The bd.run file
+    defines trimmed flight over a range of bank angles.
+
+      % cd runs
+      % ../bin/avl bd
+
+
+OPER       enter operating menu
+5          select run case 5 as the target  (40 deg right bank trimmed turn)
+X          execute calculation
+T          Trefftz-Plane plot  (note assymetric loading from yaw rate and sideslip)
+   <Return>   return to OPER menu
+<Return>   back to AVL main menu
+
+MODE       enter eigenmode menu
+N          new eigenvalue calculation  (for range of bank angles)
+B          blowup on roots clustered close to origin (click on blowup window corners)
+X          examine a mode  (click on a phugoid root 7, above x axis, close to y axis)
+  ">"        advance mode in time
+  ">"        advance mode in time
+  ">"        advance mode in time
+  ">"        advance mode in time
+  "P"        toggle camera panning off
+  ">"        hold down key to play real-time movie of mode
+   .
+   .
+   .
+   .
+  "-"        decrease mode scaling
+  "-"        decrease mode scaling
+  "-"        decrease mode scaling
+  "+"        increase mode scaling
+  "1"        set mode scaling to estimated "nice" value
+  "<"        play mode backwards in time
+   .
+   .
+
+  "0"        set time back to zero
+  "<space>"  exit keystroke menu
+
+P          plot root map again
+W          write roots to file
+  <Return>   accept default filename
+  <Return>   overwrite old filename (Y is default response)
+
+M          enter parameter-modification menu
+IXIX 0.4   double roll inertia for all run cases to simulate tip weights
+IZIZ 0.6   double yaw  inertia for all run cases to simulate tip weights
+  <Return>
+
+N          new eigenvalue calculation
+D          toggle data overlay
+  <Return>   overlay data from default filename written earlier
+              (the added inertias mainly affected the Dutch roll roots,
+               which now have lower frequency and much less damping)
+
+<Return>   Return to AVL menu
+
+QUIT       Quit AVL
+

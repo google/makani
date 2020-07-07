@@ -1,0 +1,55 @@
+/*********************************************************************** 
+    Module:  Readme.colors
+ 
+    Copyright (C) 1996 Harold Youngren, Mark Drela 
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+    Report problems to:    guppy@maine.com
+                        or drela@mit.edu  
+***********************************************************************/ 
+
+Xplot11  
+C     Version 4.46 11/28/01
+
+
+This Readme file pertains to problems with colors under some window managers.
+
+The color routines used here employ shared colormaps to avoid the major screen
+color dislocations that accompany switching mouse focus with private colormaps.
+When the window manager leaves a sufficient number of color entries unallocated
+this approach works fine.  Newer window managers, notably the fvwm-95 variants
+that are now supplied with the Linux distributions, appear to eat up almost
+the complete colormap for themselves with allocations for many pixmaps for
+icons.  This causes heartaches when using Xplot11 as you get lots of messages  
+about trouble allocating colors (and the colors are messed up in the plot). 
+
+This could be avoided by allocating private colormaps but this gets into the 
+color flashing problem alluded to above.  
+
+For the time being I suggest using a window manager that doesn't go overboard
+allocating lots of colors.  Twm works fine, I use plain old fvwm with xfm
+for my usual interface, I set up an .fvwmrc file that does not use 
+too many wasteful color features (like lots of pixmap icons).  This leaves 
+around 200 free colors most of the time.  Note that if you run something like 
+xv displaying a typical color gif file you will eat up most or all the free 
+colors while that application is running.  Once you quit xv (or whatever) the
+colors are freed and clashes with Xplot11 disappear.
+
+If there is a sufficient problem with this I will make an option of allocating
+a private colormap when no color space is available in the shared colormap...
+
+HY
+

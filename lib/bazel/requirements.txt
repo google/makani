@@ -1,0 +1,150 @@
+# Used for a variety of configuration files.
+PyYAML==5.1.1
+
+# Google API client.
+google-api-python-client==1.7.7
+oauth2client==4.1.3
+
+# Ctypeslib for C to Python conversion (no direct import).
+clang==6.0.0.2
+ctypeslib2==2.2.1
+
+# Numerical libraries.
+control==0.8.0
+cvxopt==1.2.3
+h5py==2.7.1
+matplotlib==2.0.0
+numpy==1.14.6
+pandas==0.19.2
+scipy==1.1.0
+
+# Visualization packages.
+bokeh==0.13.0
+
+# Python dialog wrapper used by ui_helper.
+python2-pythondialog==3.3.0
+
+# Crcmod for fast checksum computation (no direct import).
+crcmod==1.7
+
+# Pyqtgraph for motor plotting tools.
+pyqtgraph==0.10.0
+PySide==1.2.4
+
+# Used by standalone Log Synchronizer.
+jsmin==2.2.2
+psutil==5.4.8
+
+# Used by pack2.
+ply==3.8
+
+# Modules to interface with hardware.
+pyudev==0.16.1
+pyserial==3.2.1
+
+# Install Jupyter notebook (no direct import).
+jupyter==1.0.0
+notebook==5.6.0
+backports.shutil_get_terminal_size==1.0.0
+
+# Install Google Cloud APIs.
+google-cloud-error-reporting==0.32.0
+google-cloud-pubsub==0.40.0
+
+# Used by webmonitor.
+Django==1.6
+django-extensions==1.6.7
+expiringdict==1.1.4
+
+# Used by json_obj.py.
+jsonpickle==1.0
+
+# Install google flag library.
+python-gflags==3.1.2
+
+# Pexpect library for monitoring subprocesses.
+pexpect==4.6.0
+ptyprocess==0.6.0
+
+# MySQL client for Log Analyzer.
+mysqlclient==1.3.12
+
+# Used by the simdata analysis tools.
+python-dateutil==2.8.0
+
+# Not directly imported by our project (but previously installed explicitly).
+# TODO: Consider removing these packages if they are not needed.
+functools32==3.2.3.post2
+slycot==0.3.0
+tables==3.4.4
+colorcet==0.9.1
+Jinja2==2.10
+MarkupSafe==1.0
+packaging==17.1
+coverage==4.0.3
+tabulate==0.8.2
+
+# Joystick
+wxPython==4.0.6
+
+# Frozen dependencies of explicitly installed packages.
+argcomplete==1.10.0
+asn1crypto==0.24.0
+backports-abc==0.5
+boto==2.49.0
+cachetools==3.1.1
+certifi==2019.3.9
+cffi==1.12.3
+chardet==3.0.4
+cryptography==2.7
+cycler==0.10.0
+enum34==1.1.6
+fasteners==0.15
+funcsigs==1.0.2
+futures==3.3.0
+gcs-oauth2-boto-plugin==2.5
+google-api-core==1.14.3
+google-apitools==0.5.30
+google-auth==1.8.1
+google-auth-httplib2==0.0.3
+google-cloud-core==1.1.0
+google-cloud-logging==1.11.0
+google-reauth==0.1.0
+googleapis-common-protos==1.6.0
+grpc-google-iam-v1==0.12.3
+grpcio==1.25.0
+gsutil==4.46
+httplib2==0.13.0
+idna==2.8
+ipaddress==1.0.22
+mock==2.0.0
+monotonic==1.5
+numexpr==2.6.9
+pbr==5.4.1
+protobuf==3.8.0
+pyasn1==0.4.5
+pyasn1-modules==0.2.5
+pycparser==2.19
+pyOpenSSL==19.0.0
+pyparsing==2.4.0
+pytz==2019.1
+pyu2f==0.1.4
+requests==2.22.0
+retry-decorator==1.1.0
+rsa==4.0
+singledispatch==3.4.0.3
+six==1.12.0
+SocksiPy-branch==1.1
+subprocess32==3.5.4
+tornado==5.1.1
+uritemplate==3.0.0
+urllib3==1.25.3
+
+# For starting local Colab runtimes so they can use Makani scripts.
+jupyter-http-over-ws==0.0.7
+
+# For AppEngine service.
+GoogleAppEngineCloudStorageClient==1.9.22.1
+
+# For gcs_fetch
+google-cloud-storage==1.23.0

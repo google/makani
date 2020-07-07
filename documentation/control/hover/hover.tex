@@ -1,0 +1,1269 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}
+\geometry{letterpaper}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{dsp,fit}
+
+\input{../util/airfoils.tex}
+\input{../util/control.tex}
+\input{../util/coordinate_systems.tex}
+\input{../util/catenary.tex}
+\input{../util/wing.tex}
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\newcommand{\qhat}{\hat{q}}
+\newcommand{\cbar}{\bar{c}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\cmd}{\mathrm{cmd}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\wind}{\mathrm{wind}}
+\newcommand{\wing}{\mathrm{wing}}
+\newcommand{\kite}{\mathrm{kite}}
+\newcommand{\nom}{\mathrm{nom}}
+\newcommand{\aero}{\mathrm{aero}}
+\newcommand{\geom}{\mathrm{geom}}
+
+\begin{document}
+
+\section{Overview}
+
+\begin{equation}
+\left[
+\begin{array}{cc}
+\mathbf{m} & \mathbf{0} \\
+\mathbf{0} & \mathbf{I}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\ddot{\vec{x}}_h \\
+\dot{\vec{\omega}}
+\end{array}
+\right]
++
+\left[
+\begin{array}{c}
+\vec{0} \\
+\vec{\omega} \times \mathbf{I} \vec{\omega}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+T C_b^h \hat{x}_b + m \vec{g}_h + \vec{f}^{\mathrm{bridle}}_h \\
+\vec{\tau}^{\mathrm{motor}}_b + \vec{\tau}^{\mathrm{bridle}}_b
+\end{array}
+\right]
+\end{equation}
+
+\begin{equation}
+C_h^b = \mathbf{1} \cos \theta +
+(1 - \cos \theta) \hat{e} \hat{e}^T + \hat{e}_{\times} \sin \theta
+\end{equation}
+
+\begin{eqnarray}
+m \ddot{x}_h &=& T C_b^h \hat{x}_b - m g + t_{x_h} \\
+&=& T ((1 - \cos \theta) e^2_{x_h} + \cos \theta) - m g + t_{x_h} \\
+&\approx& T - m g + t_{x_h}
+\end{eqnarray}
+
+\begin{eqnarray}
+m \ddot{y}_h &=& T C_b^h \hat{x}_b \\
+&=& T ((1 - \cos \theta) e_{x_h} e_{y_h} - e_{z_h} \sin \theta) \\
+&\approx& -T \theta_z
+\end{eqnarray}
+
+\begin{equation}
+\mathbf{I}_b \dot{\vec{\omega_b}} = \tau^{\mathrm{motor}}_b
+\end{equation}
+
+It's always possible to calculate three SISO controllers in the
+principle axis frame and rotate back to the body frame.  The gains
+transform as
+\begin{equation}
+K_b = C_p^b K_p C_b^p
+\end{equation}
+
+\begin{equation}
+\delta q = q_b^{b'} = (q_h^b)^{-1} \star q_h^{b'}
+\end{equation}
+
+\subsection{Hover frame}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \draw[dashed] (0, 0) -- (2, 0) node[above] {$\theta_p$};
+    \draw (0, 0) -- (3, 1) node[midway, above] {$l_p$};
+    \draw[dashed] (3, 1) -- (4, 1) node[pos=0.75, above] {$\theta_t$};
+    \draw (3, 1) -- (5, 3) node[midway, above] {$l_t$};
+    \DrawWingFront[shift={(5, 3)}, scale=0.1, rotate=-45]
+    %\DrawCenterOfMass[shift={(5, 3)}, scale=0.1]
+    %\node[below right] at (5, 3) {wing};
+    \fill[radius=0.05] (0, 0) circle node[above left] {perch};
+  \end{tikzpicture}
+  \caption{Schematic of the model describing the coupling between the
+    wing and the perch.}
+\end{figure}
+
+
+\section{Parameters}
+
+\begin{center}
+  \begin{table}[h]
+    \begin{tabular}{lllll}
+      \hline
+      \hline
+      Subsystem & Parameter & Symbol & Value & Units \\
+      \hline
+      Rotor  & Moment-of-inertia & $I_{\mathrm{prop}}$ & 1.1 & kg m$^2$ \\
+             & Torque constant & $k_P$ & 0.024 & N-m-s$^2$/rad$^2$ \\
+      Wing   & Mass & $m_{\mathrm{wing}}$ & 1422 & kg \\
+             & Area & $A$ & 32.9 & m$^2$ \\
+             & Span & $b$ & 25.66 & m \\
+             & Chord & $c$ & 1.28 & m \\
+             & Roll moment-of-inertia & $I_{xx}$ & 30251 & kg m$^2$ \\
+             & Pitch moment-of-inertia & $I_{yy}$ & 8074 & kg m$^2$ \\
+             & Yaw moment-of-inertia & $I_{zz}$ & 34640 & kg m$^2$ \\
+             & Vertical tail area & $A_{vt}$ & 3 & m$^2$ \\
+             & Vertical tail position & $r_{vt}$ & [0, 0, 0] & m \\
+             & Horizontal tail area & $A_{ht}$ & 3.5 & m$^2$ \\
+             & Horizontal tail position & $\vec{r}_{ht}$ & [-6.25, 0, -3.6] & m \\
+             & Perch peg position & $r_{\mathrm{peg}}$ & [0, 0, 0] & m \\
+             & Drag coefficient side & $C_{D_{\mathrm{side}}}$ & 1.6 & \# \\
+             & Area side & $A_{\mathrm{side}}$ & 8.1 & m$^2$ \\
+             & Drag coefficient front & $C_{D_{\mathrm{front}}}$ & 2 & \# \\
+      Tether & Linear density & $\mu$ & 1 & kg/m \\
+             & Diameter & $d_{\mathrm{tether}}$ & 0.023 & m \\
+             & Full length & $l_t$ & 430 & m \\
+
+      \hline
+      \hline
+    \end{tabular}
+  \end{table}
+\end{center}
+
+\section{Models}
+
+\subsection{Motor model}
+
+The motor model in the simulator is described by the following
+equations:
+\begin{eqnarray}
+I_{\mathrm{prop}} \dot \omega &=&
+\tau_{\mathrm{motor}} - \tau_{\mathrm{aero}} \\
+\dot \tau_{\mathrm{motor}} &=&
+\omega_m (\tau_{\mathrm{cmd}} - \tau_{\mathrm{motor}}) \\
+\tau_{\mathrm{cmd}} &=&
+k_{{\omega}_p} \left( \omega_{\mathrm{cmd}} - \omega \right) +
+k_{{\omega}_i} \int_0^t dt' \left( \omega_{\mathrm{cmd}} - \omega \right) \\
+\tau_{\mathrm{aero}} &=& k_P \omega^2
+\end{eqnarray}
+where $I_{\mathrm{prop}}$ is the moment-of-inertia of the propeller
+and rotor, $\omega$ is the angular rate of the motor, $\omega_m$ is a
+filter frequency that is meant to simulate the bandwidth of the power
+electronics (although this may be misleading as the bandwidth is
+better described by the equations below), $k_{\omega}$ is the gain of
+the speed control loop, and $k_P$ is the torque constant of the
+propellers.  Currently, in the simulator we have $I_{\mathrm{prop}} = 1.1$
+kg m$^2$, $k_P = 0.024$ N-m-s$^2$/rad$^2$, $k_{{\omega}_p} = 36.2$ N-m-s/rad,
+$k_{{\omega}_i} = 36.2$  N-m-s$^2$/rad.  The typical operating point of the
+rotors is around, $\omega_{\mathrm{nom}} = 130$ rad/s.
+
+Based on the motor model equations, the transfer function for the
+motor's angular rate is:
+\begin{eqnarray}
+\frac{\Omega(s)}{\Omega_{\mathrm{cmd}}(s)}
+&=& \frac{H(s)}{I_{\mathrm{prop}} s + H(s) + 2 k_P \omega_{\mathrm{nom}}} \\
+H(s) &=& \frac{\omega_m}{s + \omega_m} (k_{{\omega}_p} + k_{{\omega}_i} / (s - p))
+\end{eqnarray}
+The DC gain of the motors is
+\begin{equation}
+\frac{\Omega(0)}{\Omega_{\mathrm{cmd}}(0)} =
+\frac{k_{{\omega}_p} + k_{{\omega}_i} / p}
+{k_{{\omega}_p} + k_{{\omega}_i} / p + 2 k_P \omega_{\mathrm{nom}}}
+\end{equation}
+Here $p = 2 \pi 0.03$ rad/s is a ``fake'' pole that we put into the
+simulator so the motor transfer function doesn't fight the stacking
+controller.
+
+And thus, we can reasonably describe the overall motor moment, and
+thrust, transfer functions by a second order sytem:
+\begin{equation}
+\frac{M_{\mathrm{motor}}(s)}{M_{\mathrm{cmd}}(s)} =
+\frac{\omega_0^2}{s^2 + 2 \zeta \omega_0 s + \omega_0^2}
+\end{equation}
+For the motors currently in the simulator $\omega_0 = 2 \pi 10$ rad/s and
+$\zeta = 1$.
+
+\subsection{Yaw model}
+
+The yaw model is the easiest model to describe.
+\begin{equation}
+\frac{\Psi(s)}{M_z(s)} = \frac{1}{I_{zz} s^2}
+\end{equation}
+At the nominal zero yaw rate, aerodynamic damping is effectively zero.
+
+During perching, the yaw model is modified to account for dynamics
+from the perch peg.  With the small normal force from the inclined
+perch panel and with non-zero peg friction, the system is effectively
+an inverted pendulum about the peg.  The transfer function is:
+\begin{equation}
+\frac{\Psi(s)}{M_z(s)} =
+\frac{1}{(I_{zz} + m l_{\mathrm{peg}}^2) s^2 - m g\, l_{\mathrm{peg}}}
+\end{equation}
+Here $l_{\mathrm{peg}} = 3$ m is the lever arm from the center-of-mass
+to the perch peg.
+
+Although aerodynamic forces do not have a large effect on the dynamics
+of the yaw model, large tangential velocities, or equivalently, a
+large side wind component, results in a significant aerodynamic
+moment, which should be eliminated through a feed-forward term:
+\begin{equation}
+m^{\mathrm{aero}}_z = \frac{1}{2} \rho v_y^2 C_{D_t} A_{vt} (-x_{vt})
+\end{equation}
+where $C_{D_t} \approx 1.6$ is the vertical tail's drag coefficient,
+$A_{vt} = 3$ m$^2$ is the vertical tail's area, and $x_{vt} = -7.2$ m
+is the vertical tail's lever arm.  For example, at 90 degrees from
+downwind in 10 m/s of wind, the aerodynamic moment would be
+approximately 2 kN-m.
+
+Similarly, the tether force, which is applied through an asymmetric
+bridle, should be removed through a feed-forward term:
+\begin{equation}
+m^{\mathrm{tether}}_z = \vec{x}_b \times \vec{t} \approx -t_x\, y_b
+\end{equation}
+Because the tether force is primarly in the $x$ and $z$ directions,
+the effect is mostly due to tether weight.  At full tether extension,
+with $t_x \approx 225$ N and $y_b = 0.5$ m, the tether moment would be
+113 N-m.
+
+\subsection{Pitch model}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \begin{scope}[scale=0.4]
+      \DrawWingSideWithCoordinateSystem[shift={(20, 0)}]
+      \DrawWingBottomWithCoordinateSystem
+      \DrawWingFrontWithCoordinateSystem[shift={(0, -13)}]
+    \end{scope}
+  \end{tikzpicture}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \draw[dashed] (0, 0) -- (0, 4) node[below right] {$\theta$};
+    %% \draw[thick, ->] (-3, -2.5) -- (-1, -2.5)
+    %%                  node[below left] {$\vec{v}_{\mathrm{wind}}$};
+    \begin{scope}[shift={(0, 2)}, rotate=-110]
+      \DrawCenterOfMass[scale=0.15]
+      \DrawCamberedAirfoil[scale=3, shift={(-0.25, 0)}]
+      \begin{scope}[shift={(4, 1)}, rotate=20]
+        \DrawAirfoil[scale=1.5, shift={(-0.25, 0)}]
+        \draw[dashed] (-0.25, 0) -- (-1.5, 0) node[below] {};%{$\alpha_{ht}$};
+      \end{scope}
+
+      \draw[thick, ->] (-0.8, 0) -- (-1.8, 0) node[right] {$T$};
+      \draw[thick, ->] (1.1, -0.35) -- (2, -2.15) node[above] {$\vec{t}$};
+
+      \draw[dashed] (0, 0) -- (4, 0);
+      \draw[dashed] (4, 0) --(4, 1) node [above right] {$(x_{ht}, z_{ht})$};
+      \draw[dashed] (3, 1) -- (5, 1);
+
+      \fill[radius=0.05] (1, -0.15) circle node[above left] {$(x_b, z_b)$};
+
+      \draw[->] (5, 1) arc[radius=1, start angle=0, end angle=20]
+                       node[right] {$-\delta_e$};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Side view of a wing showing the forces and variables
+    relevant to the pitch model.}
+\end{figure}
+
+Away from the perch, the pitch model is similar to the yaw model
+except that the tether force couples more strongly to the pitch
+dynamics due to the relationship between tension and pitch angle.  For
+simplicity, we assume that the tether is perfectly stiff (a poor
+assumption at full pay-out).  Then the tether moment is
+\begin{equation}
+m^{\mathrm{tether}}_y = \vec{x}_b \times \vec{t} \approx -t_z\, x_b
+\approx -T \sin \theta x_b
+\end{equation}
+
+The elevator aerodynamics are also a significant difference from the
+yaw model.  At typical wind speeds for power generation, the elevator
+provides significant restoring and damping forces.  The aerodynamic
+moment from the elevator is:
+\begin{equation}
+m^{\mathrm{aero}}_y =
+-\frac{1}{2} \rho v_w^2 A_{ht} (-z_{ht}) \frac{dC_L}{d\alpha}
+\left(\alpha_0 + \theta + \frac{\dot \theta (-z_{vt})}{v_w}\right)
+\end{equation}
+With $v_w = 10$ m/s, $A_{ht} = 3.5$ m$^2$, $z_{ht}=-3.6$ m,
+$dC_L/d\alpha \approx 4.8$, we find aerodynamic spring and damping
+coefficients of $k_{\mathrm{aero}} = 3.6 \times 10^3$ N-m/rad and
+$b_{\mathrm{aero}} = 1.3 \times 10^3$ N-m-s/rad.
+
+\begin{equation}
+\frac{\Theta(s)}{M_y(s)} =
+\frac{1}{I_{yy} s^2 + b_{\mathrm{aero}} s + k_{\mathrm{tether}} + k_{\mathrm{aero}}}
+\end{equation}
+
+At large pay-outs, where the tether acts more as a soft spring due to
+the catenary, a coupled linear and rotational model is more
+appropriate.
+\begin{eqnarray}
+m \ddot{x} = T \sin \theta - k (x - l_b \sin \theta) \\
+I_{yy} \ddot{\theta} = k (x - l_b \sin \theta) l_b + \tau_y
+\label{eqn:pitch_system}
+\end{eqnarray}
+Here $m = 1422$ kg is the wing mass, $l_b = 0.15$ m is the lever arm
+from the bridle attachment point to the wing's center-of-mass, $T$ is
+the total thrust from the propellers (which is typically significantly
+greater than the weight of the wing), and $k$ is the spring constant
+due to the tether or catenary.
+
+Linearizing and converting Eq. \ref{eqn:pitch_system} to an equation
+in a single variable, we find:
+\begin{eqnarray}
+I_{yy} \ddddot{\theta} &=&
+\frac{k l_b}{m} \left( T \theta - k(x - l_b \theta) - l_b m \ddot{\theta} \right)
++ \ddot{\tau}_y \\
+&=&
+\frac{k l_b}{m} \left( T \theta + \frac{\tau_y}{l_b}
+- \frac{I_{yy}}{l_b} \ddot{\theta}  - l_b m \ddot{\theta} \right) + \ddot{\tau}_y \\
+&=&
+\frac{k l_b T}{m} \theta + \frac{k}{m} \tau_y
+- \left(\frac{k I_{yy}}{m} + k l_b^2 \right) \ddot{\theta} + \ddot{\tau}_y
+\end{eqnarray}
+
+\begin{equation}
+\left(I_{yy} s^4 + \left(k I_{yy}/m + k l_b^2 \right) s^2
+- \frac{k l_b T}{m} \right) \Theta(s) = \left(\frac{k}{m} + s^2\right) M_y(s)
+\end{equation}
+For large spring constants, close to the perch, this simplifies to:
+\begin{equation}
+\left((I_{yy} + m l_b^2) s^2 - l_b T \right)  \Theta(s) = M_y(s)
+\end{equation}
+
+
+During launching and perching, when we are in contact with the perch
+panel, there is an additional term from the spring constant,
+$k_p = 1 \times 10^6$, and lever arm, $l_p = 3$ m, of the perch peg:
+\begin{equation}
+\left((I_{yy} + m l_b^2) s^2 - l_b T + k_p l_p \right) \Theta(s) = M_y(s)
+\end{equation}
+
+
+\subsection{Bridle model}
+
+The bridle couples the roll, pitch, and yaw models together.  For the
+most part, the simple models are sufficient for controller
+development.  However, ...
+
+
+\begin{eqnarray}
+\vec{m}_{\mathrm{bridle}}
+&=& \vec{r}_b \times C_g^b \vec{t}_g \\
+&=& (\vec{r}_b^{\mathrm{fixed}} + \vec{r}_b^{\mathrm{pivot}}) \times C_g^b \vec{t}_g
+\end{eqnarray}
+where
+\begin{equation}
+\vec{r}_b^{\mathrm{pivot}} = R_{\mathrm{bridle}}
+\frac{C_g^b \hat{t}_g -  (C_g^b \hat{t}_g \cdot \hat{y}_b) \hat{y}_b}
+{|C_g^b \hat{t}_g -  (C_g^b \hat{t}_g \cdot \hat{y}_b) \hat{y}_b|}
+\end{equation}
+
+Using the identity $\dot{C_g^b} = [\Omega]_{\times} C_g^b$ where
+\begin{equation}
+[\Omega]_{\times} = \left(
+\begin{array}{ccc}
+0 & d\psi & -d\theta \\
+-d\psi & 0 & d\phi \\
+d\theta & -d\phi & 0
+\end{array}
+\right)
+\end{equation}
+
+\begin{eqnarray}
+\frac{\partial \vec{m}_b^{\mathrm{bridle}}}{\partial (\phi, \theta, \psi)}
+&=&
+\vec{r}_b^{\mathrm{fixed}} \times [\Omega]_{\times} \vec{t}_b \\
+&+& \frac{R_{\mathrm{bridle}}}
+{|\hat{t}_b -  (\hat{t}_b \cdot \hat{y}_b) \hat{y}_b|}
+\left(
+(-([\Omega]_{\times} \hat{t}_b \cdot \hat{y}_b) \hat{y}_b \times \vec{t}_b
+-(\hat{t}_b \cdot \hat{y}_b) \hat{y}_b \times [\Omega]_{\times} \vec{t}_b \right. \\
+&+& \left. (\hat{t}_b \cdot \hat{y}_b) \hat{y}_b \times \vec{t}_b
+\frac{|[\Omega]_{\times} \hat{t}_b -
+([\Omega]_{\times} \hat{t}_b \cdot \hat{y}_b) \hat{y}_b|}{|\hat{t}_b -
+(\hat{t}_b \cdot \hat{y}_b) \hat{y}_b|} \right) \\
+&+& |dt| \cdot (\vec{r}_b \times \hat{t}_b)
+\end{eqnarray}
+
+\begin{equation}
+|dt| = T \left(
+\begin{array}{c}
+0 \\
+-d\psi \\
+d\theta
+\end{array}
+\right) \cdot \hat{t}
+\end{equation}
+
+
+\subsection{Altitude model}
+
+Far from the perch, the altitude model is
+\begin{equation}
+\frac{X(s)}{T(s)} =
+\frac{1}{m_{\mathrm{eff}} s^2}
+\end{equation}
+where $m_{\mathrm{eff}} = m_{\mathrm{wing}} + m_{\mathrm{tether}}/3$.
+Near the perch, we include the downward force of the tether.
+\begin{equation}
+\frac{X(s)}{T(s)} =
+\frac{1}{m_{\mathrm{eff}} s^2 + t / l_{\mathrm{tether}}}
+\end{equation}
+where $t$ is the nominal tension in the tether and
+$l_{\mathrm{tether}}$ is the payed tether length.
+
+\subsection{Tangential position model}
+
+\begin{equation}
+(m_{\mathrm{wing}} + m_{\mathrm{tether}}/3) \ddot{y}_h = T \sin \psi -
+\frac{1}{2} \rho \dot{y}^2 (C_{D_{\mathrm{side}}} A_{\mathrm{side}} +
+C_{D_{\mathrm{tether}}} d_{\mathrm{tether}} l_{\mathrm{tether}}/4)
+\end{equation}
+$C_{D_{\mathrm{side}}} = 1.6$, $A_{\mathrm{side}} = 8.1$ m$^2$ including
+the pylon side area and the vertical tail side area.
+$C_{D_{\mathrm{tether}}} = 1.2$ and $d_{\mathrm{tether}} = 0.023$ m.
+
+\begin{equation}
+\frac{Y(s)}{\Psi(s)} =
+\frac{T}{m_{\mathrm{eff}} s^2 + \rho |v_y| C_{D_{\mathrm{eff}}} A_{\mathrm{side}} s}
+\end{equation}
+
+\subsubsection{Tangential position with perch model}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \draw[dashed] (0, 0) -- (2, 0) node[above] {$\theta_p$};
+    \draw (0, 0) -- (3, 1) node[midway, above] {$l_p$};
+    \draw[dashed] (3, 1) -- (4, 1) node[pos=0.75, above] {$\theta_t$};
+    \draw (3, 1) -- (5, 3) node[midway, above] {$l_t$};
+    \DrawWingFront[shift={(5, 3)}, scale=0.1, rotate=-45]
+    %\DrawCenterOfMass[shift={(5, 3)}, scale=0.1]
+    %\node[below right] at (5, 3) {wing};
+    \fill[radius=0.05] (0, 0) circle node[above left] {perch};
+  \end{tikzpicture}
+  \caption{Schematic of the model describing the coupling between the
+    wing and the perch.}
+\end{figure}
+When the wing is near the perch, the perch dynamics couple strongly to
+the tangential position loop.  The transfer function between the
+tangential postion $y$ and the yaw angle $\psi$ is described by the
+system:
+
+\begin{equation}
+\dot{\left(
+\begin{array}{c}
+\theta_p \\
+\dot{\theta}_p \\
+\theta_t \\
+\dot{\theta}_t
+\end{array}
+\right)}
+=
+\left(
+\begin{array}{cccc}
+0 & 1 & 0 & 0 \\
+-t l_p/I_p & -b_p & t l_p/I_p & 0 \\
+0 & 0 & 0 & 1 \\
+t l_p^2/l_t I_p & 0 & -t l_p^2/l_t I_p & 0
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+\theta_p \\
+\dot{\theta}_p \\
+\theta_t \\
+\dot{\theta}_t
+\end{array}
+\right)
++
+\left(
+\begin{array}{c}
+0 \\
+0 \\
+0 \\
+T/m l_t
+\end{array}
+\right)
+\psi
+\end{equation}
+
+\begin{equation}
+y = \left(
+\begin{array}{cccc}
+l_p & 0 & l_t & 0
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+\theta_p \\
+\dot{\theta}_p \\
+\theta_t \\
+\dot{\theta}_t
+\end{array}
+\right)
+\end{equation}
+
+\newpage
+\subsubsection{Tangential position with swinging tether model}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \draw[dashed] (-4, 0) -- (4, 0);
+    \draw (0, 0) -- (1, -3) node[midway, above right] {$l_t$};
+    \draw[dashed] (0, 0) -- (0, -3) node[midway, right] {$\psi_t$};
+    \DrawWingBottom[shift={(0, 0)}, scale=0.2, rotate=-5]
+    %\DrawCenterOfMass[shift={(5, 3)}, scale=0.1]
+    %\node[below right] at (5, 3) {wing};
+    \fill[radius=0.05] (0, 0) circle node[above left] {};
+    \fill[radius=0.1] (1, -3) circle node[above right] {$m_t$};
+  \end{tikzpicture}
+  \caption{Schematic of the model describing the coupling between the
+    wing and the tether.}
+\end{figure}
+When the wing is far from the perch, the swinging modes of the tether
+interact strongly with the tangential position controller.  For
+simplicity, we assume the wing is constrained to be at a fixed
+altitude, that the tether is attached at the center-of-mass, and that
+the tether can be modeled as a simple point-mass pendulum.  Very
+approximately, the 
+
+\begin{eqnarray}
+\mathcal{L} &=& \frac{1}{2} m_w \dot{y}^2 +
+\frac{1}{2} m_t (\dot{y} - l_t \dot{\psi_t} \cos \psi_t)^2 +
+\frac{1}{2} m_t (l_t \dot{\psi_t} \sin \psi_t)^2 +
+m_t g l_t \cos \psi_t \\
+&\approx& \frac{1}{2} m_w \dot{y}^2 +
+\frac{1}{2} m_t (\dot{y} - l_t \dot{\psi_t})^2 +
+m_t g l_t \cos \psi_t
+\end{eqnarray}
+
+\begin{equation}
+P = -\frac{1}{2} b_w \dot{y}^2 - \frac{1}{2} b_t (\dot{y} - l_t \dot{\psi}_t)^2
+\end{equation}
+
+\begin{eqnarray}
+(m_w + m_t) \ddot{y} &=& m_t l_t \ddot{\psi}_t - (b_w + b_t) \dot{y}
++ b_t l_t \dot{\psi}_t + T \psi_w \\
+m_t l_t^2 \ddot{\psi}_t &=& m_t l_t \ddot{y} - m_t g l_t \psi_t +
+b_t(\dot{y} - l_t \dot{\psi}_t) l_t
+\end{eqnarray}
+
+
+\begin{eqnarray}
+m_w \ddot{y} &=& m_t (l_t \ddot{\psi_t} - \ddot{y}) - b_w \dot{y} + T \psi_w \\
+m_t l_t^2 \ddot{\psi_t} &=& m_t l_t \ddot{y} - m_t g l_t \psi_t -
+b_t l_t (l_t \dot{\psi}_t - \dot{y})
+\end{eqnarray}
+Here, $b_w = \rho |v_y| A_p C_D$ is due to the side drag force on the
+pylons and vertical tail.  For $v_y = 1$ m/s, $b_w \approx 20$ N-s/m.
+Again, for the tether, $b_t = \rho |v_t| A_t C_D \approx 20$ N-s/m,
+which is due to the side drag force on the tether.
+
+\begin{equation}
+\dot{\left(
+\begin{array}{c}
+y_w \\
+\dot{y}_w \\
+\psi_t \\
+\dot{\psi}_t
+\end{array}
+\right)}
+=
+\left(
+\begin{array}{cccc}
+0 & 1 & 0 & 0 \\
+0 & -\frac{b_w}{m_w} & -\frac{m_t}{m_w}g & 0 \\
+0 & 0 & 0 & 1 \\
+0 & \left(\frac{b_t}{m_t l_t} - \frac{b_w}{m_w l_t}\right) &
+-\left(1 + \frac{m_t}{m_w}\right) \frac{g}{l_t} &
+-\frac{b_t}{m_t}
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+y_w \\
+\dot{y}_w \\
+\psi_t \\
+\dot{\psi}_t
+\end{array}
+\right)
++
+\left(
+\begin{array}{c}
+0 \\
+\frac{T}{m_w} \\
+0 \\
+\frac{T}{m_w l_t}
+\end{array}
+\right)
+\psi_w
+\end{equation}
+
+It is actually pretty hard to make this system unstable with the
+tangential position controller.
+
+
+
+\subsection{Radial position model}
+
+\begin{equation}
+(m_{\mathrm{wing}} + m_{\mathrm{tether}}/3)(-\delta \ddot{z}_h) =
+T \sin \delta \theta -
+\frac{1}{2} \rho (v^{\mathrm{app}}_z + \delta \dot{z}_h)^2
+C_{D_{\mathrm{front}}} A_{\mathrm{front}} - k_{\mathrm{tether}} (-\delta z_h)
+\end{equation}
+
+\begin{equation}
+\frac{Z(s)}{\Theta(s)} =
+\frac{-T}{m_{\mathrm{eff}} s^2 + \rho |v^{\mathrm{app}}_z| C_{D_{\mathrm{front}}} A_{\mathrm{front}} s
++ k_{\mathrm{tether}}}
+\end{equation}
+For $v_z = 10$ m/s, $C_{D_{\mathrm{front}}} = 2$, $A_{\mathrm{front}} = 32$ m$^2$,
+the damping term is approximately 320 N-s/m.
+
+\subsection{Pitch-radial oscillation}
+
+
+
+
+\subsection{Constrained yaw-position model}
+
+During the first hover tests, the wing will be suspended by a
+constaint line from a mast.  The constraint line attaches to the wing
+at a temporary mount called the {\it probiscus}, which is
+approximately 2 m in front of the wing center.  When the wing is at
+partial thrust in this situation, an unstable yaw-position mode can
+develop.  This unstable mode persists even if the unconstrained yaw
+loop is closed.
+
+The system of equations that describe this situation are:
+\begin{eqnarray}
+m_{\mathrm{wing}} \ddot{y} &=& T \sin \psi -
+\frac{t_c}{l_c} (y + l_{\mathrm{prob}} \sin \psi) \\
+I_{zz} \ddot{\psi} &=&
+-\frac{t_c}{l_c} (y + l_{\mathrm{prob}} \sin \psi) l_{\mathrm{prob}} + m_z
+\end{eqnarray}
+where $t_c$ is the constraint tension, $l_c$ is the constraint length,
+and $l_{\mathrm{prob}}$ is the length of the probiscus.  Typical
+values for these variables are $t_c = 7000$ N, $l_c = 5$ m, and
+$l_{\mathrm{prob}} = 2$ m.
+
+Linearizing and reexpressing this system in state-space form, we find:
+\begin{equation}
+  \bold{x} = [y, \dot{y}, \psi, \dot{\psi}]^T
+\end{equation}
+\begin{equation}
+A = \left(
+\begin{array}{cccc}
+   0 & 1 & 0 & 0 \\
+   -t_c/m_{\mathrm{wing}} l_c &
+   0 &
+   g - t_c (l_c + l_{\mathrm{prob}}) / m_{\mathrm{wing}} l_c &
+   0 \\
+   0 & 0 & 0 & 1 \\
+   -t_c l_{\mathrm{prob}} / I_{zz} l_c &
+   0 &
+   -t_c l^2_{\mathrm{prob}}/I_{zz} l_c  &
+   0
+\end{array}
+\right)
+\end{equation}
+\begin{equation}
+B = \left(
+\begin{array}{c}
+  0 \\
+  0 \\
+  0 \\
+  I^{-1}_{zz}
+\end{array}
+\right)
+\end{equation}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \begin{scope}[scale=0.5]
+      \fill[radius=0.1] (4, 8) circle node[above left] {constraint};
+      \draw[dashed] (4, 8) -- (4, 5);
+      \draw (4, 8) -- (-0.52, 2) node[midway, right] {$l_c$};
+
+      \draw[dashed, ->] (0, 0) -- (0, 4) node[above right] {$y_h$}
+                        node[left] {$\psi$};
+      \draw[dashed, ->] (0, 0) -- (-4, 0) node[above right] {$x_h$};
+      \begin{scope}[rotate=15]
+        \fill[radius=0.1] (0, 2) circle node[above left] {$\vec{r}_{\mathrm{prob}}$};
+        \DrawWingBottomWithCoordinateSystem
+      \end{scope}
+    \end{scope}
+  \end{tikzpicture}
+\end{figure}
+
+This system has poles at
+\begin{equation}
+p = \pm \sqrt{\frac{a+d}{2}
+\left(1 \pm \sqrt{1 - 4 \frac{(ad - bc)}{(a + d)^2}}\right)}
+\end{equation}
+where
+\begin{eqnarray}
+a &=& \frac{t_c}{m_{\mathrm{wing}} l_c} \\
+b &=& \frac{t_c (l_c + l_{\mathrm{prob}})}{m_{\mathrm{wing}} l_c} - g \\
+c &=& \frac{t_c l_{\mathrm{prob}}}{I_{zz} l_c} \\
+d &=& \frac{t_c l_{\mathrm{prob}}^2}{I_{zz} l_c}
+\end{eqnarray}
+
+This system is still unstable under many conditions if the yaw loop is
+closed.
+
+% Generate yaw_position_constraint.pdf with yaw_position_constraint.m.
+% Crop with: pdfcrop -margins 10 yaw_position_constraint.pdf
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{yaw_position_constraint-crop.pdf}
+\end{figure}
+
+
+\subsection{Tether and catenary spring constants}
+
+The spring constant of the tether itself is simply:
+\begin{equation}
+F = \frac{E A}{l}
+\end{equation}
+where $E = 150$ N/m$^2$ is the tether's elastic modulus, $A = 4.15 \times 10^{-4}$
+m$^2$ is the tether's cross-sectional area, and $l$ is the payed out
+tether length.  Near the perch, $l < 10$ m, this spring constant
+dominates.
+
+When the wing is far from the perch, the tether catenary acts as a
+softer spring.  To determine the catenary spring constant, we first
+introduce a few basic facts about catenaries.  The formula for a
+catenary with horizontal tension, $T_0$, and weight per unit length,
+$\mu$, is
+\begin{equation}
+y = a \cosh (x / a)\;\; a = T_0 / \mu
+\end{equation}
+To simplify matters, we assume that the wing is level with the ground
+station tether attachment point.  Then the length of the catenary is
+\begin{equation}
+s = 2 a \sinh \left(\frac{r}{2a}\right)
+\label{eqn:cat_length}
+\end{equation}
+where $r$ is the horizontal distance between the wing and ground
+station.  Substituting the length of the tether, $l_T$, for $s$ we can
+numerically solve for the horizontal distance as a function of
+horizontal tension.  Finally, the catenary spring constant is the
+derivative $\frac{dT_0}{dr}$, which can be found implicity from
+Eq. \ref{eqn:cat_length}:
+\begin{equation}
+\frac{dT_0}{dr} = \frac{\mu}{2}
+\frac{\cosh(r / 2a)}{(r/2a)\cosh(r/2a) - \sinh(r/2a)}
+\end{equation}
+For the M600 tether for the minimum tension set-point $T_0 = 3400$ N,
+the catenary spring constant is approximately 80 N/m at full tether
+length.  However, this increases significantly at short tether lengths
+until it surpasses the spring stiffness of the tether at around 10 m
+and 6.7e6 N/m.
+
+% Generate tether_spring.pdf with tether_math.m.
+% Crop with: pdfcrop -margins 10 tether_spring-crop.pdf
+\begin{figure}[h]
+\includegraphics[width=5in]{tether_spring-crop.pdf}
+\caption{Catenary spring constant as a function of payout.}
+\end{figure}
+
+\section{Control}
+
+\subsection{Attitude control}
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=10mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$\vec{\theta}_{\mathrm{cmd}}$}; &
+    \node[dspfilter] (n01) {$\Delta\vec{\theta} = f(\vec{\theta}_1, \vec{\theta}_2)$}; &
+    \node[dspfilter] (n02) {$C_{\mathrm{angles}}$}; &
+    \node[dspfilter] (n03) {$G_{\mathrm{motors}}$}; &
+    \node[dspfilter] (n04) {$G_{\mathrm{rigid\,body}}$}; &
+    \node[dspnodefull] (n05) {}; &
+    \node[dspnodeopen, dsp/label=above] (n06) {$\vec{\theta}$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[coordinate] (n14) {}; &
+    \node[coordinate] (n15) {}; &
+    \node[coordinate] (n16) {}; & \\
+    \node[coordinate] (n20) {}; &
+    \node[coordinate] (n21) {}; &
+    \node[coordinate] (n22) {}; &
+    \node[coordinate] (n23) {}; &
+    \node[coordinate] (n25) {}; &
+    \node[coordinate] (n26) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- node[above] {$\vec{\theta}_{\mathrm{error}}$}
+                 (n02) -- node[above] {$\vec{m}_{\mathrm{cmd}}$}
+                 (n03) -- node[above] {$\vec{m}$} (n04) -- (n05) -- (n06);
+  \draw[dspconn] (n05) |- (n15) -| (n01);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+The attitudes in the hover controller are described in terms of an
+axis-angle error vector from a reference hover frame.  The hover frame
+is defined such that $x$ points upward, or more exactly along
+$-z_{\mathrm{NED}}$, $z$ points toward the ground station but is level
+with the ground, or again more exactly in the $x-y$ plane of the NED
+system.  And finally, $y$ forms a right-handed coordinate system.
+
+The axis-angle representation of the attitude error is convenient
+because it is easy to convert directly to the motor moment commands
+that are used to correct the angle error.
+
+The trimmed hover attitude changes as a function of payout.  Near the
+perch, when the tether is straight, the angle of the bridles is
+determined by the altitude of the wing.  However, far from the perch 
+
+\begin{equation}
+\vec{r}_b^{\mathrm{bridle}} + \hat{t}_h +  C_h^b \vec{t}_h
+\end{equation}
+
+
+\subsection{Altitude control}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=8mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$h_{\mathrm{cmd}}$}; &[-4mm]
+    \node[vdspadder] (n01) {}; &[-4mm]
+    \node[dspfilter] (n02) {$C_{\mathrm{altitude}}$}; &
+    \node[dspfilter] (n03) {$G_{\mathrm{motors}}$}; &
+    \node[dspfilter] (n04) {$G_{\mathrm{altitude}}$}; &
+    \node[dspnodefull] (n05) {}; &
+    \node[dspnodeopen, dsp/label=above] (n06) {$h$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[coordinate] (n14) {}; &
+    \node[coordinate] (n15) {}; &
+    \node[coordinate] (n16) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- (n02) -- node[above] {$T_{\mathrm{cmd}}$} (n03) --
+                 node[above] {$T$} (n04) -- (n05) -- (n06);
+  \draw[dspconn] (n05) |- (n15) -| (n01);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+% \begin{center}
+% \begin{figure}[h]
+% \begin{tikzpicture}
+%   \matrix [row sep=4mm, column sep=8mm] {
+%     \node[dspnodeopen, dsp/label=above] (n00) {$r$}; &[-4mm]
+%     \node[vdspadder] (n01) {}; &[-4mm]
+%     \node[dspfilter] (n02) {$C(s)$}; &
+%     \node[dspfilter] (n03) {$G(s)}$}; &[-4mm]
+%     \node[dspnodefull] (n04) {}; &
+%     \node[dspnodeopen, dsp/label=above] (n05) {$y$}; \\
+%     \node[coordinate] (n10) {}; &
+%     \node[coordinate] (n11) {}; &
+%     \node[coordinate] (n12) {}; &
+%     \node[coordinate] (n13) {}; &
+%     \node[coordinate] (n14) {}; &
+%     \node[coordinate] (n15) {}; & \\
+%   };
+
+%   \draw[dspconn] (n00) -- (n01);
+%   \draw[dspconn] (n01) -- (n02) -- node[above] {$u$} (n03) -- (n04) -- (n05);
+%   \draw[dspconn] (n04) |- (n14) -| (n01);
+% \end{tikzpicture}
+% \end{figure}
+% \end{center}
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=8mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$r$}; &[-4mm]
+    \node[vdspadder] (n01) {}; &[-4mm]
+    \node[dspfilter] (n02) {$G(s)}$}; &[-4mm]
+    \node[dspnodefull] (n03) {}; &
+    \node[dspnodeopen, dsp/label=above] (n04) {$y$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[coordinate] (n14) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- (n02) -- (n03) -- (n04);
+  \draw[dspconn] (n03) |- (n13) -| (n01);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+
+\subsection{Tangential position control}
+
+\subsection{Radial control}
+
+Radial position is not directly controlled; rather, there is a payout
+command and a tension setpoint.  Together these automatically set a
+radial position.  However, at low apparent wind speeds and long tether
+lengths, the radial position is typically very underdamped, which can
+cause large overshoots and long settling times if the wing is started
+from a position far from equilibrium (e.g. after a switch from a
+piloted mode).  To address this, a damping term is added to the radial
+position loop based on the radial velocity.
+
+The radial damping coefficient $k_d$ is chosen such that the poles
+from the closed pitch loop and the poles of the tether spring mode
+have the same damping ratio.  Specifically, we maximize the minimum
+damping ratio.  At short tether lengths, where the effective spring
+constant of the catenary is high or even dominated by the elastic
+spring constant, this will no longer work because there will not be
+sufficient phase margin.  Thus, the damping term is removed at short
+tether lengths.
+
+\subsection{Tension control}
+
+The tension controller attempts to meet a tension command,
+$t_{\mathrm{cmd}}$, by adjusting the pitch command,
+$\theta_{\mathrm{cmd}}$.  This compensator must work well over a wide
+range of system models including the near-perch pitch model, the
+payed-out pitch-spring model, and finally, for robustness, when the
+system has lost all tension on the tether.  We divide the compensator
+into two components.  The $C_{\mathrm{tension}}$ compensator is a
+simple PI controller (or sometimes just I controller) on the tension
+error.  To avoid taking a derivative of the noisy tension measurement,
+we use our estimation of radial velocity to apply the damping term.
+This differs from the tension derivative by a scaling of the spring
+constant, and thus has the additional advantage of allowing us to
+choose a single damping constant that works well across the entire
+range of spring constants experienced during payout.  With a
+relatively large damping constant, we can use the same tension
+controller away from the perch, with the soft-spring system, that we
+use near the perch without exciting the radial-pitch spring mode.
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=8mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$t_{\mathrm{cmd}}$}; &[-4mm]
+    \node[vdspadder] (n01) {}; &[-4mm]
+    \node[dspfilter] (n02) {$C_{\mathrm{tension}}$}; &[-8mm]
+    \node[vdspadder] (n03) {}; &
+    \node[dspfilter] (n05) {$G^{\mathrm{closed}}_{\mathrm{pitch}}$}; &
+    \node[dspfilter] (n06) {$G_{\mathrm{radial}}$}; &
+    \node[dspnodefull] (n07) {}; &[-4mm]
+    \node[dspsquare] (n08) {$k_{\mathrm{teth}}$}; &[-4mm]
+    \node[dspnodefull] (n09) {}; &
+    \node[dspnodeopen, dsp/label=above] (n0a) {$t$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[dspsquare] (n15) {$k_d s$}; &
+    \node[coordinate] (n16) {}; &
+    \node[coordinate] (n17) {}; &
+    \node[coordinate] (n18) {}; &
+    \node[coordinate] (n19) {}; &
+    \node[coordinate] (n1a) {}; & \\
+    \node[coordinate] (n20) {}; &
+    \node[coordinate] (n21) {}; &
+    \node[coordinate] (n22) {}; &
+    \node[coordinate] (n23) {}; &
+    \node[coordinate] (n25) {}; &
+    \node[coordinate] (n26) {}; &
+    \node[coordinate] (n27) {}; &
+    \node[coordinate] (n28) {}; &
+    \node[coordinate] (n29) {}; &
+    \node[coordinate] (n2a) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- (n02) -- (n03);
+  \draw[dspconn] (n03) -- node[above] {$\theta_{\mathrm{cmd}}$} (n05)
+                       -- node[above] {$\theta$} (n06)
+                       -- node[above] {$-\delta z$} (n07)
+                       -- (n08) -- (n09) -- (n0a);
+  \draw[dspconn] (n07) |- (n15) -| (n03);
+  \draw[dspconn] (n09) |- (n29) -| (n01);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+  \matrix [row sep=4mm, column sep=8mm] {
+    \node[dspnodeopen, dsp/label=above] (n00) {$t_{\mathrm{cmd}}$}; &[-4mm]
+    \node[vdspadder] (n01) {}; &[-4mm]
+    \node[dspfilter] (n02) {$C_{\mathrm{tension}}$}; &[-8mm]
+    \node[vdspadder] (n03) {}; &
+    \node[dspfilter] (n05) {$G^{\mathrm{closed}}_{\mathrm{pitch}}$}; &
+    \node[dspfilter] (n06) {$G_{\mathrm{radial}}$}; &
+    \node[dspnodefull] (n07) {}; &[-4mm]
+    \node[dspsquare] (n08) {$k_{\mathrm{teth}}$}; &[-4mm]
+    \node[dspnodefull] (n09) {}; &
+    \node[dspnodeopen, dsp/label=above] (n0a) {$t$}; \\
+    \node[coordinate] (n10) {}; &
+    \node[coordinate] (n11) {}; &
+    \node[coordinate] (n12) {}; &
+    \node[coordinate] (n13) {}; &
+    \node[dspsquare] (n15) {$k_d s$}; &
+    \node[coordinate] (n16) {}; &
+    \node[coordinate] (n17) {}; &
+    \node[coordinate] (n18) {}; &
+    \node[coordinate] (n19) {}; &
+    \node[coordinate] (n1a) {}; & \\
+    \node[coordinate] (n20) {}; &
+    \node[coordinate] (n21) {}; &
+    \node[coordinate] (n22) {}; &
+    \node[coordinate] (n23) {}; &
+    \node[coordinate] (n25) {}; &
+    \node[coordinate] (n26) {}; &
+    \node[coordinate] (n27) {}; &
+    \node[coordinate] (n28) {}; &
+    \node[coordinate] (n29) {}; &
+    \node[coordinate] (n2a) {}; & \\
+  };
+
+  \draw[dspconn] (n00) -- (n01);
+  \draw[dspconn] (n01) -- (n02) -- (n03);
+  \draw[dspconn] (n03) -- node[above] {$\theta_{\mathrm{cmd}}$} (n05)
+                       -- node[above] {$\theta$} (n06)
+                       -- node[above] {$-\delta z$} (n07)
+                       -- (n08) -- (n09) -- (n0a);
+  \draw[dspconn] (n07) |- (n15) -| (n03);
+  \draw[dspconn] (n09) |- (n29) -| (n01);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+\subsection{Path control}
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}
+\pgfmathsetmacro{\a}{4}
+\pgfmathsetmacro{\b}{7};
+\draw[color=gray!50] plot[shift={(2.5, -{\b * cosh(-2.5 / \b)})}, domain=-2.5:5]
+    ({\x}, {\b * cosh(\x / \b)});
+\DrawWingSide[color=gray!50, shift={(7.5, {cosh(5 / \b)})},
+              scale=0.2, rotate=-10];
+
+\draw plot[shift={(2.5, -{\a * cosh(-2.5 / \a)})}, domain=-2.5:4]
+    ({\x}, {\a * cosh(\x / \a)});
+\DrawWingSide[shift={(6.5, {cosh(4 / \a)})}, scale=0.2,
+    rotate=-10];
+
+\DrawCoordinateSystem{shift={(0, 0)}, scale=0.5} {$x_g$}{$y_g$}{$z_g$};
+\draw[line width=1pt, ->] (8, {cosh(5 / \b)}) -- (9, {cosh(5 / \b)})
+    node[midway, above] {$t_0$};
+
+%\draw plot[shift={(0.5, 0)}, domain=-0.5:5] ({\x}, {\a * cosh(\x / \a)});
+
+%% \DrawCoordinateSystem{shift={(0, 9.2)}, scale=0.5} {$x_g$}{$y_g$}{$z_g$};
+%% \DrawCatenary[shift={(0, -1.02)}, scale=10.0];
+%% \DrawWingSide[shift={(10, 12.5)}, scale=0.2, rotate=-10]
+\end{tikzpicture}
+\end{figure}
+\end{center}
+
+\subsubsection{Decoupling tension and path}
+
+Path is the outer most loop in the hover controller, but it is not
+obvious that it is possible to cleanly separate path from tension
+control.  Tension and path are coupled because for any given position
+of the wing, we must supply a horizontal tension to keep the tether
+from touching the ground.  Moreover, we would like to avoid supplying
+excessive horizontal tension to save power, reduce motor heating, and
+leave more thrust available for control.  A final constraint is that
+we always want to supply a minimum horizontal tension to ensure that
+the tether remains wrapped around the drum and the wing maintains roll
+stability.  Here we show that for minimum tensions around 3000 N,
+increasing horizontal tension and reducing altitude will not decrease
+thrust.  And, thus we can simply set a minimum horizontal tension and
+decouple the tension and path loops.
+
+To make the math easy, we model the tether catenary using a simple
+parabola:
+\begin{equation}
+h(r) = a r^2 + b r
+\end{equation}
+Here the coefficients may be related to the horizontal tension, $t_x$,
+the tether linear weight density, $\mu$, and the minimum height of the
+tether parabola, $h_{\mathrm{min}}$.
+\begin{equation}
+a = \frac{\mu}{2 t_x}, b = \sqrt{-4 a h_{\mathrm{min}}}
+\end{equation}
+Making the approximation that the weight of the tether supported by
+the wing is equal to the fraction of the radial distance of the tether
+after the tether minimum, $r_{\mathrm{min}} = -b / 2a$, multiplied by the total
+tether weight, $W_T$, we find that the thrust, $T$, required to
+support the tether and the weight of the wing, $W_W$, is:
+\begin{equation}
+T = \sqrt{(W_T (1 - r_{\mathrm{min}} / r) + W_W)^2 + t_x^2}
+\end{equation}
+For some combination of $\mu$, $W_T$, $W_W$, $h_{\mathrm{min}}$, and
+$t_x$ it may be advantageous to increase horizontal tension above the
+minimum required horizontal tension in order to decrease altitude and
+support less tether weight.  To determine where this point occurs, we
+calculate the derivative of the thrust with respect to horizontal
+tension:
+\begin{equation}
+\frac{dT}{dt_x} = \frac{1}{2 T}
+\left[2 t_x - W_{\mathrm{supp.}} \sqrt{\frac{-2 h_{\mathrm{min}} \mu}{t_x}} \right] 
+\end{equation}
+Here $W_{\mathrm{supp.}} = W_T (1 - r_{\mathrm{min}} / r) + W_W$ is
+the total weight supported by the thrust.  Thus, the point when
+$\frac{dT}{dt_x}$ becomes negative, and thus it is advantageous to
+increase $t_x$ beyond the minimum, occurs when:
+\begin{equation}
+t_x < \left( \frac{-W_{\mathrm{supp.}}^2 h_{\mathrm{min}} \mu}{2} \right)^{1/3}
+\end{equation}
+Inserting some representative numbers, $W_{\mathrm{supp.}} = W_T/2 +
+W_W = 17000$ N, $h_{\mathrm{min}} = -10$ m, $\mu = 10$ N/m, we find
+that the critical horizontal tension is about $2435$ N.  This is
+somewhat below our current minimum horizontal tension, so for most
+situations simply setting a mimimum horizontal tension irrespective of
+path should suffice.
+
+
+
+\subsection{Thrust-moment conversion}
+
+The hover controller outputs a command vector
+$\bold{u_{\mathrm{hover}}}$ that contains an overall thrust command,
+$T$, which is applied at the wing's center-of-mass, and the three
+components, $m_i$, of the moment vector.
+\begin{equation}
+\bold{u_{\mathrm{hover}}} = [T, m_x, m_y, m_z]^T
+\end{equation}
+This thrust-moment vector must eventually be converted to the
+individual motor thrusts described by the vector:
+\begin{equation}
+\bold{u_{\mathrm{motors}}} = [T_1, T_2, T_3, T_4, T_5, T_6, T_7, T_8]^T
+\end{equation}
+
+\begin{equation}
+\bold{u_{\mathrm{motors}}} = [\Omega_1, \Omega_2, \Omega_3, \Omega_4,
+                          \Omega_5, \Omega_6, \Omega_7, \Omega_8]^T
+\end{equation}
+
+\begin{figure}[h]
+  \begin{tikzpicture}
+    \begin{scope}[scale=0.4]
+      \DrawWingFront
+    \end{scope}
+  \end{tikzpicture}
+\end{figure}
+
+
+
+However, we are not free to choose these thrusts arbitrarily.  The
+stacking topology of the power electronics requires that each block of
+motors consume a similar amount of power.  Thus the mean thrust of the
+motors in each block must be equal.  This leaves us with five
+degress-of-freedom, and a control vector that consists of a common
+mode thrust, $T_c$, and four differential thrusts, $\Delta T_{ij}$:
+\begin{equation}
+\bold{u_{\mathrm{stacking}}} = [T_c, \Delta T_{15}, \Delta T_{26}, \Delta T_{37},
+\Delta T_{48}]^T
+\end{equation}
+
+
+\begin{equation}
+\min_{\bold{u}_{\mathrm{stacking}}} \norm{\bold{A}\, \bold{u}_{\mathrm{stacking}}
+- \bold{u}_{\mathrm{hover}}}^2
+\end{equation}
+
+\begin{equation}
+\bold{l} \le \bold{C}\, \bold{u}_{\mathrm{stacking}} \le \bold{u}
+\end{equation}
+
+
+\begin{equation}
+\bold{x} = [T_c, \Delta T_{15}, \Delta T_{26}, \Delta T_{37},
+\Delta T_{48}]^T
+\end{equation}
+
+\begin{equation}
+\bold{y} = [T, m_x, m_y, m_z]^T
+\end{equation}
+
+\begin{equation}
+\min_{\bold{x}} \norm{\bold{A}\, \bold{x} - \bold{y}}^2,
+\;\;\bold{l} \le \bold{C}\, \bold{x} \le \bold{u}
+\end{equation}
+
+
+In hover, there is a simple relation between motor thrust and torque
+\begin{eqnarray}
+T = k_T\, \omega^2 \\
+\tau = k_P\, \omega^2
+\end{eqnarray}
+
+\begin{equation}
+\left(\frac{T}{k_T}\right)^3 = \left(\frac{P}{k_P}\right)^2
+\end{equation}
+
+Thus, the torque constraint on each motor can be expressed simply as a
+thrust constraint:
+\begin{equation}
+0 \le T_i \le T_{\mathrm{max}}^{\mathrm{(static)}}
+\end{equation}
+
+\begin{equation}
+\sum_i k_P \left(\frac{T_i}{k_T}\right)^{3/2} \le P_{\mathrm{max}}
+\end{equation}
+
+
+
+\begin{equation}
+\left[
+\begin{array}{c}
+T_c \\
+\Delta T_{15} \\
+\Delta T_{26} \\
+\Delta T_{37} \\
+\Delta T_{48} \\
+\end{array}
+\right]
+=
+\begin{array}{c}
+T_c \\
+\Delta T_{15} \\
+\Delta T_{26} \\
+\Delta T_{37} \\
+\Delta T_{48} \\
+\end{array}
+\end{equation}
+
+
+
+\end{document}

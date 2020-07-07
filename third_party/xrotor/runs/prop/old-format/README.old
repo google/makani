@@ -1,0 +1,22 @@
+README for runs/prop directory
+
+Hal Youngren 4/05
+
+This directory contains old format input files as examples. 
+
+Files are:
+
+ecruzer.prop     model prop example 
+ecruzer.nacelle  nacelle (body) input file
+ecruzer.vslip    slipstream file (input or output)
+ecruzer.cases    cases file (read from OPER)
+ecruzer.EI       sample structure data (read from BEND)
+
+F1D.prop         model aircraft prop input 
+
+hydro.prop       air prop input file
+
+
+
+
+

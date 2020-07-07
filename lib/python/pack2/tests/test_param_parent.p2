@@ -1,0 +1,14 @@
+enum8 TestEnum {
+  kValue0 = 0,
+  kValue1 = 1,
+  kValue2 = 2,
+  kValue3 = 3,
+  kValue4 = 4,
+  kValue5 = 5,
+  kValue6 = 6,
+}
+
+struct ThrityTwoBitStruct {
+  uint32 uint32_field;
+  int32 int32_field;
+}

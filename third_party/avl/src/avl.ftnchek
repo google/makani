@@ -1,0 +1,19 @@
+ftnchek -common=1 -novice=no -arguments=2 -array=2 -notruncation \
+-include=/var/local/codes/Xplot \
+avl.f aoper.f amode.f amass.f asetup.f \
+amake.f ainput.f aoutput.f aero.f atrim.f atpforc.f \
+aic.f cdcl.f airutil.f autil.f \
+aplotvl.f aplottp.f aplotmd.f limits.f \
+pltops.f hidden.f \
+plsubs.f \
+userio.f plutil.f arrow3d.f getvm.f \
+matrix.f spline.f sgutil.f \
+../eispack/eispack.f \
+/var/local/codes/Xplot/plt_base.f \
+/var/local/codes/Xplot/plt_font.f \
+/var/local/codes/Xplot/plt_color.f \
+/var/local/codes/Xplot/plt_util.f
+
+
+
+

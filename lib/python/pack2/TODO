@@ -1,0 +1,21 @@
+- Implement bitfields in:
+  - C
+  - Python
+- Implement scaleds in:
+  - C
+  - Python
+- Finalize Scaled type.
+  - add min/max args
+  - add expressions to values
+- Flesh out C codegen
+  - Add pack/unpack funtions.
+  - Add introspection table.
+- C/Python data interop test
+- Naming convention enforcement
+  - Types are CamelCase.
+  - Fields are snake_case.
+  - Params end in ConfigParams, CalibParams, or SerialParams.
+  - Headers end in Header.
+  - Enum and Bitfield names will start with k<TypeName>
+- Add constant support?
+- Packed structs (for compatibility with current message format.)

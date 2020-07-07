@@ -1,0 +1,90 @@
+# Copyright 2020 Makani Technologies LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+small_v1: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small Battery Manager"
+  part_number: "650-00756-01"
+  hardware_revision: SmallCell15V1
+  date_of_manufacture: 0x20160314
+
+big_v1: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Big Battery Manager"
+  part_number: "650-00758-01"
+  hardware_revision: BigCell18V1
+  date_of_manufacture: 0x20160314
+
+small_aa: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small Battery Manager"
+  part_number: "650-00756-01"
+  hardware_revision: SmallCell15Aa
+  date_of_manufacture: 0x20160520
+
+big_aa: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Big Battery Manager"
+  part_number: "650-00758-01"
+  hardware_revision: BigCell18Aa
+  date_of_manufacture: 0x20160520
+
+small_ab: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small Battery Manager"
+  part_number: "650-00756-02"
+  hardware_revision: SmallCell15Ab
+  date_of_manufacture: 0x20161010
+
+big_ab: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Big Battery Manager"
+  part_number: "650-00758-02"
+  hardware_revision: BigCell18Ab
+  date_of_manufacture: 0x20161010
+
+small_cell17_ab: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small 17-cell Battery Manager"
+  part_number: "650-02272-03"
+  hardware_revision: SmallCell17Ab
+  date_of_manufacture: 0x20180716
+
+small_ac: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small Battery Manager"
+  part_number: "650-00756-03"
+  hardware_revision: SmallCell15Ac
+  date_of_manufacture: 0x20180701
+
+big_ac: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Big Battery Manager"
+  part_number: "650-00758-03"
+  hardware_revision: BigCell18Ac
+  date_of_manufacture: 0x20180701
+
+small_cell17_ac: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small 17-cell Battery Manager"
+  part_number: "650-02272-03"
+  hardware_revision: SmallCell17Ac
+  date_of_manufacture: 0x20180701
+
+small_ad: !BattSerialParams
+  serial_number: ""
+  part_name: "LV Small 17-cell Battery Manager"
+  part_number: "650-02272-04"
+  hardware_revision: SmallCell17Ad
+  date_of_manufacture: 0x20191001
