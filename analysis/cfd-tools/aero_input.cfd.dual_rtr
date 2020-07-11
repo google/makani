@@ -1,0 +1,78 @@
+//Input File example of a dual rotor configuration.
+isMultiDesignCase  =false  // 'true' runs the multi-design tool
+needPreProc        =true   // 'true' runs the preprocessor
+needRunMesh        =false	 // 'true' runs the mesh pipeline
+needRunSolver      =false	 // 'true' runs the solver
+needUnsteady       =false	 // 'true' runs the solver as unsteady
+needClearSolution  =false	 // 'true' clears solution before solving
+needRunPostProc    =false	 // 'true' runs the post-processor
+needRunQuickPost   =false	 // 'true' only outputs main csv data file
+maxNumSteps        =5000	 // [#] Maximum number of steps (steady or unsteady)
+turnOnAutoTimeStep =false	 // 'false' turns off autotimestep
+isOptimateCase     =false	 // 'true' runs optimate
+
+// Case Style
+needRunWindTunnel  =false	 // 'true' runs the windtunnel option
+needRun2D          =false	 // 'true' runs the windtunnel as a 2D case
+needRotorAnalysis  =true	 // 'true' runs the rotor option
+needAlphaSweep     =false	 // 'true' will run an alpha sweep
+
+//=========================
+// REFERENCE VALUES
+//=========================
+chordLength = 0.10    // [m] lengthscale, e.g. chord
+refArea     = 0.40    // [m2] Reference Area
+
+// common subsonic options
+refRe   =0.0     // [#] reynolds number
+refVel  =5.0     // [m/s] airspeed
+refRho  =1.225   // [kg/m^3] reference density
+
+// common freestream options
+refMa   = 0.0    // [#] Reference Mach number
+refTemp = 0.0    // [K] reference temperature
+
+//=========================
+// PHYSICS
+//=========================
+// Turbulence Model Options:
+//  kwSST, kwSSTGRT, kwSSTGRTDES
+unSteadyTimeStep        =1.0E-4      // [s] unsteady time step
+unSteadyInnerIterations =10          // [#] inner iteration for unsteady time stepping
+unSteadyMaxSteps        =2500        // [#] maximum number of unsteady time steps
+physicsModel            =kwSST       // [String] indicate choice of Physics Model
+refMu                   =1.85508E-5  // [Pa-s] reference dynamic viscosity (rare to change)
+
+// Wind Tunnel Custom Lengthscales, Area, MomR (single double)
+wtCustomReferenceNames = {"WTDomain"} // reference names of wind tunnels
+wtCustChordLengths = {2.4}            // chord lengths of wind tunnels
+wtCustReferenceAreas = {2.4}          // reference areas of wind tunnels
+wtCustReferenceMomR = {2.4}           // reference areas of moment r
+
+//=========================
+// MESHING & POSITION VARIABLES
+//=========================
+//Simulation meshing flag arrays
+newAngleOfAttack  = 10.0 //[deg] angle of attack for assembly
+newSideSlipAngle  = 0.0 //[deg] side slip angle for assembly
+
+alphaSweepAngles  ={0.0}  //[deg] Array of alpha sweep angles
+//betaSweepAngles ={-8.0,8.0}  //[deg] Array of beta sweep angles
+
+//Wind Tunnel Analysis (Airfoils)
+newAF_CADAngles   = {361.0, 361.0, 361.0} //[deg] CAD angle of attack for airfoil element
+newAF_CustomMesh  = {false, false}        //boolean[true/false] a true value turns on custom mesh settings for an airfoil
+
+// Rotor Custom Physics & Mesh Settings
+newRTR_SpeedName  = {"Rotor1", "Rotor2"}  // String[] name of rotor to change omega
+newRTR_Speed      = {-200.0, 201.0}     // [rad/s] new rotor speed. index corresponds to given names
+forceRTR_MRF      = false       // [true/false] true forces all Rigid Rotors to be MRF. Default is false.
+custRTR_MeshName  = {"Rotor1", "Rotor2"}   // String[] name of rotor to change mesh values on
+
+// Generic mesh variables
+newCust_TargetSize    = {2.0, 2.0} // double[%f] in percentage. Sets target surface size.
+newCust_MinSize       = {0.5, 0.5} // double[%f] in percentage. Sets minimum allowable surface size.
+newCust_NPtsOnCircle  = {54., 54.} // double[#]  Sets the number of points on a curve.
+newCust_PrismAbsThick = {0.01, 0.01} // double[m]  Set the prism layer absolute thickness
+newCust_1stCellThick  = {5.0e-6, 5.0e-6} 	// double[m]  Set the 1st cell thickness absolute value
+newCust_NPrismLayers  = {20, 20} // int[#] Sets the number of prism layers to be applied
