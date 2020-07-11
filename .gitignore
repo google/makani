@@ -11,7 +11,6 @@
 *.mat
 *.obj
 *.out
-*.pdf
 *.png
 *.pyc
 *.swn
