@@ -89,9 +89,17 @@ plot(time, altitude)
 A slower way to load the entire telemetry to the workspace. NOTE: This method only works in MATLAB 2016a and earlier. Find out your MATLAB version by running “ver” on the console. You need the makani repository loaded to your computer.
 
 Open MATLAB and navigate to the following directory on the console:
-```$MAKANI_HOME/analysis```
+
+```bash
+$MAKANI_HOME/analysis
+```
+
 Run the following script in the MATLAB console to set all relevant paths:
-```SetMatlab```
+
+```matlab
+SetMatlab
+```
+
 Now you can run the following code on console to access telemetry data:
 
 ```matlab
@@ -107,17 +115,31 @@ plot(Time, Altitude)
 The best of both worlds! A lazy way to loads all datasets quickly. You need the makani repository loaded to your computer.
 
 Open MATLAB and navigate to the following directory on the console:
-```$MAKANI_HOME/analysis```
+
+```bash
+$MAKANI_HOME/analysis
+```
+
 Run the following script in the MATLAB console to set all relevant paths:
-```SetMatlab```
+
+```matlab
+SetMatlab
+```
+
 Now open the H5Plotter (a GUI interface for opening and plotting H5 log data) by running the following in the MATLAB console:
+
+```matlab
 H5Plotter
-Load a H5 log file using the ‘Choose’ button in the top right corner.
-Once the file is loaded, datasets appear in ‘AIO Nodes’ panel box. Click on one or more of these nodes to access the corresponding datasets in the ‘AIO Messages’ panel box. Only datasets common to all selected AIO nodes are shown.
+```
+
+Load a H5 log file using the ‘Choose’ button in the top right corner. Once the file is loaded, datasets appear in ‘AIO Nodes’ panel box. Click on one or more of these nodes to access the corresponding datasets in the ‘AIO Messages’ panel box. Only datasets common to all selected AIO nodes are shown.
+
 Once you have selected data to plot in the ‘AIO Messages’ panel box, use the ‘plot’ button at the bottom right corner to visualize the data. Holding ctrl or shift allows multiple fields to be selected and selecting a node in the tree will plot all data contained beneath that node. Data can also be exported by right clicking.
+
 NOTE: You can plot multiple datasets simultaneously on the same time axes. How many datasets you can plot at the same time is only limited by your machine’s RAM; be judicious about this.
 
-#### Matlab Example: Plot roll, pitch, and yaw.
+#### Matlab Example: Plot roll, pitch, and yaw
+
 Here's a small example that converts the `dcm_g2b` matrix into Euler angles.
 
 ```matlab
