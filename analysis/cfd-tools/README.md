@@ -1,4 +1,4 @@
-# Overview:
+# Overview
 
 This code is used to automate runs of external aerodynamics analyses using
 Siemens STAR-CCM+ simulation software. Only the source code files for this
@@ -20,7 +20,7 @@ generally be set up for a given analysis analysis type. It is recommended
 that initial users of this tool attempt to first use it in steps of pre,
 mesh, and then a coupled solve/post to assist in case setup and debugging.
 
-# Wind tunnel analyses:
+# Wind tunnel analyses
 
 A wind tunnel analysis is used for airfoil anaylses.
 Wind tunnels can be run in 2D and 3D.
@@ -36,7 +36,7 @@ tunnel domains (>5), the preprocessing setup becomes extremelly slow (1+ hr)
 and the debugging or post-processin of a single simulation file can become
 very cumbersome if done manually.
 
-## Wind tunnel domain:
+## Wind tunnel domain
 
 A single wind tunnel domain is a CompositePart named WT<Name>, e.g.:  
     WTDomain
@@ -100,7 +100,7 @@ A single wind tunnel domain is created with the following objects:
       Element 2
       Element 3
 
-### Boundary layer probes:
+### Boundary layer probes
 
     Boundary layer probe CAD parts are typically used in 2D analyses and
     are comprised of CAD sheets that pierce the Z=0 plane and the surface
@@ -113,12 +113,12 @@ A single wind tunnel domain is created with the following objects:
     It must be named with the exact same name as the CAD part, i.e.:  
         BLP_<Name>
 
-### Volume controls:
+### Volume controls
     Any volume control CAD parts:  
         VC_<Name>_<PercentageOfBaseSize>  
         (e.g.: VC_Wake_50.0)
 
-# Rotor analyses:
+# Rotor analyses
 
   A rotor analysis may have up to any number of rotors within it.  
   A single rotor requires a CAD body, an interface body, and a
