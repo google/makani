@@ -41,20 +41,23 @@ using Python or MATLAB.
 
 ### Python
 Here's a small example showing how to load an h5 log file in Python and plot a variable (in this case, the kite's altitude). Accessing the log files is made much less painful by enabling tab-completion of telemetry fields; instructions are in `lib/python/ipython_completer.py`.
-```
+
+```python
 import h5py
 import pylab
 
 log = h5py.File('20161121-142912-flight01_crosswind.h5', 'r')
-C = (log['messages']['kAioNodeControllerA']
+c = (log['messages']['kAioNodeControllerA']
         ['kMessageTypeControlTelemetry']['message'])
-pylab.plot(C['time'], -C['state_est']['Xg']['z'])
+pylab.plot(c['time'], -c['state_est']['Xg']['z'])
 pylab.show()`
 ```
-Additionally, by starting Python with `bazel-bin/lib/bazel/pyembed ipython`, you will be able to access some Makani library functions (like DcmToAngle) directly from Python.
+
+Additionally, by starting Python with `bazel-bin/lib/bazel/pyembed ipython`, you will be able to access some Makani library functions (like `DcmToAngle`) directly from Python.
 
 You can also explore the field names using `.items()` or `.keys()` and `.dtype` as appropriate:
-```
+
+```python
 log.keys()  # Shows [u'bad_packets', u'messages', u'parameters']
 log[‘messages’].keys()  # Shows [u’kAioNodeBattA', … ]
 
@@ -69,35 +72,40 @@ log['messages/kAioNodeBattA/kMessageTypeSlowStatus'][0].dtype`
 ```
 
 ### MATLAB
-Here's a small example showing 3 ways to load an h5 log file in MATLAB and plot a variable (in this case, the kite's altitude).
+Here's a small example showing three ways to load an h5 log file in MATLAB and plot a variable (in this case, the kite's altitude).
 
-#### Method 1 (quick to load a specific telemetry dataset to workspace with MATLAB built in function):
-```
-C = h5read('20161121-142912-flight01_crosswind.h5', '/messages/kAioNodeControllerA/kMessageTypeControlTelemetry');
-time = C.message.time;
-altitude = -C.message.state_est.Xg.z;
+#### Method 1
+A quick way to load a specific telemetry dataset to the workspace using a MATLAB built-in function.
+
+```matlab
+c = h5read('20161121-142912-flight01_crosswind.h5', '/messages/kAioNodeControllerA/kMessageTypeControlTelemetry');
+time = c.message.time;
+altitude = -c.message.state_est.Xg.z;
 figure;
 plot(time, altitude)
 ```
 
-#### Method 2 (takes long to load the data to workspace but all telemetry data is accessible on load):
-NOTE: Only works in MATLAB 2016a and earlier. Find out your MATLAB version by running “ver” on the console. You need the makani repository loaded to your computer (see ‘How to get the code’ section below).
+#### Method 2
+A slower way to load the entire telemetry to the workspace. NOTE: This method only works in MATLAB 2016a and earlier. Find out your MATLAB version by running “ver” on the console. You need the makani repository loaded to your computer.
+
 Open MATLAB and navigate to the following directory on the console:
 ```$MAKANI_HOME/analysis```
 Run the following script in the MATLAB console to set all relevant paths:
 ```SetMatlab```
 Now you can run the following code on console to access telemetry data:
-```
+
+```matlab
 log = h5load('20161121-142912-flight01_crosswind.h5');
-C = log('/messages/kAioNodeControllerA/kMessageTypeControlTelemetry');
-Time = C.message.time;
-Altitude = -C.message.state_est.Xg.z
+c = log('/messages/kAioNodeControllerA/kMessageTypeControlTelemetry');
+Time = c.message.time;
+Altitude = -c.message.state_est.Xg.z
 figure;
 plot(Time, Altitude)
 ```
 
-#### Method 3 (the best of both worlds! Lazily loads all datasets quickly):
-You need the makani repository loaded to your computer (see ‘How to get the code’ section below).
+#### Method 3
+The best of both worlds! A lazy way to loads all datasets quickly. You need the makani repository loaded to your computer.
+
 Open MATLAB and navigate to the following directory on the console:
 ```$MAKANI_HOME/analysis```
 Run the following script in the MATLAB console to set all relevant paths:
@@ -111,14 +119,15 @@ NOTE: You can plot multiple datasets simultaneously on the same time axes. How m
 
 #### Matlab Example: Plot roll, pitch, and yaw.
 Here's a small example that converts the `dcm_g2b` matrix into Euler angles.
-```
+
+```matlab
 % Read the log file.
 filename = '20161121-142912-flight01_crosswind.h5';
-C = h5read(filename, ...
+c = h5read(filename, ...
     '/messages/kAioNodeControllerA/kMessageTypeControlTelemetry');
 
 % Fetch the dcm_g2b matrix 
-dcm_g2b = C.message.state_est.dcm_g2b.d;
+dcm_g2b = c.message.state_est.dcm_g2b.d;
 
 % Transpose the dcm_g2b matrix.
 dcm_g2b = permute(dcm_g2b, [2 1 3]);
@@ -127,9 +136,9 @@ dcm_g2b = permute(dcm_g2b, [2 1 3]);
 [yaw, pitch, roll] = dcm2angle(dcm_g2b, 'ZYX');
 
 % Plot the results.
-plot(C.message.time, roll  * 180/pi, '.', ...
-     C.message.time, pitch * 180/pi, '.',...
-     C.message.time, yaw   * 180/pi, '.')
+plot(c.message.time, roll  * 180/pi, '.', ...
+     c.message.time, pitch * 180/pi, '.',...
+     c.message.time, yaw   * 180/pi, '.')
 legend('roll', 'pitch', 'yaw')
 
 ylim([-180 180]);
