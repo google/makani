@@ -9,16 +9,20 @@ tool and intends only to instruct in its basic usage to help get started at
 best. Users are encouraged to understand the code structure and develop
 their own approaches to run any analysis.
 
-There are two analysis types:
-1. Wind tunnel airfoil analysis
-2. Rotor (n-rotor) analysis
+There are three types of analyses in this toolset:
+1. Wind tunnel airfoil analysis (./cfd_aero_runner)
+2. Rotor (n-rotor) analysis (./cfd_aero_runner)
+3. Full configuration analysis (./cfd_config_runner)
 
-Conceptually, the code reads a file from the simulation working directory
-called "aero_input.cfd" to read what kind of analysis to run and various
-customized settings. Not all options are compatible. Pre-through-post can
-generally be set up for a given analysis analysis type. It is recommended
-that initial users of this tool attempt to first use it in steps of pre,
-mesh, and then a coupled solve/post to assist in case setup and debugging.
+Conceptually, the first two analysis types read a file from the simulation
+working directory called "aero_input.cfd" to read what kind of analysis to
+run and various customized settings. The same is true for the full
+configuration which reads "m600_input.cfd". Not all options are compatible.
+
+Pre-through-post can generally be set up for a given analysis analysis type.
+It is recommended that initial users of this tool attempt to first use it in
+steps of pre, mesh, and then a coupled solve/post to assist in case setup and
+debugging.
 
 # Wind tunnel analyses
 
@@ -167,3 +171,13 @@ A single wind tunnel domain is created with the following objects:
         Note: 
           Rotors can be spun in the opposite direction by using a negative
           rad/s value.
+
+# Full configuration runner
+
+This tool is located in cfd_config_runner.
+This code is the oldest of the tools and is monolithic.
+Library links to a packaged cfd_aero_runner library are required.
+
+This tool is setup to run an M600 but can be modified for any configuration.
+There is a sample "m600_input.cfd" file provided in the tool's directory.
+
