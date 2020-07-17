@@ -1,0 +1,66 @@
+// Replace CAD File Names
+newKitePartFileName =    //activated only if loading new cad file(parasolid), empty otherwise
+
+// Solver mode controls
+needRunPreProc    = false    // 'true' runs the preprocessor
+needRunMesh       = false    // 'true' runs the mesh pipeline
+needRunSolver     = false   // 'true' runs the solver
+needRunPost       = true    // 'true' runs the post processing
+needRunQuickPost  = false  // 'true' only outputs main csv data file
+autoSimStep       = false      // "true" runs stead with stopping critera and unstead adjusts 
+
+// Solver rotor controls
+needRunRotors     = false        // 'true' runs the rbm model
+needRunBEM        = false        // 'true' runs blade element model
+needRunUnsteady   = false        // 'true' runs the solver as unsteady
+needClearSolution = false  // 'true' clears solution before solving
+
+//special solver controls
+needHighViscosityInit  = false  //'true' uses high viscosity initial condition
+numHighViscItSteps     = 500 // [#] number of high viscosity steps
+
+//Run controls
+maxSteadySteps  = 4000  // [#] Maximum number of steps (steady run)
+
+//kite varaiables
+kiteAlpha_o     = 0.0 // [deg] angle of attack to rotate the geometry of the meshed body
+kiteBeta_o      = 0.0  // [deg] angle of sideslip to rotate the geometry of the meshed body
+baseSize        = 0.1   // [m] the base size for automatic mesh operation generation
+kiteAlpha       = 0.0     // [deg] angle of attack relative to body coordinate system
+kiteBeta        = 0.0      // [deg] angle of sideslip relative to body coordinate system
+
+//air conditions
+airSpeed        = 5.0  // [m/s] relative airspeed of kite
+airDensity      = 1.176       // [kg/m3] air density of kite
+
+//flap angles
+flapA1_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A1
+flapA2_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A2
+flapA3_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A3
+flapA4_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A4
+flapA5_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A5
+flapA6_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A6
+flapA7_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A7
+flapA8_angle    = 0.0  // [deg] geometric  angle of rotation for Flap A8
+htail_angle     = 0.0  // [deg] geometric angle of rotation for horizontal tail
+rudder_angle    = 0.0  // [deg] geometric  angle of rotation for rudder
+
+//XWind Rotation rates
+omega_hat_x     = 0.0  // [#] non-dimensionalized omega vector (x-component)
+omega_hat_y     = 0.0  // [#] non-dimensionalized omega vector (y-component)
+omega_hat_z     = 0.0  // [#] non-dimensionalized omega vector (z-component)
+
+om_origin_rx    = 0.0 // [m] the origin x-component of a crosswind MRF motion
+om_origin_ry    = 100.0 // [m] the origin y-component  of a crosswind MRF motion
+om_origin_rz    = 0.0 // [m] the origin z-component  of a crosswind MRF motion
+
+//rotor rotation rates
+rtr_1_low       = 0.0  // [rad/s] rotation of lower rotor on pylon 1
+rtr_2_low       = 0.0  // [rad/s] rotation of lower rotor on pylon 2
+rtr_3_low       = 0.0  // [rad/s] rotation of lower rotor on pylon 3
+rtr_4_low       = 0.0  // [rad/s] rotation of lower rotor on pylon 4
+rtr_1_upp       = 0.0  // [rad/s] rotation of upper rotor on pylon 1
+rtr_2_upp       = 0.0  // [rad/s] rotation of upper rotor on pylon 2
+rtr_3_upp       = 0.0  // [rad/s] rotation of upper rotor on pylon 3
+rtr_4_upp       = 0.0  // [rad/s] rotation of upper rotor on pylon 4
+
