@@ -75,42 +75,42 @@ py_library(
 # webmonitor's direct symlink is no longer needed. See http://b/32087843.
 gcs_fetch(
     name = "jquery.js",
-    gcs_path = "gs://makani_pub/gcs_fetch/jquery.js",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/jquery.js",
     gunzip = False,
     sha256 = "0ba081f546084bd5097aa8a73c75931d5aa1fc4d6e846e53c21f98e6a1509988",
 )
 
 gcs_fetch(
     name = "d3.v4.min.js",
-    gcs_path = "gs://makani_pub/gcs_fetch/d3.v4.min.js",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/d3.v4.min.js",
     gunzip = False,
     sha256 = "8585db4092b8a9d26201e0d58e343d1b40fa034c4b9c343878923d7649bb1699",
 )
 
 gcs_fetch(
     name = "c3.min.js",
-    gcs_path = "gs://makani_pub/gcs_fetch/c3.min.js",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/c3.min.js",
     gunzip = False,
     sha256 = "5406d18ddb3e57d0fb72299a6255c742e49f8780f43de0f383376fd707ab63ee",
 )
 
 gcs_fetch(
     name = "c3.css",
-    gcs_path = "gs://makani_pub/gcs_fetch/c3.css",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/c3.css",
     gunzip = False,
     sha256 = "f753bbae2a4bc73636853a142896bfe167bb46499c12afa526162e9f0c3d54b9",
 )
 
 gcs_fetch(
     name = "bokeh-0.13.0.min.css",
-    gcs_path = "gs://makani_pub/gcs_fetch/bokeh-0.13.0.min.css",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/bokeh-0.13.0.min.css",
     gunzip = False,
     sha256 = "a56c8294d962745109f0370e321c83aaad2d409b53f01567d1404247a8f9902c",
 )
 
 gcs_fetch(
     name = "bokeh-0.13.0.min.js",
-    gcs_path = "gs://makani_pub/gcs_fetch/bokeh-0.13.0.min.js",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/bokeh-0.13.0.min.js",
     gunzip = False,
     sha256 = "9256e69ba5365129f3b56074e4b4fe36e0600e94212df2516542fb8b26a14639",
 )
