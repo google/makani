@@ -6,35 +6,35 @@ load("//lib/bazel:py_rules.bzl", "py_library", "py_test")
 
 gcs_fetch(
     name = "test/data/Crosswind_sweeps_monte_carlo_nightly_1531/overview_data.json",
-    gcs_path = "gs://makani_pub/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1531/overview_data.json.gz",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1531/overview_data.json.gz",
     gunzip = True,
     sha256 = "766e70f40747dfaf7f6877e3993ff71540549ae881b43b3079d20e1266c73543",
 )
 
 gcs_fetch(
     name = "test/data/Crosswind_sweeps_monte_carlo_nightly_1524/overview_data.json",
-    gcs_path = "gs://makani_pub/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1524/overview_data.json.gz",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1524/overview_data.json.gz",
     gunzip = True,
     sha256 = "123fd56a85027fcb1f1e5adcbe81c91af636df3401315b0edd99d0afcda56feb",
 )
 
 gcs_fetch(
     name = "test/data/Crosswind_sweeps_monte_carlo_nightly_1556/overview_data.json",
-    gcs_path = "gs://makani_pub/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1556/overview_data.json.gz",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/analysis/util/simdata_analysis/test/data/Crosswind_sweeps_monte_carlo_nightly_1556/overview_data.json.gz",
     gunzip = True,
     sha256 = "863c7874b3fe78683c696de1cb33843e5c4dfbfeda4db99cc8cbf62ed8f85324",
 )
 
 gcs_fetch(
     name = "test/data/manual_crosswind_sweeps_3859/overview_data.json",
-    gcs_path = "gs://makani_pub/gcs_fetch/analysis/util/simdata_analysis/test/data/manual_crosswind_sweeps_3859/overview_data.json.gz",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/analysis/util/simdata_analysis/test/data/manual_crosswind_sweeps_3859/overview_data.json.gz",
     gunzip = True,
     sha256 = "ef4d9ee199ff77c59bdbb071aaaa4d64e9d47b934c9783a2ccfe03a3c843b04e",
 )
 
 gcs_fetch(
     name = "test/data/manual_crosswind_sweeps_3859/configs.tar.gz",
-    gcs_path = "gs://makani_pub/gcs_fetch/analysis/util/simdata_analysis/test/data/manual_crosswind_sweeps_3859/configs.tar.gz",
+    gcs_path = "gs://gcp-public-data-makani-deps/deps/gcs_fetch/analysis/util/simdata_analysis/test/data/manual_crosswind_sweeps_3859/configs.tar.gz",
     gunzip = False,
     sha256 = "04203875d0f24bae7eb41ad683bf250cc2d4d2021d76e58a9b6589c01dce0a42",
 )

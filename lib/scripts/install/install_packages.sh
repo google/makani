@@ -94,7 +94,7 @@ sudo pip2 install gsutil==4.35 google-apitools==0.5.26 pyasn1==0.4.5
 # TODO: likely remove, or come up with alternative source for binaries
 MAKANI_PIP_REPO=$MAKANI_OPT/pip
 mkdir -p $MAKANI_PIP_REPO
-gsutil -m rsync -r -d "gs://makani_pub/machine_setup/pip" $MAKANI_PIP_REPO
+gsutil -m rsync -r -d "gs://gcp-public-data-makani-deps/deps/machine_setup/pip" $MAKANI_PIP_REPO
 
 # Install compilers, coverage analyzers, and common numerical
 # libraries.
@@ -147,7 +147,7 @@ readonly CLANG_PREBUILT="clang+llvm-${CLANG_FORMAT_VERSION}-x86_64-linux-gnu-deb
 
 echo "Obtaining clang-format from ${CLANG_PREBUILT}."
 gsutil -m cp \
-    "gs://makani_pub/machine_setup/${CLANG_PREBUILT}.tar.xz" .
+    "gs://gcp-public-data-makani-deps/deps/machine_setup/${CLANG_PREBUILT}.tar.xz" .
 tar -xvf "${CLANG_PREBUILT}.tar.xz" "${CLANG_PREBUILT}/bin/clang-format"
 sudo cp "${CLANG_PREBUILT}/bin/clang-format" \
     "/usr/bin/clang-format-${CLANG_FORMAT_VERSION}"

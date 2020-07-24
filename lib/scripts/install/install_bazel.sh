@@ -33,6 +33,6 @@ sudo cp "${MAKANI_HOME}/lib/scripts/install/data/bazel_wrapper.sh" \
 sudo sed -i "s|JAVA_HOME_PLACEHOLDER|${JAVA_DIR}|" "${WRAPPER_SCRIPT}"
 sudo chmod a+rx "${WRAPPER_SCRIPT}"
 
-gsutil cp gs://makani_pub/machine_setup/bazel-complete.bash .
+gsutil cp gs://gcp-public-data-makani-deps/deps/machine_setup/bazel-complete.bash .
 sudo mv bazel-complete.bash /etc/bash_completion.d/
 sudo chmod 0555 /etc/bash_completion.d/bazel-complete.bash

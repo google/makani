@@ -14,7 +14,7 @@ if [[ -e "${BAZEL_VERSION_PATH}" ]]; then
   if [[ "${BAZEL_VERSION}" != "" ]]; then
     BAZEL_BIN="/opt/makani/bazel/${BAZEL_VERSION}"
     if [[ ! -e "${BAZEL_BIN}" ]]; then
-    gsutil -m cp gs://makani_pub/bazel_binaries/"${BAZEL_VERSION}" \
+    gsutil -m cp gs://gcp-public-data-makani-deps/deps/bazel_binaries/"${BAZEL_VERSION}" \
       "${BAZEL_BIN}"
     fi
     if [[ ! -x "${BAZEL_BIN}" ]]; then

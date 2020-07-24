@@ -43,7 +43,7 @@ def CheckTurbsimFileName(file_name):
 def GetCloudBasePath():
   """Returns the folder within the Makani bucket where all databases live."""
 
-  return 'gs://makani_pub/turbsim_databases'
+  return 'gs://gcp-public-data-makani-deps/deps/turbsim_databases'
 
 
 def GetOnlineFolder(database_file):
@@ -113,7 +113,7 @@ class TurbSimDatabaseSelector(object):
     # Pull down info from the cloud about files in this database set.
     gsutil_api = gsutil.GsutilApi()
     cloud_path = os.path.join(
-        'gs://makani_pub/turbsim_databases', folder, 'h5_files')
+        'gs://gcp-public-data-makani-deps/deps/turbsim_databases', folder, 'h5_files')
     self._databases = gsutil_api.List(cloud_path)
     self._base_params = base_params
 
