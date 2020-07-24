@@ -3,3 +3,4 @@
 !/lib/scripts/install/*
 !/lib/scripts/mbash.sh
 !/lib/scripts/system.sh
+!/lib/bazel/requirements.txt

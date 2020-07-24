@@ -294,4 +294,9 @@ sudo chmod 755 "/usr/sbin/disable_apparmor"
 # Install gtk+extra (used for new data monitor).
 sudo apt-get -y install libgtkextra-3.0 libgtkextra-dev
 
+# Workaround for docker instances where pip packages installed in
+# bazel cache cannot be reused after quitting the docker process.
+sudo pip2 install -r "${MAKANI_HOME}/lib/bazel/requirements.txt" \
+     -f $MAKANI_OPT/pip
+
 echo 'Installation complete.'
