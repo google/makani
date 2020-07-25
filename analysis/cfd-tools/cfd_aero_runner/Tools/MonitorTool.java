@@ -22,10 +22,6 @@ import star.common.*;
 import star.base.neo.*;
 import star.base.report.*;
 
-/**
- *
- * @author tsorr
- */
 public class MonitorTool {
   static NamingConvention globalNames = new NamingConvention();
 
