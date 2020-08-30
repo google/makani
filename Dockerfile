@@ -34,6 +34,10 @@ WORKDIR /home/makani
 ENV USER=makani
 
 COPY --chown=makani:makani \
+    lib/bazel/requirements.txt \
+    /home/makani/makani/lib/bazel/
+
+COPY --chown=makani:makani \
     ["lib/scripts/mbash.sh" ,"lib/scripts/system.sh", \
      "/home/makani/makani/lib/scripts/"]
 COPY --chown=makani:makani lib/scripts/install/ \
