@@ -8,6 +8,8 @@ is also included, albeit potentially not in a buildable state, due to the remova
 third-party proprietary code. We hope that this code will be inspirational and useful to the
 kite-based windpower and wider communities.
 
+For more information about Makani, please visit https://x.company/projects/makani/
+
 ## A brief tour of the code
 
  * `analysis` - Miscellaneous analysis scripts. The most important files here
