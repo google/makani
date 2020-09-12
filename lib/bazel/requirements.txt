@@ -115,7 +115,7 @@ googleapis-common-protos==1.6.0
 grpc-google-iam-v1==0.12.3
 grpcio==1.25.0
 gsutil==4.46
-httplib2==0.13.0
+httplib2==0.18.0
 idna==2.8
 ipaddress==1.0.22
 mock==2.0.0
