@@ -45,7 +45,7 @@ pyserial==3.2.1
 # Install Jupyter notebook (no direct import).
 pyrsistent==0.14.0
 jupyter==1.0.0
-notebook==5.6.0
+notebook==5.7.8
 backports.shutil_get_terminal_size==1.0.0
 
 # Install Google Cloud APIs.
