@@ -37,7 +37,7 @@ with a script to create the necessary environment within Docker.
 
 ### Using Debian Stretch natively or as a VM
 
-1. Run `lib/scripts/install/install_packages.sh`
+1. Run `./lib/scripts/install/install_packages.sh`
 1. Run `source ~/.bashrc`
 1. Run `cd ${MAKANI_HOME}`
 1. To build everything, run `bbuild_x86`
