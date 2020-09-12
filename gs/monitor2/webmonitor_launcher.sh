@@ -78,6 +78,7 @@ function start_server() {
   if [[ "$4" == true ]]; then
     # Open a web browser tab.
     "${CHROME_PATH}" "${CHROME_FLAGS}" "${url}" &> /dev/null &
+    echo "To see the webmonitor, open ${URL} on your browser."
   fi
 
   if [[ "$1" == false ]]; then
