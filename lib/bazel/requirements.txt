@@ -43,6 +43,7 @@ pyudev==0.16.1
 pyserial==3.2.1
 
 # Install Jupyter notebook (no direct import).
+pyrsistent==0.14.0
 jupyter==1.0.0
 notebook==5.6.0
 backports.shutil_get_terminal_size==1.0.0
