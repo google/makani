@@ -33,7 +33,7 @@ PySide==1.2.4
 
 # Used by standalone Log Synchronizer.
 jsmin==2.2.2
-psutil==5.4.8
+psutil==5.6.6
 
 # Used by pack2.
 ply==3.8
