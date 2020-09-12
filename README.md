@@ -35,6 +35,39 @@ This code base was originally designed to run on Linux systems running the Debia
 distribution. For the convenience of future users, we are shipping this open source release
 with a script to create the necessary environment within Docker.
 
+### Using Debian Stretch natively or as a VM
+
+1. Run `lib/scripts/install/install_packages.sh`
+1. Run `source ~/.bashrc`
+1. Run `cd ${MAKANI_HOME}`
+1. To build everything, run `bbuild_x86`
+1. To test everything, run `btest_all`
+
+### Using Docker
+
+We have tested the Docker solution in some Linux systems. We also tested it on
+macOS but we were unable to get the visualizer running due to an issue with
+libGL (the rest of the simulation software did work).
+
+1. Run `./docker_build.sh`
+1. Run `./docker_run.sh`
+
+Inside of docker:
+
+1. Run `cd ${MAKANI_HOME}`
+1. To build everything, run `bbuild_x86`
+1. To test everything, run `btest_all`
+
+## How to run the Makani flight simulator
+
+1. Run `sudo route add -net 239.0.0.0 netmask 255.0.0.0 dev lo`
+1. Run `cd ${MAKANI_HOME}`
+1. Run `run_sim -S -M`
+
+This command will open the visualizer. If running natively or a VM, and have
+Chrome installed, the webmonitor should open automatically. If not, open
+`http:///localhost:8000` on your browser.
+
 ## How to read the logs
 
 The Control Telemetry Users' guide, included as a PDF with this distribution, gives a full
