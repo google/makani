@@ -62,7 +62,7 @@ Inside of docker:
 
 1. Run `sudo route add -net 239.0.0.0 netmask 255.0.0.0 dev lo`
 1. Run `cd ${MAKANI_HOME}`
-1. Run `run_sim -S`
+1. Run `run_sim -S -M flight`
 
 This command will open the visualizer. If running natively or a VM, and have
 Chrome installed, the webmonitor should open automatically. If not, open
