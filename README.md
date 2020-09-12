@@ -62,11 +62,19 @@ Inside of docker:
 
 1. Run `sudo route add -net 239.0.0.0 netmask 255.0.0.0 dev lo`
 1. Run `cd ${MAKANI_HOME}`
-1. Run `run_sim -S -M`
+1. Run `run_sim -S`
 
 This command will open the visualizer. If running natively or a VM, and have
 Chrome installed, the webmonitor should open automatically. If not, open
 `http:///localhost:8000` on your browser.
+
+For a full list of available flags when running the simulator, see the file
+`sim/run_sim.py`.
+
+## Other commands
+
+For a list of preconfigured commands, see `lib/scripts/operator` and
+`lib/scripts/developer`.
 
 ## How to read the logs
 
