@@ -53,7 +53,7 @@ google-cloud-error-reporting==0.32.0
 google-cloud-pubsub==0.40.0
 
 # Used by webmonitor.
-Django==1.6
+Django==1.11.29
 django-extensions==1.6.7
 expiringdict==1.1.4
 
