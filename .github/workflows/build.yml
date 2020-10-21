@@ -1,0 +1,26 @@
+name: Ubuntu
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: build
+      run: |
+        ./lib/scripts/install/install_packages.sh
+        source ~/.bashrc
+        cd ${MAKANI_HOME}
+        bbuild_x86
+        btest_all
