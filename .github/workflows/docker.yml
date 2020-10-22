@@ -1,4 +1,4 @@
-name: Ubuntu
+name: Docker
 
 on:
   push:
@@ -18,9 +18,4 @@ jobs:
       uses: actions/checkout@v2
     
     - name: build
-      run: |
-        ./lib/scripts/install/install_packages.sh
-        source ~/.bashrc
-        cd ${MAKANI_HOME}
-        bbuild_x86
-        btest_all
+      run: ./docker_build.sh
