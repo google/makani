@@ -1,0 +1,21 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: build
+      run: ./docker_build.sh

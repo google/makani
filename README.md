@@ -1,5 +1,7 @@
 # Makani
 
+![Docker](https://github.com/google/makani/workflows/Docker/badge.svg)
+
 Makani was a project to develop a commercial-scale airborne wind turbine, culminating in
 a flight test of the Makani M600 off the coast of Norway. All Makani software has now been
 open-sourced. This repository contains the working Makani flight simulator, controller (autopilot),
